@@ -1,8 +1,8 @@
 # 2026-TPF-G03
+**Integrantes:** Ash Bonasegna, Camila Galzerano,  Franco Martin Moratti y Facundo Catalano.
 
 ## PROYECTO
 **Nombre de la aplicación:** Blackjack Pio MK II<br>
-**Integrantes:** Ash Bonasegna, Camila Galzerano,  Franco Martin Moratti y Facundo Catalano.
 **Descripción general:** Un blackjack que integra funciones de un jugador y multijugador, un apartado gráfico pixel art, tienda digital con interfaz personalizable y una jugabilidad atrapante.<br>
 **Público objetivo:** Jugadores casuales, aficionados a los juegos de probabilidad y cartas.<br>
 **Funcionalidades principales:** El juego cuenta con un modo de un solo jugador, así como una opción para poder jugar entre varias personas en una sala contra un crupier digital. Los usuarios pueden comprar objetos en la tienda con puntos ganados en los distintos modos para poder personalizar sus perfiles de usuario.<br>
