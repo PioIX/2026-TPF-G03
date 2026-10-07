@@ -48,7 +48,7 @@ export function put(datos){
 };
 
 
-export function delete(datos){
+export function del(datos){
    try {
      return fetch('http://localhost:4000/', {
          method: 'DELETE',
