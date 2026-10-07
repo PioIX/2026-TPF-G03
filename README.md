@@ -23,7 +23,7 @@
 [Canva](https://canva.link/2v4mlj6ck1vcdn9) con diseños de interfaz.
 
 ## DER
-![DER](docs\DER.png "Diagrama")
+![DER](\docs\DER.png "Diagrama")
 
 ## PLANIFICACION
-![Planilla](docs\Planificacion.jpg "Excel")
+![Planilla](\docs\Planificacion.jpg "Excel")
