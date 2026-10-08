@@ -8,9 +8,6 @@ export default class Blackjack{
         this.dealcards= [],
         this.usercards = [],
         this.userturn = true
-   
-   
-   
 }
 
 
