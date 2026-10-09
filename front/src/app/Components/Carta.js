@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 
-
-
 export default function Carta({palo, card}) {
     const [val,setVal]=useState(0)
 

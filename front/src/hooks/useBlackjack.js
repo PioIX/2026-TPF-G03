@@ -76,7 +76,6 @@ export default useBlackJackLogic = () => {
 
 
     const dealerTurn = ()=> {
-    // añadir delay que funcione    
         givedealcard()
 
         if (dealsum>21 & ace11deal){
