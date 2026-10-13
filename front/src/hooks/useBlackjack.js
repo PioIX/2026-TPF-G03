@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-export default useBlackJackLogic = () => {
+export const useBlackJackLogic = () => {
     const cards = ["A",2,3,4,5,6,7,8,9,10,"J","Q","K"]
     const [dealsum, setDealSum] = useState(0)
     const [usersum,setUserSum] = useState(0)
@@ -53,9 +53,9 @@ export default useBlackJackLogic = () => {
             
         }
         
-        console.log(`Dealer: ${dealcards[0]}`)
+        console.log(`Dealer: ${dealcards.map((card)=>(card[0]))}`)
         console.log(`Suma: ${dealsum}`)
-        console.log(`User: ${usercards[0]}`)
+        console.log(`User: ${usercards.map((card)=>(card[0]))}`)
         console.log(`Suma: ${usersum}`)
         
         if (usersum>21){

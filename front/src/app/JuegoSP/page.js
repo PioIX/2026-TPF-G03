@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation"
 // ejemplo de uso del hook
 import {useBlackJackLogic} from "@/hooks/useBlackjack"
 import ArrCartas from "../Components/ArrCartas";
+import Popup from 'reactjs-popup';
+
 
 export default function JuegoSPPage() {
   const {usersum,dealsum,isuserturn,usercards,dealcards,reset,givedealcard,giveusercard,dealerTurn,userTurn} = useBlackJackLogic()
@@ -14,6 +16,10 @@ export default function JuegoSPPage() {
 
   const [loading,setLoading]=useState(true)
   const [disabled,setDisabled]=useState(true)
+  const [open,setOpen]=useState(false)
+  const [popupText,setPopupText]=useState("")
+
+
 
 
   //valores temporarios, se deben importar o poner en storage
@@ -35,9 +41,11 @@ export default function JuegoSPPage() {
       },[])
 
   useEffect(()=>{
-    if (Object.keys(usuario).length!=0 && Object.keys(estadistica).length!=0){
+    if (usuario && estadistica && loading){
+      console.log("UF")
       givedealcard()
-      giveusercard()
+      //arreglar los valores de puntos siendo distintos en hook y en pantalla (seguramente culpa de setState)
+      userTurn()
       setLoading(false)
       setDisabled(false)
     }
@@ -47,7 +55,7 @@ export default function JuegoSPPage() {
 
 
   function hit(){
-    res = userTurn()
+    let res = userTurn()
     console.log(res)
     if(res==1){
       console.log("win")
@@ -74,6 +82,7 @@ export default function JuegoSPPage() {
       if(res==1){
         console.log("win")
         turn=false
+
         win(puntosApostados)
 
       }else if(res==-1){
@@ -123,7 +132,7 @@ export default function JuegoSPPage() {
     {(loading)?(
       <>
       <header><button disabled>Volver</button></header>
-        <body>
+       
         <section>
           <h2>Cargando cartas...</h2>
         </section>
@@ -132,15 +141,14 @@ export default function JuegoSPPage() {
       <button disabled>Hit</button>
       <button disabled>Stand</button>
         </section>
-      </body>
+     
       </>
     ):(
       <>
       {(disabled)?(
         <>
 
-        <header><button onClick={router.back()}>Volver</button></header>
-        <body>
+        <header><button onClick={()=>{router.back()}}>Volver</button></header>
         <section>
           <div>
             <p>Dealer: {dealsum}</p>
@@ -154,12 +162,10 @@ export default function JuegoSPPage() {
       <button disabled>Hit</button>
       <button disabled>Stand</button>
         </section>
-      </body>
       </>
       ):(
         <>
-        <header><button onClick={router.back()}>Volver</button></header>
-        <body>
+        <header><button onClick={()=>{router.back()}}>Volver</button></header>
         <section>
           <div>
             <p>Dealer: {dealsum}</p>
@@ -170,12 +176,30 @@ export default function JuegoSPPage() {
         </section>
 
         <section>
-      <button onClick={hit()}>Hit</button>
-      <button onClick={stand()}>Stand</button>
+      <button onClick={()=>{hit()}}>Hit</button>
+      <button onClick={()=>{stand()}}>Stand</button>
         </section>
-      </body>
-        {/*popups win, lose, replay con input */}
         
+        <Popup open={open} onClose={()=>{setOpen(false)}}>
+          {(usuario)?(
+            <div>
+            <h2>{popupText}</h2>
+            <ul>
+              <li>Dealer: {dealsum}</li>
+              <li>Vos: {usersum}</li>
+              <li>Tu dinero: {usuario.points}</li>
+            </ul>
+            {/*Chequear si usuario puede jugar con misma apuesta:
+            si puede, botón para hacerlo, botón para cambiar apuesta, botón para volver
+            si no, botón para cambiar apuesta y botón para volver (posiblemente con el otro deshabilitado)*/}
+            <button>Volver a jugar</button>
+          </div>       
+
+          ):(
+            <p>no deberías ver esto</p>
+          )}
+             
+        </Popup>
         </>
       )}
       </>
