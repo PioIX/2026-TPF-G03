@@ -9,7 +9,7 @@ import Popup from 'reactjs-popup';
 
 
 export default function JuegoSPPage() {
-  const {usersum,dealsum,isuserturn,usercards,dealcards,reset,givedealcard,giveusercard,dealerTurn,userTurn} = useBlackJackLogic()
+  const {usersum,dealsum,isuserturn,usercards,dealcards,reset,givedealcard,giveusercard,wl} = useBlackJackLogic()
   const router=useRouter()
   const [usuario,setUsuario]=useState({})
   const [estadistica,setEstadistica]=useState({})
@@ -27,7 +27,7 @@ export default function JuegoSPPage() {
   const puntosApostados=1
 
   useEffect(()=>{
-
+        setOpen(false)
         useFetch.getUsuarioPorId(usuarioId)
         .then((data)=>{
           setUsuario(data.message)
@@ -45,19 +45,15 @@ export default function JuegoSPPage() {
       console.log("UF")
       givedealcard()
       //arreglar los valores de puntos siendo distintos en hook y en pantalla (seguramente culpa de setState)
-      userTurn()
+      giveusercard()
       setLoading(false)
       setDisabled(false)
     }
       
   },[estadistica,usuario])
 
-
-
-  function hit(){
-    let res = userTurn()
-    console.log(res)
-    if(res==1){
+useEffect(()=>{
+    if (wl==1){
       console.log("win")
       setDisabled(true)
       if(usersum==21){
@@ -65,36 +61,54 @@ export default function JuegoSPPage() {
       }else{
         win(puntosApostados)
       }
+    }else if(wl==-1){
+        lose(puntosApostados)
+    }
+      
+  },[wl])
 
-    }else if(res==-1){
-      console.log("l")
-      setDisabled(true)
-      lose(puntosApostados)
+useEffect(()=>{
+  if(wl!=0){
+    console.log()
+    setOpen(true)
+  }
+      
+  },[popupText])
+
+
+  function hit(){
+    let res = giveusercard()
+    console.log(res)
+    console.log(usercards)
+  }
+
+  function standaaaa(){
+    if(wl==0){
+      //timeout
+      let res=givedealcard()
+      console.log(res)
     }
   }
 
   function stand(){
-    let turn =true
-    while(turn){
-      //timeout
-      let res=dealerTurn()
-      console.log(res)
-      if(res==1){
-        console.log("win")
-        turn=false
+    console.log(wl)
+    const loop = () => {
+      console.log("in loop")
+       while (wl === 0) {
+        console.log("in while")
+       if (wl === 0) {
+           let res=givedealcard()
+           console.log(res)
+        }
 
-        win(puntosApostados)
-
-      }else if(res==-1){
-        console.log("l")
-        turn=false
-        lose(puntosApostados)
-      }
-    }
-  }
+        if (wl === 0) setTimeout(loop, 1000);
+    }}
+    loop();
+}
 
 
   function win(points){
+    setPopupText("Ganaste")
     let newE={
       userid:usuarioId,
       wins:estadistica.wins+1,
@@ -106,10 +120,10 @@ export default function JuegoSPPage() {
     }
     useFetch.putEstadistica(newE)
     useFetch.putPoints(usuario.points+points,usuarioId)
-    //mostrar popup win
   }
 
   function lose(points){
+    setPopupText("Perdiste")
     let newE={
       userid:usuarioId,
       wins:estadistica.wins,
@@ -121,7 +135,6 @@ export default function JuegoSPPage() {
     }
     useFetch.putEstadistica(newE)
     useFetch.putPoints(usuario.points-points,usuarioId)
-    //mostrar popup lose
 
   }
 

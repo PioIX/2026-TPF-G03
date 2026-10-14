@@ -9,6 +9,58 @@ export const useBlackJackLogic = () => {
     const [dealcards,setDealCards]= useState([])
     const [usercards,setUserCards] = useState([])
     const [isuserturn,setIsUserTurn] = useState(true)
+    const [wl,setWL] = useState(0)
+    
+
+useEffect (()=>{
+        if (usersum>21 & ace11user){
+            setUserSum((prev)=>prev+10)
+            setAce11user(false)
+            
+        }
+        
+        console.log(`Dealer: ${dealcards.map((card)=>(card[0]))}`)
+        console.log(`Suma: ${dealsum}`)
+        console.log(`User: ${usercards.map((card)=>(card[0]))}`)
+        console.log(`Suma: ${usersum}`)
+        
+        if (usersum>21){
+            console.log("Perdiste")
+            setIsUserTurn(false)
+            setWL(-1)
+        }else{
+            if(usersum==21){
+                console.log("Ganaste!")
+                setIsUserTurn(false)
+                setWL(1)
+            }
+        
+        }
+    },[usersum])
+
+
+    useEffect(()=> {
+        if (dealsum>21 & ace11deal){
+            setDealSum((prev)=>prev+10)
+            setAce11deal(false)
+        }
+    
+        console.log(`Dealer: ${dealcards.map((card)=>(card[0]))}`)
+        console.log(`Suma: ${dealsum}`)
+        console.log(`User: ${usercards.map((card)=>(card[0]))}`)
+        console.log(`Suma: ${usersum}`)
+        if (dealsum>21){
+            console.log("Ganaste!")
+            setWL(1)
+        }else{
+            if((dealsum>usersum && dealsum<21) || dealsum==21){
+                console.log("Perdiste")
+                setWL(-1)
+            }
+        
+        }
+    },[dealsum])
+
 
     const givedealcard = ()=> {
         let dealtemp=cards[Math.floor(Math.random() * cards.length)]
@@ -30,10 +82,12 @@ export const useBlackJackLogic = () => {
         let usertemp=cards[Math.floor(Math.random() * cards.length)]
         setUserCards((prev)=>[...prev,[usertemp,Math.random()>=0.5]])
         if (usertemp=="A"){
-            setUserSum((prev)=>prev+11)
             setAce11user(true)
+            usertemp=11
+            setUserSum((prev)=>prev+11)
         }else{ 
             if(usertemp=="J" || usertemp=="Q" || usertemp=="K"){
+                usertemp=10
                 setUserSum((prev)=>prev+10)
             }else{
                 setUserSum((prev)=>prev+usertemp)
@@ -44,62 +98,9 @@ export const useBlackJackLogic = () => {
         };
 
 
-    const userTurn = ()=>{
-        giveusercard()
         
-        if (usersum>21 & ace11user){
-            setUserSum((prev)=>prev+10)
-            setAce11user(false)
-            
-        }
-        
-        console.log(`Dealer: ${dealcards.map((card)=>(card[0]))}`)
-        console.log(`Suma: ${dealsum}`)
-        console.log(`User: ${usercards.map((card)=>(card[0]))}`)
-        console.log(`Suma: ${usersum}`)
-        
-        if (usersum>21){
-            console.log("Perdiste")
-            setIsUserTurn(false)
-            return -1
-        }else{
-            if(usersum==21){
-                console.log("Ganaste!")
-                setIsUserTurn(false)
-                return 1
-            }else{
-                return 0
-            }
-        
-        }
-    }
 
-
-    const dealerTurn = ()=> {
-        givedealcard()
-
-        if (dealsum>21 & ace11deal){
-            setDealSum((prev)=>prev+10)
-            setAce11deal(false)
-        }
     
-        console.log(`Dealer: ${dealcards[0]}`)
-        console.log(`Suma: ${dealsum}`)
-        console.log(`User: ${usercards[0]}`)
-        console.log(`Suma: ${usersum}`)
-        if (dealsum>21){
-            console.log("Ganaste!")
-            return 1
-        }else{
-            if((dealsum>usersum && dealsum<21) || dealsum==21){
-                console.log("Perdiste")
-                return -1
-            }else{
-                return 0
-            }
-        
-        }
-    }
 
     const reset = ()=>{
         setDealSum()
@@ -109,6 +110,7 @@ export const useBlackJackLogic = () => {
         setAce11deal(false)
         setAce11user(false)
         setIsUserTurn(true)
+        setWL(0)
     }
  return {
         usersum,
@@ -119,8 +121,7 @@ export const useBlackJackLogic = () => {
         reset,
         givedealcard,
         giveusercard,
-        userTurn,
-        dealerTurn
+        wl
     }
 
 }
