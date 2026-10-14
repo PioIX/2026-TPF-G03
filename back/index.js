@@ -83,8 +83,7 @@ io.on("connection", (socket) => {
 
 /*MYSQL*/ 
 
-
-
+/*Pedidos Get*/ 
 
 app.get('/', function(req, res){
 	res.status(200).send({
@@ -92,91 +91,507 @@ app.get('/', function(req, res){
 	});
 });
 
-
-app.get('/', async function(req, res){
+app.get('/Ranking', async function(req, res){
 	try {
-		let email=req.query.email
-		let nombre=req.query.nombre
-		let numero=req.query.numero
-		if(email){
-			resp= await MySQL.realizarQuery(`SELECT * FROM  WHERE email="${email}";`)
-		}else if(nombre){
-			resp= await MySQL.realizarQuery(`SELECT * FROM  WHERE nombre="${nombre}";`)
-		}else if(numero){
-			resp= await MySQL.realizarQuery(`SELECT * FROM  WHERE numero=${numero};`)
-		}else{
-
-			resp= await MySQL.realizarQuery(`SELECT * FROM ;`)
-		}
+		console.log(req.query)
+		respuesta = await MySQL.realizarQuery(`SELECT * FROM Usuarios order by points desc;`)
 		res.status(200).send({
-			message: resp
+			message: respuesta
 		});
-	} catch (error) {
-		res.status(500).send({
-			message: "error"
-		})
-	}
-});
-
-
-
-app.post('/', async function(req, res){
-		try {
-			console.log(req.body);
-			const result =await MySQL.realizarQuery(`INSERT INTO Grupos(nombre,foto)
-			VALUES ("${req.body.nombre}","${req.body.foto}");`)
-			const newID = result.insertId
-			console.log(newID);
-			res.send({message: newID});
-			
-		} catch (error) {
-			console.log('Error:', error.message)
-			res.status(500).send({
-				message: "Error al crear el grupo"
-			});
-
-		}
-
-
-});
-
-
-
-app.delete('/', async function(req, res){
-	try {
-		await MySQL.realizarQuery(`DELETE FROM Grupos WHERE id=${req.body.grupo_id};`)
 	} catch (error) {
 		console.log('Error:', error.message)
 		res.status(500).send({
-			message: "Error"
+			message: "Error al obtener el ranking"
 		});
 	}
 });
 
 
-app.put('/', async function(req, res){
+app.get('/Usuarios', async function(req, res){
+	try {
+		console.log(req.query)
+		id=req.query.id
+		username=req.query.username
+		if (id){
+			respuesta = await MySQL.realizarQuery(`SELECT * FROM Usuarios WHERE id = ${id};`)
+		}else{
+			if(username){
+				respuesta = await MySQL.realizarQuery(`SELECT * FROM Usuarios WHERE username = "${username}";`)
+			}else{
+				respuesta = await MySQL.realizarQuery(`SELECT * FROM Usuarios;`)
+			}
+		}
+		res.status(200).send({
+			message: respuesta
+		});
+		console.log('Usuario enviado')
+	} catch (error) {
+		console.log('Error:', error.message)
+		res.status(500).send({
+			message: "Error al obtener el usuario"
+		});
+	}
+});
+
+
+app.get('/Items', async function(req, res){
+	try {
+		console.log(req.query)
+		id=req.query.id
+		if (id){
+			respuesta = await MySQL.realizarQuery(`SELECT * FROM Items WHERE id = ${id};`)
+		}else{
+			respuesta = await MySQL.realizarQuery(`SELECT * FROM Items order by price asc;`)
+		}
+		res.status(200).send({
+			message: respuesta
+		});
+		console.log('Item enviado')
+	} catch (error) {
+		console.log('Error:', error.message)
+		res.status(500).send({
+			message: "Error al obtener el item"
+		});
+	}
+});
+
+
+
+app.get('/ItemsporUsuario', async function(req, res){
+	try {
+		console.log(req.query)
+		userid=req.query.userid
+		itemid=req.query.itemid
+		if (userid && itemid){
+			respuesta = await MySQL.realizarQuery(`SELECT * FROM ItemsporUsuario WHERE userid = ${userid} AND itemid = ${itemid};`)
+		}else if (userid){
+			respuesta = await MySQL.realizarQuery(`SELECT * FROM ItemsporUsuario WHERE userid = ${userid};`)
+		}else{
+			respuesta = await MySQL.realizarQuery(`SELECT * FROM ItemsporUsuario;`)
+		}
+		res.status(200).send({
+			message: respuesta
+		});
+		console.log('ItemporUsuario enviado')
+	} catch (error) {
+		console.log('Error:', error.message)
+		res.status(500).send({
+			message: "Error al obtener el itemporusuario"
+		});
+	}
+});
+
+
+app.get('/Estadistica', async function(req, res){
+	try {
+		console.log(req.query)
+		userid=req.query.userid
+		if (userid){
+			respuesta = await MySQL.realizarQuery(`SELECT * FROM Estadistica WHERE userid = ${userid};`)
+		}else{
+			respuesta = await MySQL.realizarQuery(`SELECT * FROM Estadistica;`)
+		}
+		res.status(200).send({
+			message: respuesta
+		});
+		console.log('Estadistica enviada')
+	} catch (error) {
+		console.log('Error:', error.message)
+		res.status(500).send({
+			message: "Error al obtener la estadística"
+		});
+	}
+});
+
+app.get('/Salas', async function(req, res){
+	try {
+		console.log(req.query)
+		userid=req.query.userid
+		activa=req.query.activa
+		if (userid){
+			respuesta = await MySQL.realizarQuery(`SELECT * FROM Salas WHERE userid = ${userid};`)
+		}else if(activa!=undefined){
+			respuesta = await MySQL.realizarQuery(`SELECT * FROM Salas WHERE activa = ${activa};`)
+		}else{
+			respuesta = await MySQL.realizarQuery(`SELECT * FROM Salas;`)
+		}
+		res.status(200).send({
+			message: respuesta
+		});
+		console.log('Salas enviadas')
+	} catch (error) {
+		console.log('Error:', error.message)
+		res.status(500).send({
+			message: "Error al obtener las Salas"
+		});
+	}
+});
+
+
+/*Pedidos post*/ 
+
+app.post('/Usuarios', async function(req, res){
+	try {
+		console.log(req.body);
+		existe = await MySQL.realizarQuery(`SELECT * FROM Usuarios WHERE username="${req.body.username}";`)
+		if (existe.length===0){
+			const result =await MySQL.realizarQuery(`INSERT INTO Usuarios (username,password,points,is_admin)
+			VALUES ("${req.body.username}", "${req.body.password}", ${req.body.points}, ${req.body.is_admin});`)
+			const newID = result.insertId
+			console.log(newID);
+			res.send({message: newID});
+		}else{
+			res.send({message: "usuario ya existe"})
+		};
+	} catch (error) {
+		console.log('Error:', error.message)
+		res.status(500).send({
+			message: "Error al agregar el usuario"
+		});
+
+	}
+});
+
+app.post('/Items', async function(req, res){
+	try {
+		console.log(req.body);
+		existe = await MySQL.realizarQuery(`SELECT * FROM Items WHERE name="${req.body.name}";`)
+		if (existe.length===0){
+			const result =await MySQL.realizarQuery(`INSERT INTO Items (name,imgsrc,price)
+			VALUES ("${req.body.name}", "${req.body.imgsrc}", ${req.body.price});`)
+			const newID = result.insertId
+			console.log(newID);
+			res.send({message: newID});
+		}else{
+			res.send({message: "Item ya existe"})
+		};
+	} catch (error) {
+		console.log('Error:', error.message)
+		res.status(500).send({
+			message: "Error al agregar el item"
+		});
+
+	}
+});
+
+
+app.post('/ItemsporUsuario', async function(req, res){
+	try {
+		console.log(req.body);
+		console.log(req.body.userid);
+		existe = await MySQL.realizarQuery(`SELECT * FROM ItemsporUsuario WHERE userid=${req.body.userid} AND itemid=${req.body.itemid};`)
+		if (existe.length===0){
+			const result =await MySQL.realizarQuery(`INSERT INTO ItemsporUsuario (userid,itemid,active)
+			VALUES (${req.body.userid},${req.body.itemid},${req.body.active});`)
+			const newID = result.insertId
+			console.log(newID);
+			res.send({message: newID});
+		}else{
+			res.send({message: "Item ya estaba en el usuario"})
+		};
+	} catch (error) {
+		console.log('Error:', error.message)
+		res.status(500).send({
+			message: "Error al agregar el item al usuario"
+		});
+
+	}
+});
+
+
+app.post('/Estadistica', async function(req, res){
+	try {
+		console.log(req.body);
+		existe = await MySQL.realizarQuery(`SELECT * FROM Estadistica WHERE userid=${req.body.userid};`)
+		if (existe.length===0){
+			const result =await MySQL.realizarQuery(`INSERT INTO Estadistica(userid,wins,losses,played,streak,points_lost,cant_items)
+			VALUES (${req.body.userid}, 0,0, 0, 0, 0, 0);`)
+			const newID = result.insertId
+			console.log(newID);
+			res.send({message: newID});
+		}else{
+			res.send({message: "Estadistica ya existe"})
+		};
+	} catch (error) {
+		console.log('Error:', error.message)
+		res.status(500).send({
+			message: "Error al agregar la Estadistica"
+		});
+
+	}
+});
+
+app.post('/Salas', async function(req, res){
+	try {
+		console.log(req.body);
+		existe = await MySQL.realizarQuery(`SELECT * FROM Salas WHERE userid=${req.body.userid};`)
+		if (existe.length===0){
+			const result =await MySQL.realizarQuery(`INSERT INTO Salas(userid,activa,cant_rondas,apuesta)
+			VALUES (${req.body.userid},${req.body.activa},0,${req.body.apuesta});`)
+			const newID = result.insertId
+			console.log(newID);
+			res.send({message: newID});
+		}else{
+			res.send({message: "Usuario ya tiene sala"})
+		};
+	} catch (error) {
+		console.log('Error:', error.message)
+		res.status(500).send({
+			message: "Error al agregar la sala"
+		});
+
+	}
+});
+
+/*Pedidos delete*/ 
+
+app.delete('/Usuarios', async function(req, res){
+	try {
+		await MySQL.realizarQuery(`DELETE FROM Usuarios WHERE id = ${req.body.id};`)
+		res.send({message: "Usuario eliminado"})
+	} catch (error) {
+		console.log('Error:', error.message)
+		res.status(500).send({
+			message: "Error al eliminar el usuario"
+		});
+	}
+});
+
+app.delete('/Items', async function(req, res){
+	try {
+		await MySQL.realizarQuery(`DELETE FROM Items WHERE id = ${req.body.id};`)
+		res.send({message: "Item eliminado"})
+	} catch (error) {
+		console.log('Error:', error.message)
+		res.status(500).send({
+			message: "Error al eliminar el item"
+		});
+	}
+});
+
+
+app.delete('/ItemsporUsuario', async function(req, res){
+	try {
+		if(req.body.userid && req.body.itemid){
+			await MySQL.realizarQuery(`SET FOREIGN_KEY_CHECKS = 0;DELETE FROM ItemsporUsuario WHERE userid = ${req.body.userid} AND itemid= ${req.body.itemid};SET FOREIGN_KEY_CHECKS = 1;`)
+			res.send({message: "Item eliminado del usuario"})
+		}else if(req.body.userid){
+			await MySQL.realizarQuery(`SET FOREIGN_KEY_CHECKS = 0;DELETE FROM ItemsporUsuario WHERE userid = ${req.body.userid};SET FOREIGN_KEY_CHECKS = 1;`)
+			res.send({message: "Inventario Vaciado"})
+		}else if(req.body.itemid){
+			await MySQL.realizarQuery(`SET FOREIGN_KEY_CHECKS = 0;DELETE FROM ItemsporUsuario WHERE itemid = ${req.body.itemid};SET FOREIGN_KEY_CHECKS = 1;`)
+			res.send({message: "Item eliminado"})
+		}
+
+	} catch (error) {
+		console.log('Error:', error.message)
+		res.status(500).send({
+			message: "Error al eliminar el item del usuario"
+		});
+	}
+});
+
+
+
+app.delete('/Estadistica', async function(req, res){
+	try {
+		await MySQL.realizarQuery(`DELETE FROM Estadistica WHERE userid = ${req.body.userid};`)
+		res.send({message: "Estadistica eliminada del usuario"})
+	} catch (error) {
+		console.log('Error:', error.message)
+		res.status(500).send({
+			message: "Error al eliminar la estadistica"
+		});
+	}
+});
+
+app.delete('/Salas', async function(req, res){
+	try {
+		await MySQL.realizarQuery(`DELETE FROM Salas WHERE userid = ${req.body.userid};`)
+		res.send({message: "Sala eliminada"})
+	} catch (error) {
+		console.log('Error:', error.message)
+		res.status(500).send({
+			message: "Error al eliminar la sala"
+		});
+	}
+});
+
+/*Pedidos put*/ 
+
+app.put('/Usuarios', async function(req, res){
 try {
-		let nombre=req.body.nombre
-		let numero=req.body.numero
-		let contrasena=req.body.contrasena
-		let foto_perfil=req.body.foto_perfil
-		let email=req.body.email
-		if(nombre){
-			await MySQL.realizarQuery(`UPDATE Usuarios SET nombre = "${nombre}" WHERE email="${email}";`)
+		let username=req.body.username
+		let password=req.body.password
+		let points=req.body.points
+		let is_admin=req.body.is_admin
+		console.log(username,id)
+		if(username){
+			await MySQL.realizarQuery(`UPDATE Usuarios SET 
+			username = "${req.body.username}" WHERE id = ${req.body.id};`)
 		}
-		if(numero){
-			await MySQL.realizarQuery(`UPDATE Usuarios SET numero = ${numero} WHERE email="${email}";`)
-		}
-		if(contrasena){
-			await MySQL.realizarQuery(`UPDATE Usuarios SET contrasena = "${contrasena}" WHERE email="${email}";`)
-		}
-		if(foto_perfil){
-			await MySQL.realizarQuery(`UPDATE Usuarios SET foto_perfil = "${foto_perfil}" WHERE email="${email}";`)
-		}
+		else if(password){
+			await MySQL.realizarQuery(`UPDATE Usuarios SET 
+			password = "${req.body.password}" WHERE id = ${req.body.id};`)
+		}else if(points || points==0){
+			await MySQL.realizarQuery(`UPDATE Usuarios SET 
+			points = ${req.body.points} WHERE id = ${req.body.id};`)
+		}else if(is_admin!=undefined){
+			await MySQL.realizarQuery(`UPDATE Usuarios SET 
+			is_admin = ${req.body.is_admin} WHERE id = ${req.body.id};`)
+		}	
+		res.send({message: "Usuario actualizado"})
 } catch (error) {
 	console.log('Error:', error.message)
 	res.status(500).send({
-		message: "Error"
+		message: "Error al actualizar el usuario"
+	});
+}
+});
+
+
+
+app.put('/Items', async function(req, res){
+try {
+		let name=req.body.name
+		let imgsrc=req.body.imgsrc
+		let price=req.body.price
+		if(name){
+			await MySQL.realizarQuery(`UPDATE Items SET 
+			name = "${req.body.name}" WHERE id = ${req.body.id};`)
+		}
+		if(imgsrc){
+			await MySQL.realizarQuery(`UPDATE Items SET 
+			imgsrc = "${req.body.imgsrc}" WHERE id = ${req.body.id};`)
+		}
+		if(price || price==0){
+			await MySQL.realizarQuery(`UPDATE Items SET 
+			price = ${req.body.price} WHERE id = ${req.body.id};`)
+		}
+		
+		res.send({message: "Item actualizado"})
+} catch (error) {
+	console.log('Error:', error.message)
+	res.status(500).send({
+		message: "Error al actualizar el item"
+	});
+}
+});
+
+
+app.put('/Estadistica', async function(req, res){
+try {
+		let userid=req.body.userid
+		let wins=req.body.wins
+		let losses=req.body.losses
+		let played=req.body.played
+		let streak=req.body.streak
+		let points_lost=req.body.points_lost
+		let cant_items=req.body.cant_items
+		console.log(userid)
+		if(wins){
+			await MySQL.realizarQuery(`UPDATE Estadistica SET 
+			wins = ${req.body.wins} WHERE userid = ${req.body.userid};`)
+		}
+		if(losses){
+			await MySQL.realizarQuery(`UPDATE Estadistica SET 
+			losses = ${req.body.losses} WHERE userid = ${req.body.userid};`)
+		}
+		if(played){
+			await MySQL.realizarQuery(`UPDATE Estadistica SET 
+			played = ${req.body.played} WHERE userid = ${req.body.userid};`)
+		}
+		if(streak){
+			await MySQL.realizarQuery(`UPDATE Estadistica SET 
+			streak = ${req.body.streak} WHERE userid = ${req.body.userid};`)
+		}
+		if(points_lost){
+			await MySQL.realizarQuery(`UPDATE Estadistica SET 
+			points_lost = ${req.body.points_lost} WHERE userid = ${req.body.userid};`)
+		}
+		if(cant_items){
+			await MySQL.realizarQuery(`UPDATE Estadistica SET 
+			cant_items = ${req.body.cant_items} WHERE userid = ${req.body.userid};`)
+		}
+		res.send({message: "Estadística actualizada"})
+} catch (error) {
+	console.log('Error:', error.message)
+	res.status(500).send({
+		message: "Error al actualizar la estadística"
+	});
+}
+});
+
+app.put('/Salas', async function(req, res){
+try {
+		let apuesta=req.body.apuesta
+		let cant_rondas=req.body.cant_rondas
+		if(apuesta){
+			await MySQL.realizarQuery(`UPDATE Salas SET 
+			apuesta = "${req.body.apuesta}" WHERE userid = ${req.body.userid};`)
+		}
+		if(cant_rondas){
+			await MySQL.realizarQuery(`UPDATE Salas SET 
+			cant_rondas = "${req.body.cant_rondas}" WHERE userid = ${req.body.userid};`)
+		}
+		res.send({message: "Sala actualizada"})
+} catch (error) {
+	console.log('Error:', error.message)
+	res.status(500).send({
+		message: "Error al actualizar la sala"
+	});
+}
+});
+
+app.put('/onactive', async function(req, res){
+try {
+		await MySQL.realizarQuery(`UPDATE ItemsporUsuario SET 
+		active = True WHERE userid = ${req.body.userid} AND itemid = ${req.body.itemid};`)
+		res.send({message: "Item activado"})
+} catch (error) {
+	console.log('Error:', error.message)
+	res.status(500).send({
+		message: "Error al activar el item"
+	});
+}
+});
+
+app.put('/offactive', async function(req, res){
+try {
+		await MySQL.realizarQuery(`UPDATE ItemsporUsuario SET 
+		active = False WHERE userid = ${req.body.userid} AND itemid = ${req.body.itemid};`)
+		res.send({message: "Item desactivado"})
+} catch (error) {
+	console.log('Error:', error.message)
+	res.status(500).send({
+		message: "Error al desactivar el item"
+	});
+}
+});
+
+
+app.put('/activarSala', async function(req, res){
+try {
+		await MySQL.realizarQuery(`UPDATE Salas SET 
+		activa = True WHERE userid = ${req.body.userid};`)
+		res.send({message: "Sala activada"})
+} catch (error) {
+	console.log('Error:', error.message)
+	res.status(500).send({
+		message: "Error al activar la sala"
+	});
+}
+});
+
+app.put('/desactivarSala', async function(req, res){
+try {
+		await MySQL.realizarQuery(`UPDATE Salas SET 
+		activa = False WHERE userid = ${req.body.userid};`)
+		res.send({message: "Sala desactivada"})
+} catch (error) {
+	console.log('Error:', error.message)
+	res.status(500).send({
+		message: "Error al desactivar la sala"
 	});
 }
 });
