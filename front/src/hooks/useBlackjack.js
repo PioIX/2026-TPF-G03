@@ -40,24 +40,28 @@ useEffect (()=>{
 
 
     useEffect(()=> {
-        if (dealsum>21 & ace11deal){
-            setDealSum((prev)=>prev+10)
-            setAce11deal(false)
-        }
-    
-        console.log(`Dealer: ${dealcards.map((card)=>(card[0]))}`)
-        console.log(`Suma: ${dealsum}`)
-        console.log(`User: ${usercards.map((card)=>(card[0]))}`)
-        console.log(`Suma: ${usersum}`)
-        if (dealsum>21){
-            console.log("Ganaste!")
-            setWL(1)
-        }else{
-            if((dealsum>usersum && dealsum<21) || dealsum==21){
-                console.log("Perdiste")
-                setWL(-1)
+        if (!isuserturn){
+
+            if (dealsum>21 & ace11deal){
+                setDealSum((prev)=>prev+10)
+                setAce11deal(false)
             }
         
+            console.log(`Dealer: ${dealcards.map((card)=>(card[0]))}`)
+            console.log(`Suma: ${dealsum}`)
+            console.log(`User: ${usercards.map((card)=>(card[0]))}`)
+            console.log(`Suma: ${usersum}`)
+            if (dealsum>21){
+                console.log("Ganaste!")
+                setWL(1)
+            }else{
+                if((dealsum>usersum && dealsum<21) || dealsum==21){
+                    console.log("Perdiste")
+                    setWL(-1)
+                }
+            
+            }
+
         }
     },[dealsum])
 
@@ -121,7 +125,9 @@ useEffect (()=>{
         reset,
         givedealcard,
         giveusercard,
-        wl
+        wl,
+        setWL,
+        setIsUserTurn
     }
 
 }
