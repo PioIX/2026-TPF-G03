@@ -15,24 +15,18 @@ export default function JuegoSPPage() {
 
   const [loading,setLoading]=useState(true)
   const [replay,setReplay]=useState(false)
-  const [valuError,setValueError]=useState(false)
-
+  const [valueError,setValueError]=useState(false)
   const [disabled,setDisabled]=useState(true)
   const [open,setOpen]=useState(false)
+
   const [popupText,setPopupText]=useState("")
   const [puntosA,setPuntosA]=useState(0)
-
-
-
-  // FALTA: arreglar error que la ultima carta del dealer desaparece a veces idk
-
-
-  //valores temporarios, se deben importar o poner en storage
-  const usuarioId=1
+  const [testkey,setTestKey]=useState(0)
+  let usuarioId=0
 
   useEffect(()=>{
+        usuarioId = localStorage.getItem("userid")
         let ptemp=sessionStorage.getItem("puntosApostados")
-        console.log(wl)
         setWL(0)
         setOpen(false)
         if(ptemp){
@@ -43,13 +37,11 @@ export default function JuegoSPPage() {
         if(!usuario || !estadistica || Object.keys(usuario).length==0){
           useFetch.getUsuarioPorId(usuarioId)
           .then((data)=>{
-            console.log(data[0])
             setUsuario(data[0])
           })
           .then(
             useFetch.getEstadisticaDeUsuario(usuarioId)
             .then((data=>{
-              console.log(data[0])
               setEstadistica(data[0])
             }))
           )
@@ -61,8 +53,6 @@ export default function JuegoSPPage() {
   useEffect(()=>{
     if (usuario && estadistica && loading){
       if(Object.keys(usuario).length!=0&&Object.keys(estadistica).length!=0){
-        console.log(usuario)
-        console.log("UF")
         givedealcard()
         giveusercard()
         setLoading(false)
@@ -74,20 +64,15 @@ export default function JuegoSPPage() {
   },[estadistica,usuario, loading])
 
 useEffect(()=>{
-    console.log(isuserturn)
-    console.log(wl)
     if (wl==1){
-      console.log("win")
       setDisabled(true)
       if(usersum==21){
         win(parseInt(puntosA)*3)
       }else{
-        console.log("regwin")
         win(puntosA)
       }
       }else if(wl==-1){
         setDisabled(true)
-        console.log("LOSE CALL")
         lose(puntosA)
       }
       
@@ -95,16 +80,12 @@ useEffect(()=>{
 
   useEffect(()=>{
     if(wl==0 && !isuserturn){
-      console.log("hola")
       stand()
     }
   },[dealsum])
 
 useEffect(()=>{
-  console.log("REACHED")
   if(wl!=0){
-    console.log(popupText)
-    console.log(open)
     setOpen(true)
   }
   },[popupText])
@@ -113,15 +94,12 @@ useEffect(()=>{
   function hit(){
     let res = giveusercard()
     console.log(res)
-    console.log(usercards)
   }
 
   function stand(){
     if(isuserturn){
       setIsUserTurn(false)
     }
-    console.log(wl)
-    console.log(dealsum)
     const timer = setTimeout(() => {
       if(wl==0 && dealsum<=usersum && dealsum<21){
         let res=givedealcard()
@@ -135,8 +113,6 @@ useEffect(()=>{
 
 
   function win(points){
-    console.log(dealcards)
-    console.log(estadistica)
     setPopupText("Ganaste")
     let newE={
       userid:usuarioId,
@@ -152,9 +128,7 @@ useEffect(()=>{
   }
 
   function lose(points){
-    console.log(dealcards)
     setPopupText("Perdiste")
-    console.log(points)
     let newE={
       userid:usuarioId,
       wins:estadistica.wins,
@@ -164,7 +138,6 @@ useEffect(()=>{
       points_lost:estadistica.points_lost+parseInt(points),
       cant_items:estadistica.cant_items
     }
-    console.log(usuario)
     useFetch.putEstadistica(newE)
     useFetch.putPoints(usuario.points-parseInt(points),usuarioId)
 
@@ -190,13 +163,13 @@ useEffect(()=>{
       </>
     ):(
       <>
-      <header><button onClick={()=>{router.back()}}>Volver</button></header>
+      <header><button onClick={()=>{reset();router.back()}}>Volver</button></header>
         <section>
           <div>
             <p>Dealer: {dealsum}</p>
             <p>Vos: {usersum}</p>
           </div>
-          <ArrCartas cards={dealcards}></ArrCartas>
+          <ArrCartas cards={dealcards} key={testkey}></ArrCartas>
           <ArrCartas cards={usercards}></ArrCartas>
         </section>
 
@@ -225,8 +198,9 @@ useEffect(()=>{
               <li>Tu dinero: {usuario.points}</li>
             </ul>
             {(replay)?(<>
+            <p>¿Cuántos puntos quiere apostar?</p>
               <input onChange={(e)=>{setPuntosA(e.target.value)}} value={puntosA}></input>
-              {valuError&&<p>Valor inválido</p>}
+              {valueError&&<p>Valor inválido</p>}
             <button onClick={()=>{
               if((puntosA>0 && puntosA<=usuario.points) || puntosA==1){
                 setOpen(false);
@@ -244,7 +218,7 @@ useEffect(()=>{
 
             </>):(<>
 
-              <button onClick={()=>{router.back()}}>Volver</button>
+              <button onClick={()=>{reset();router.back()}}>Volver</button>
               <button onClick={()=>{setReplay(true)}}>Nuevo Juego</button>
             </>)}
           </div>       

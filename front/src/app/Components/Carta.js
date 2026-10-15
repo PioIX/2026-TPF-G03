@@ -43,7 +43,7 @@ export default function Carta({palo, card}) {
             setVal(10)
         }else if(card=="Q"){
             setVal(11)
-        }else if(card=="k"){
+        }else if(card=="K"){
             setVal(12)
         }else{
             setVal(Number(card)-1)

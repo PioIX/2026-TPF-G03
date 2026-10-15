@@ -5,11 +5,20 @@ import { useRouter } from "next/navigation"
 
 export default function LoginPage() {
  const router=useRouter()
+ const [logged,setLogged]=useState(true)
+ const [userID,setUserID]=useState(1)
 
+
+  useEffect(()=>{
+    if(logged){
+      localStorage.setItem("userid",userID)
+      router.push("./Home")
+    }
+  },[logged])
 
   return (
     <>
-    <button onClick={()=>{router.push("./JuegoSP")}}>Ir al juego</button>
+    <p>hola soy el login</p>
     </>
   );
 }
