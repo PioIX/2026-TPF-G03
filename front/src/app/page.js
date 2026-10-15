@@ -2,7 +2,7 @@
 import Button from '@/components/Button';
 
 import { useEffect, useState } from "react";
-import * as fetch from "@/hooks/fetch.js"
+import * as useFetch from "@/hooks/useFetch.js"
 import { useRouter } from "next/navigation"
 
 const [usuarioLogueado, setUsuarioLogueado] = useState(0)
@@ -114,6 +114,7 @@ export default function HomePage() {
               </Button>
               <div id={btnjugar}>
                 <Button id={iniciar} onClick={handleirs()}><span className={decoration}></span> Jugar <span className={decoration}></span> </Button>
+                /* el que ya habia*/ <button onClick={()=>{router.push("./JuegoSP")}}>Ir al juego</button>
               </div>
               <div id={tr}>
                 <Button onClick={handleTienda()}>
