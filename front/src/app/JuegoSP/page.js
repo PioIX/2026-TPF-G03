@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import * as useFetch from "@/hooks/useFetch.js"
 import { useRouter } from "next/navigation"
 import {useBlackJackLogic} from "@/hooks/useBlackjack"
-import ArrCartas from "../Components/ArrCartas";
+import ArrCartas from "../components/ArrCartas";
 import Popup from 'reactjs-popup';
 
 
@@ -21,7 +21,6 @@ export default function JuegoSPPage() {
 
   const [popupText,setPopupText]=useState("")
   const [puntosA,setPuntosA]=useState(0)
-  const [testkey,setTestKey]=useState(0)
   let usuarioId=0
 
   useEffect(()=>{
@@ -97,6 +96,7 @@ useEffect(()=>{
   }
 
   function stand(){
+    setDisabled(true)
     if(isuserturn){
       setIsUserTurn(false)
     }
@@ -106,7 +106,7 @@ useEffect(()=>{
         console.log(res)
       }
       
-    }, 1000);
+    }, 1500);
     return () => clearTimeout(timer);
   }
 
@@ -114,6 +114,7 @@ useEffect(()=>{
 
   function win(points){
     setPopupText("Ganaste")
+    console.log(points)
     let newE={
       userid:usuarioId,
       wins:estadistica.wins+1,
@@ -125,6 +126,7 @@ useEffect(()=>{
     }
     useFetch.putEstadistica(newE)
     useFetch.putPoints(usuario.points+parseInt(points),usuarioId)
+    usuario.points+=parseInt(points)
   }
 
   function lose(points){
@@ -140,6 +142,7 @@ useEffect(()=>{
     }
     useFetch.putEstadistica(newE)
     useFetch.putPoints(usuario.points-parseInt(points),usuarioId)
+    usuario.points-=parseInt(points)
 
   }
 
@@ -169,26 +172,19 @@ useEffect(()=>{
             <p>Dealer: {dealsum}</p>
             <p>Vos: {usersum}</p>
           </div>
-          <ArrCartas cards={dealcards} key={testkey}></ArrCartas>
+          <ArrCartas cards={dealcards}></ArrCartas>
           <ArrCartas cards={usercards}></ArrCartas>
         </section>
-
-      {(disabled)?(
-        <>
         <section>
-      <button disabled>Hit</button>
-      <button disabled>Stand</button>
+          {(disabled)?(<>
+          <button disabled>Hit</button>
+          <button disabled>Stand</button>
+          </>):(<>
+          <button onClick={()=>{hit()}}>Hit</button>
+          <button onClick={()=>{stand()}}>Stand</button>
+          </>)}
         </section>
-      </>
-      ):(
-        <>
-        <section>
-      <button onClick={()=>{hit()}}>Hit</button>
-      <button onClick={()=>{stand()}}>Stand</button>
-        </section>
-         </>
-        )}
-        <Popup open={open} onClose={()=>{setOpen(false)}} closeOnDocumentClick={false}>
+        <Popup open={open} onClose={()=>{setOpen(false)}} closeOnDocumentClick={false} closeOnEscape={false}>
           {(usuario)?(
             <div>
             <h2>{popupText}</h2>
