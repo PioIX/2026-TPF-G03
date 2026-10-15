@@ -14,36 +14,49 @@ export default function JuegoSPPage() {
   const [estadistica,setEstadistica]=useState({})
 
   const [loading,setLoading]=useState(true)
+  const [replay,setReplay]=useState(false)
+  const [valuError,setValueError]=useState(false)
+
   const [disabled,setDisabled]=useState(true)
   const [open,setOpen]=useState(false)
   const [popupText,setPopupText]=useState("")
-  const [count,setCount]=useState(0)
+  const [puntosA,setPuntosA]=useState(0)
 
 
-  // FALTA: que funcione el botón de volver a jugar, chequeos del popup, mejorar el conditional rendering de manera que solo cambien las cosas relevantes
-  // Después relacionar con otras páginas
+
+  // FALTA: arreglar error que la ultima carta del dealer desaparece a veces idk
 
 
   //valores temporarios, se deben importar o poner en storage
   const usuarioId=1
-  const puntosApostados=1
 
   useEffect(()=>{
+        let ptemp=sessionStorage.getItem("puntosApostados")
         console.log(wl)
         setWL(0)
         setOpen(false)
-        useFetch.getUsuarioPorId(usuarioId)
-        .then((data)=>{
-          console.log(data[0])
-          setUsuario(data[0])
-        })
-        .then(
-          useFetch.getEstadisticaDeUsuario(usuarioId)
-          .then((data=>{
-            setEstadistica(data)
-          }))
-        )
-      },[])
+        if(ptemp){
+          setPuntosA(ptemp)
+        }else{
+          setPuntosA(1)
+        }
+        if(!usuario || !estadistica || Object.keys(usuario).length==0){
+          useFetch.getUsuarioPorId(usuarioId)
+          .then((data)=>{
+            console.log(data[0])
+            setUsuario(data[0])
+          })
+          .then(
+            useFetch.getEstadisticaDeUsuario(usuarioId)
+            .then((data=>{
+              console.log(data[0])
+              setEstadistica(data[0])
+            }))
+          )
+
+
+        }
+      },[loading])
 
   useEffect(()=>{
     if (usuario && estadistica && loading){
@@ -58,25 +71,24 @@ export default function JuegoSPPage() {
       
     }
       
-  },[estadistica,usuario])
+  },[estadistica,usuario, loading])
 
 useEffect(()=>{
     console.log(isuserturn)
     console.log(wl)
-    console.log(count)
     if (wl==1){
       console.log("win")
       setDisabled(true)
       if(usersum==21){
-        win(puntosApostados*3)
+        win(parseInt(puntosA)*3)
       }else{
         console.log("regwin")
-        win(puntosApostados)
+        win(puntosA)
       }
       }else if(wl==-1){
         setDisabled(true)
         console.log("LOSE CALL")
-        lose(puntosApostados)
+        lose(puntosA)
       }
       
   },[wl])
@@ -86,9 +98,10 @@ useEffect(()=>{
       console.log("hola")
       stand()
     }
-  },[count])
+  },[dealsum])
 
 useEffect(()=>{
+  console.log("REACHED")
   if(wl!=0){
     console.log(popupText)
     console.log(open)
@@ -108,21 +121,22 @@ useEffect(()=>{
       setIsUserTurn(false)
     }
     console.log(wl)
-
+    console.log(dealsum)
     const timer = setTimeout(() => {
-      if(wl==0 && dealsum<=usersum){
+      if(wl==0 && dealsum<=usersum && dealsum<21){
         let res=givedealcard()
         console.log(res)
-        setCount((prev)=>prev+1)
       }
       
-    }, 2000);
+    }, 1000);
     return () => clearTimeout(timer);
   }
 
 
 
   function win(points){
+    console.log(dealcards)
+    console.log(estadistica)
     setPopupText("Ganaste")
     let newE={
       userid:usuarioId,
@@ -134,11 +148,13 @@ useEffect(()=>{
       cant_items:estadistica.cant_items
     }
     useFetch.putEstadistica(newE)
-    useFetch.putPoints(usuario.points+points,usuarioId)
+    useFetch.putPoints(usuario.points+parseInt(points),usuarioId)
   }
 
   function lose(points){
+    console.log(dealcards)
     setPopupText("Perdiste")
+    console.log(points)
     let newE={
       userid:usuarioId,
       wins:estadistica.wins,
@@ -150,7 +166,7 @@ useEffect(()=>{
     }
     console.log(usuario)
     useFetch.putEstadistica(newE)
-    useFetch.putPoints(usuario.points-points,usuarioId)
+    useFetch.putPoints(usuario.points-parseInt(points),usuarioId)
 
   }
 
@@ -180,8 +196,8 @@ useEffect(()=>{
             <p>Dealer: {dealsum}</p>
             <p>Vos: {usersum}</p>
           </div>
-          <ArrCartas cards={usercards}></ArrCartas>
           <ArrCartas cards={dealcards}></ArrCartas>
+          <ArrCartas cards={usercards}></ArrCartas>
         </section>
 
       {(disabled)?(
@@ -199,7 +215,7 @@ useEffect(()=>{
         </section>
          </>
         )}
-        <Popup open={open} onClose={()=>{setOpen(false)}}>
+        <Popup open={open} onClose={()=>{setOpen(false)}} closeOnDocumentClick={false}>
           {(usuario)?(
             <div>
             <h2>{popupText}</h2>
@@ -208,13 +224,29 @@ useEffect(()=>{
               <li>Vos: {usersum}</li>
               <li>Tu dinero: {usuario.points}</li>
             </ul>
-            {/*Chequear si usuario puede jugar con misma apuesta:
-            si puede, botón para hacerlo, botón para cambiar apuesta, botón para volver
-            si no, botón para cambiar apuesta y botón para volver (posiblemente con el otro deshabilitado)*/}
+            {(replay)?(<>
+              <input onChange={(e)=>{setPuntosA(e.target.value)}} value={puntosA}></input>
+              {valuError&&<p>Valor inválido</p>}
             <button onClick={()=>{
-              setOpen(false);
-              router.refresh()
-            }}>Volver a jugar</button>
+              if((puntosA>0 && puntosA<=usuario.points) || puntosA==1){
+                setOpen(false);
+                setValueError(false)
+                setReplay(false)
+                setPopupText("")
+                sessionStorage.setItem("puntosApostados",puntosA)
+                reset()
+                setLoading(true)
+
+              }else{
+                setValueError(true)
+              }
+            }}>Comenzar</button>
+
+            </>):(<>
+
+              <button onClick={()=>{router.back()}}>Volver</button>
+              <button onClick={()=>{setReplay(true)}}>Nuevo Juego</button>
+            </>)}
           </div>       
 
           ):(
