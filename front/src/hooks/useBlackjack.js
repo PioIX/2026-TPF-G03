@@ -13,23 +13,25 @@ export const useBlackJackLogic = () => {
     
 
 useEffect (()=>{
+        let temp=usersum
         if (usersum>21 & ace11user){
-            setUserSum((prev)=>prev+10)
+            setUserSum((prev)=>prev-10)
             setAce11user(false)
+            temp-=10
             
         }
         
         console.log(`Dealer: ${dealcards.map((card)=>(card[0]))}`)
         console.log(`Suma: ${dealsum}`)
         console.log(`User: ${usercards.map((card)=>(card[0]))}`)
-        console.log(`Suma: ${usersum}`)
+        console.log(`Suma: ${temp}`)
         
-        if (usersum>21){
+        if (temp>21){
             console.log("Perdiste")
             setIsUserTurn(false)
             setWL(-1)
         }else{
-            if(usersum==21){
+            if(temp==21){
                 console.log("Ganaste!")
                 setIsUserTurn(false)
                 setWL(1)
@@ -41,21 +43,23 @@ useEffect (()=>{
 
     useEffect(()=> {
         if (!isuserturn){
-
+            let temp =dealsum
             if (dealsum>21 & ace11deal){
-                setDealSum((prev)=>prev+10)
+                console.log("HELP")
+                setDealSum((prev)=>prev-10)
                 setAce11deal(false)
+                temp-=10
             }
         
             console.log(`Dealer: ${dealcards.map((card)=>(card[0]))}`)
-            console.log(`Suma: ${dealsum}`)
+            console.log(`Suma: ${temp}`)
             console.log(`User: ${usercards.map((card)=>(card[0]))}`)
             console.log(`Suma: ${usersum}`)
-            if (dealsum>21){
+            if (temp>21){
                 console.log("Ganaste!")
                 setWL(1)
             }else{
-                if((dealsum>usersum && dealsum<21) || dealsum==21){
+                if((temp>usersum && temp<21) || temp==21){
                     console.log("Perdiste")
                     setWL(-1)
                 }
@@ -107,8 +111,8 @@ useEffect (()=>{
     
 
     const reset = ()=>{
-        setDealSum()
-        setUserSum()
+        setDealSum(0)
+        setUserSum(0)
         setUserCards([])
         setDealCards([])
         setAce11deal(false)

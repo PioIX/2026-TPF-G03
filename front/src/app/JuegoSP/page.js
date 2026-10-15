@@ -14,42 +14,45 @@ export default function JuegoSPPage() {
   const [estadistica,setEstadistica]=useState({})
 
   const [loading,setLoading]=useState(true)
+  const [replay,setReplay]=useState(false)
+  const [valueError,setValueError]=useState(false)
   const [disabled,setDisabled]=useState(true)
   const [open,setOpen]=useState(false)
+
   const [popupText,setPopupText]=useState("")
-  const [count,setCount]=useState(0)
-
-
-  // FALTA: que funcione el botón de volver a jugar, chequeos del popup, mejorar el conditional rendering de manera que solo cambien las cosas relevantes
-  // Después relacionar con otras páginas
-
-
-  //valores temporarios, se deben importar o poner en storage
-  const usuarioId=1
-  const puntosApostados=1
+  const [puntosA,setPuntosA]=useState(0)
+  const [testkey,setTestKey]=useState(0)
+  let usuarioId=0
 
   useEffect(()=>{
-        console.log(wl)
+        usuarioId = localStorage.getItem("userid")
+        let ptemp=sessionStorage.getItem("puntosApostados")
         setWL(0)
         setOpen(false)
-        useFetch.getUsuarioPorId(usuarioId)
-        .then((data)=>{
-          console.log(data[0])
-          setUsuario(data[0])
-        })
-        .then(
-          useFetch.getEstadisticaDeUsuario(usuarioId)
-          .then((data=>{
-            setEstadistica(data)
-          }))
-        )
-      },[])
+        if(ptemp){
+          setPuntosA(ptemp)
+        }else{
+          setPuntosA(1)
+        }
+        if(!usuario || !estadistica || Object.keys(usuario).length==0){
+          useFetch.getUsuarioPorId(usuarioId)
+          .then((data)=>{
+            setUsuario(data[0])
+          })
+          .then(
+            useFetch.getEstadisticaDeUsuario(usuarioId)
+            .then((data=>{
+              setEstadistica(data[0])
+            }))
+          )
+
+
+        }
+      },[loading])
 
   useEffect(()=>{
     if (usuario && estadistica && loading){
       if(Object.keys(usuario).length!=0&&Object.keys(estadistica).length!=0){
-        console.log(usuario)
-        console.log("UF")
         givedealcard()
         giveusercard()
         setLoading(false)
@@ -58,40 +61,31 @@ export default function JuegoSPPage() {
       
     }
       
-  },[estadistica,usuario])
+  },[estadistica,usuario, loading])
 
 useEffect(()=>{
-    console.log(isuserturn)
-    console.log(wl)
-    console.log(count)
     if (wl==1){
-      console.log("win")
       setDisabled(true)
       if(usersum==21){
-        win(puntosApostados*3)
+        win(parseInt(puntosA)*3)
       }else{
-        console.log("regwin")
-        win(puntosApostados)
+        win(puntosA)
       }
       }else if(wl==-1){
         setDisabled(true)
-        console.log("LOSE CALL")
-        lose(puntosApostados)
+        lose(puntosA)
       }
       
   },[wl])
 
   useEffect(()=>{
     if(wl==0 && !isuserturn){
-      console.log("hola")
       stand()
     }
-  },[count])
+  },[dealsum])
 
 useEffect(()=>{
   if(wl!=0){
-    console.log(popupText)
-    console.log(open)
     setOpen(true)
   }
   },[popupText])
@@ -100,23 +94,19 @@ useEffect(()=>{
   function hit(){
     let res = giveusercard()
     console.log(res)
-    console.log(usercards)
   }
 
   function stand(){
     if(isuserturn){
       setIsUserTurn(false)
     }
-    console.log(wl)
-
     const timer = setTimeout(() => {
-      if(wl==0 && dealsum<=usersum){
+      if(wl==0 && dealsum<=usersum && dealsum<21){
         let res=givedealcard()
         console.log(res)
-        setCount((prev)=>prev+1)
       }
       
-    }, 2000);
+    }, 1000);
     return () => clearTimeout(timer);
   }
 
@@ -134,7 +124,7 @@ useEffect(()=>{
       cant_items:estadistica.cant_items
     }
     useFetch.putEstadistica(newE)
-    useFetch.putPoints(usuario.points+points,usuarioId)
+    useFetch.putPoints(usuario.points+parseInt(points),usuarioId)
   }
 
   function lose(points){
@@ -148,9 +138,8 @@ useEffect(()=>{
       points_lost:estadistica.points_lost+parseInt(points),
       cant_items:estadistica.cant_items
     }
-    console.log(usuario)
     useFetch.putEstadistica(newE)
-    useFetch.putPoints(usuario.points-points,usuarioId)
+    useFetch.putPoints(usuario.points-parseInt(points),usuarioId)
 
   }
 
@@ -174,14 +163,14 @@ useEffect(()=>{
       </>
     ):(
       <>
-      <header><button onClick={()=>{router.back()}}>Volver</button></header>
+      <header><button onClick={()=>{reset();router.back()}}>Volver</button></header>
         <section>
           <div>
             <p>Dealer: {dealsum}</p>
             <p>Vos: {usersum}</p>
           </div>
+          <ArrCartas cards={dealcards} key={testkey}></ArrCartas>
           <ArrCartas cards={usercards}></ArrCartas>
-          <ArrCartas cards={dealcards}></ArrCartas>
         </section>
 
       {(disabled)?(
@@ -199,7 +188,7 @@ useEffect(()=>{
         </section>
          </>
         )}
-        <Popup open={open} onClose={()=>{setOpen(false)}}>
+        <Popup open={open} onClose={()=>{setOpen(false)}} closeOnDocumentClick={false}>
           {(usuario)?(
             <div>
             <h2>{popupText}</h2>
@@ -208,13 +197,30 @@ useEffect(()=>{
               <li>Vos: {usersum}</li>
               <li>Tu dinero: {usuario.points}</li>
             </ul>
-            {/*Chequear si usuario puede jugar con misma apuesta:
-            si puede, botón para hacerlo, botón para cambiar apuesta, botón para volver
-            si no, botón para cambiar apuesta y botón para volver (posiblemente con el otro deshabilitado)*/}
+            {(replay)?(<>
+            <p>¿Cuántos puntos quiere apostar?</p>
+              <input onChange={(e)=>{setPuntosA(e.target.value)}} value={puntosA}></input>
+              {valueError&&<p>Valor inválido</p>}
             <button onClick={()=>{
-              setOpen(false);
-              router.refresh()
-            }}>Volver a jugar</button>
+              if((puntosA>0 && puntosA<=usuario.points) || puntosA==1){
+                setOpen(false);
+                setValueError(false)
+                setReplay(false)
+                setPopupText("")
+                sessionStorage.setItem("puntosApostados",puntosA)
+                reset()
+                setLoading(true)
+
+              }else{
+                setValueError(true)
+              }
+            }}>Comenzar</button>
+
+            </>):(<>
+
+              <button onClick={()=>{reset();router.back()}}>Volver</button>
+              <button onClick={()=>{setReplay(true)}}>Nuevo Juego</button>
+            </>)}
           </div>       
 
           ):(

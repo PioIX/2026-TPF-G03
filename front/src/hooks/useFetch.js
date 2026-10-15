@@ -391,6 +391,10 @@ export function putPassword(newpass,id){
 };
 
 export function putPoints(newpoints,id){
+  console.log("Puntos recibida por fetch")
+  console.log(newpoints)
+  console.log(id)
+
    try {
      return fetch('http://localhost:4000/Usuarios', {
          method: 'PUT',
@@ -518,6 +522,8 @@ export function deactivateItem(itemid,userid){
 
 /*Poner objeto con datos que se quieren cambiar y obligatiorio userid*/
 export function putEstadistica(estadistica){
+  console.log("Estadistica recibida por fetch")
+  console.log(estadistica)
    try {
      return fetch('http://localhost:4000/Estadistica', {
          method: 'PUT',

@@ -4,26 +4,50 @@ import { useEffect, useState } from "react";
 import * as useFetch from "@/hooks/useFetch.js"
 import { useRouter } from "next/navigation"
 
-export default function CredencialesPage() {
+export default function LoginPage() {
+ const router=useRouter()
+ const [logged,setLogged]=useState(true)
+ const [loading,setLoading]=useState(true)
+ const [userID,setUserID]=useState(1)
   const [usuarioLogueado, setUsuarioLogueado] = useState(0)
   const [arrayUsuarios, setArrayUsuarios] = useState([])
   const [usuario, setUsuario] = useState("")
   const [contrasena, setContrasena] = useState("")
+  const [errorMessage, setErrorMessage] = useState("")
+
   const router = useRouter();
 
   useEffect(() => {
+    t=localStorage.getItem("userid")
+    if (t){
+      setLogged(true)
+    }else{
     fetch.getUsuarios()
       .then((data) => {
         setArrayUsuarios(data)
       })
+    }
   }, [])
+  
+    useEffect(()=>{
+    if(logged){
+      router.push("./Home")
+    }
+  },[logged])
+  
+  
+   useEffect(()=>{
+    if(loading && arrayUsuarios.length!=0){
+      setLoading(false)
+    }
+  },[loading])
 
   function handleSignup() {
     if (usuario == "" || arrayUsuarios.some(usu => usu.username == usuario) == true) {
-      return ("Dato no valido")
+      setErrorMessage("Dato no valido")
     } else {
       if (contrasena == "") {
-        return ("Dato no valido")
+      setErrorMessage("Dato no valido")
       } else {
         let nuevoUsuario = {
           username: usuario,
@@ -32,40 +56,58 @@ export default function CredencialesPage() {
           is_admin: 0
         }
         useFetch.postUsuario(nuevoUsuario)
-        setUsuarioLogueado(useFetch.getUsuarioPorUsername(usuario)[0].id)
-        useFetch.postEstadistica(usuarioLogueado)
+        .then((data)=>{
+           localStorage.setItem("userid",data)
+        //fetch de post devuelve el id del dato insertado
+            useFetch.postEstadistica(data)
+          .then((data)=>{
+            setLogged(true)
+            })
         /*sessionStorage.setItem("User", JSON.stringify(usuarioLogueado))*/ //ver si hacemos con cookies o que
-        router.replace("/Home/page.js");
+        })
       }
     }
   }
 
   function handleLogin() {
-    for (i = 0; i < arrayUsuarios.length; i++)
+    let t=0
+    for (i = 0; i < arrayUsuarios.length; i++){
       if (arrayUsuarios[i].username == usuario) {
-        if (arrayUsuarios[i].password == contrasena) {
-          setUsuarioLogueado(arrayUsuarios[i].id)
-          /*sessionStorage.setItem("User", JSON.stringify(usuarioLogueado))*/ //ver si hacemos con cookies o que
-          if (usuarioLogueado.is_admin == true) {
-          router.replace("/Admin/page.js");
+          if (arrayUsuarios[i].password == contrasena) {
+            t=arrayUsuarios[i].id
+            localStorage.setItem("userid",t)
+             /*sessionStorage.setItem("User", JSON.stringify(usuarioLogueado))*/ //ver si hacemos con cookies o que
+            setLogged(true)
+
           }
-          router.replace("/Home/page.js");
-        } else {
-          return ("Datos no validos")
         }
-      } else {
-        return ("Datos no validos")
-      }
+    }
+    if(!t){
+      setErrorMessage("Usuario no encontrado")
+
+    }
+       
   }
+
+
 
   return (
     <>
-      <h1>Login y registro</h1>
+    {(loading)?(
+      <h1>Cargando..</h1>
+  
+  ):(
+  <>
+     <h1>Login y registro</h1>
       <p>llene los campos y presione el boton correspondiente a su solicitud</p>
-      <input id='' placeholder='Ingrese el nombre de usuario' value={usuario} onChange={(event)=>{setUsuario(event.target.value)}}></input>
-      <input id='' placeholder='Ingrese la contraseña' value={contrasena} onChange={(event)=>{setContrasena(event.target.value)}}></input>
-      <Button id='' onClick={handleLogin}>Loguearse</Button>
-      <Button id='' onClick={handleSignup}>Registrarse</Button>
+      <input placeholder='Nombre de usuario' value={usuario} onChange={(event)=>{setUsuario(event.target.value)}}></input>
+      <input placeholder='Contraseña' value={contrasena} onChange={(event)=>{setContrasena(event.target.value)}}></input>
+      <p>{errorMessage}</p>
+      <Button onClick={handleLogin}>Loguearse</Button>
+      <Button onClick={handleSignup}>Registrarse</Button>
+    </>
+  )}
+     
     </>
   )
 }
