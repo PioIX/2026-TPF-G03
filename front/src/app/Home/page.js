@@ -5,13 +5,13 @@ import { useRouter } from "next/navigation"
 import Popup from 'reactjs-popup';
 
 export default function HomePage() {
-  let usuarioId = 0
-  const router=useRouter()
   const [estadistica,setEstadistica]=useState({})
   const [usuario,setUsuario]=useState({})
   const [loading,setLoading]=useState(true)
   const [Popen,setPopen]=useState(false)
   const [Eopen,setEopen]=useState(false)
+  const [Lopen,setLopen]=useState(false)
+
   const [valueError,setValueError]=useState(false)
   const [puntosA,setPuntosA]=useState(1)
 
@@ -21,6 +21,9 @@ export default function HomePage() {
   useEffect(()=>{
     usuarioId=localStorage.getItem("userid")
     console.log(usuarioId)
+    if (!Number(usuarioId)){
+      console.log("rep")
+     router.replace("./")}
     useFetch.getUsuarioPorId(usuarioId)
     .then((data)=>{
       setUsuario(data[0])
@@ -33,7 +36,11 @@ export default function HomePage() {
     }
   },[usuario])
 
-
+  function logout(){
+    localStorage.setItem("userid",0)
+    router.replace("./")
+  }
+  
   function cargarEst(){
     setEstadistica(()=>{
       useFetch.getEstadisticaDeUsuario(usuarioId)
@@ -45,28 +52,40 @@ export default function HomePage() {
     )
   }
 
-  /*hacer cuando decidamos que usamos para guardar sesion*/
-  // async function logout() {
-  //     let tempuser=JSON.parse(sessionStorage.getItem("User"))
-  //     if (tempuser==null){
-  //         alert("No hay usuario iniciado")
-  //     }else if(confirm("¿Está seguro de que quiere cerrar sesión?")){
-  //         sessionStorage.setItem("User",null)
-  //         UserLogged = {}
-  //         alert("Sesión cerrada")
-  //         window.location.reload()
-  //     }
-  // }
+  /*función de logout*/
 
   return (
     <>
-    {(loading)?(<>
-    <h1>Cargando...</h1>
-    </>):(<>
-      <Popup open={Popen} onClose={()=>{setPopen(false)}} closeOnDocumentClick={false}>
-        {(usuario)?(
+    {(loading)?(
+      <>
+        <h1>Cargando...</h1>
+      </>
+    ):(
+      <>
+      
+    
+          <header>
+          <button onClick={()=>{setLopen(true)}}></button>
+          <button onClick={()=>{setEopen(true)}}></button>
+        </header>
+
+        <div>
+          <h1> Blackjack </h1>
+        </div>
+
+        <section>
+            <button onClick={()=>{router.push("/Tienda")}}>Tienda</button>
+            <button onClick={()=>{setPopen(true)}}>Ir al juego</button>
+            <button onClick={()=>{router.push("/Ranking")}}>Ranking</button>
+        </section>
+        {/*POPUPS*/}
+
+        {/*popup con estadística de usuario*/}
+        <Popup open={Popen} onClose={()=>{setPopen(false)}} closeOnDocumentClick={false}>
+        {usuario&&
           <div>
             <h2>¿Cuántos puntos quiere apostar?</h2>
+            <p>Tus puntos: {usuario.points}</p>
             <input onChange={(e)=>{setPuntosA(e.target.value)}} value={puntosA}></input>
             {valueError&&<p>Valor inválido</p>}
             <button onClick={()=>{
@@ -79,35 +98,28 @@ export default function HomePage() {
                 setValueError(true)
               }}}>Comenzar</button>
                 </div>       
-                ):(
-                  <p>no deberías ver esto</p>
-                )}
-              </Popup>
-    
+                }
+       </Popup>
+
+       <Popup open={Eopen} onClose={()=>{setEopen(false)}} closeOnDocumentClick={false}>
+          {usuario&&
+              <>
+              <p>hola soy la estadistica</p>  
+              <button onClick={()=>{setEopen(false)}}>Cerrar</button>
+              </>   
+          }
+       </Popup>
+
+        <Popup open={Lopen} onClose={()=>{setLopen(false)}} closeOnDocumentClick={false}>
+          {usuario&&
+              <>
+              <h2>¿Está seguro de que quiere cerrar sesión?</h2> 
+              <button onClick={()=>{setLopen(false)}}>Volver</button>
+              <button onClick={()=>{logout()}}>Cerrar sesión</button>
+              </>   
+          }
+       </Popup>
     </>)}
-      
-      <div>
-        <header>
-          <Button onClick={logout()}>
-          </Button>
-          <Button onClick={showstats()}>
-          </Button>
-        </header>
-        <div>
-          <h1> Blackjack </h1>
-        </div>
-        <section id={buttons}>
-            <Button onClick={()=>{router.push("/Tienda")}}>
-              Tienda
-            </Button>
-    <button onClick={()=>{setPopen(true)}}>Ir al juego</button>
-            <Button onClick={()=>{router.push("/Ranking")}}>
-              Ranking
-            </Button>
-          </div>
-        </section>
-        //popup con estadística de usuario
-      </div>
     </>
   );
 }

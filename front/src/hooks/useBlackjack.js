@@ -74,8 +74,8 @@ useEffect (()=>{
         let dealtemp=cards[Math.floor(Math.random() * cards.length)]
         setDealCards((prev)=>[...prev,[dealtemp,Math.random()>=0.5]])
         if (dealtemp=="A"){
-        setDealSum((prev)=>prev+11)
         setAce11deal(true)
+        setDealSum((prev)=>prev+11)
         }else{ 
             if(dealtemp=="J" || dealtemp=="Q" || dealtemp=="K"){
                 setDealSum((prev)=>prev+10)
