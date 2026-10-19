@@ -8,6 +8,7 @@ export default function HomePage() {
   const [estadistica,setEstadistica]=useState({})
   const [usuario,setUsuario]=useState({})
   const [loading,setLoading]=useState(true)
+  const [eloading,seteLoading]=useState(true)
   const [Popen,setPopen]=useState(false)
   const [Eopen,setEopen]=useState(false)
   const [Lopen,setLopen]=useState(false)
@@ -22,7 +23,6 @@ export default function HomePage() {
     usuarioId=localStorage.getItem("userid")
     console.log(usuarioId)
     if (!Number(usuarioId)){
-      console.log("rep")
      router.replace("./")}
     useFetch.getUsuarioPorId(usuarioId)
     .then((data)=>{
@@ -36,23 +36,36 @@ export default function HomePage() {
     }
   },[usuario])
 
+  useEffect(()=>{
+    if(Eopen){
+      cargarEst()
+    }
+  },[Eopen])
+
+
+useEffect(()=>{
+    if(estadistica && Object.keys(estadistica).length!=0){
+      seteLoading(false)
+    }
+  },[estadistica])
+
   function logout(){
     localStorage.setItem("userid",0)
     router.replace("./")
   }
   
   function cargarEst(){
+     if(estadistica && Object.keys(estadistica).length!=0){
+      return
+    }
     setEstadistica(()=>{
-      useFetch.getEstadisticaDeUsuario(usuarioId)
+      useFetch.getEstadisticaDeUsuario(usuario.id)
       .then((data)=>{
-        console.log(data)
-        return data.message
+        setEstadistica(data[0])
       })
     }
     )
   }
-
-  /*función de logout*/
 
   return (
     <>
@@ -80,7 +93,7 @@ export default function HomePage() {
         </section>
         {/*POPUPS*/}
 
-        {/*popup con estadística de usuario*/}
+        {/*Apuesta para comenzar juego*/}
         <Popup open={Popen} onClose={()=>{setPopen(false)}} closeOnDocumentClick={false}>
         {usuario&&
           <div>
@@ -100,16 +113,30 @@ export default function HomePage() {
                 </div>       
                 }
        </Popup>
-
+              
+        {/*Estadística de usuario*/}
        <Popup open={Eopen} onClose={()=>{setEopen(false)}} closeOnDocumentClick={false}>
           {usuario&&
+          <>
+            {(eloading)?(
+                <h2>Cargando estadistica....</h2>
+            ):(
               <>
-              <p>hola soy la estadistica</p>  
+                <p>Partidas ganadas: {estadistica.wins}</p>
+                <p>Partidas perdidas: {estadistica.losses}</p>
+                <p>Racha actual: {estadistica.streak}</p>
+                <p>Puntos perdidos: {estadistica.points_lost}</p>
+                <p>Puntos actuales: {usuario.points}</p>
+                <p>Cantidad de items: {estadistica.cant_items}</p>
               <button onClick={()=>{setEopen(false)}}>Cerrar</button>
               </>   
+            )}
+            </>
           }
        </Popup>
 
+
+        {/*Logout*/}
         <Popup open={Lopen} onClose={()=>{setLopen(false)}} closeOnDocumentClick={false}>
           {usuario&&
               <>
