@@ -65,7 +65,7 @@ export function getUnItemPorUnUsuario(itemid,userid){
     });
 }
 
-export function getInventario(itemid,userid){
+export function getInventario(userid){
         return fetch(`http://localhost:4000/ItemsporUsuario?userid=${userid}`)
         .then(response => response.json())
         .then(data => {
