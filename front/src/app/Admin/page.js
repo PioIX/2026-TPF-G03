@@ -3,12 +3,14 @@
 import { useEffect, useState } from "react";
 import * as useFetch from "@/hooks/useFetch.js"
 import { useRouter } from "next/navigation"
+import Popup from 'reactjs-popup';
 
 export default function AdminPage() {
   const [arrayUsuarios, setArrayUsuarios] = useState([])
   const [arrayItems, setArrayItems] = useState([])
   const [arrayIxU, setArrayIxU] = useState([])
-
+  const [Eopen,setEopen]=useState(false)
+  const [idAdmin, setIdAdmin] = useState("")
 
   useEffect(() => {
     useFetch.getUsuarios()
@@ -75,20 +77,15 @@ export default function AdminPage() {
     alert("Puntaje modificado.")
   }*/
 
-  /*async function cheatPuntos() {
-    let idAdmin = prompt("¿Que ID de usuario desea alterar?")
-    let objetoUsuario = new Usuario(idAdmin)
-    let userFetch = await getUsuarioporID(idAdmin)
-    while (idAdmin == "" || Object.keys(userFetch).length === 0) {
-      idAdmin = prompt("Complete el campo con un ID valido.")
-      objetoUsuario = new Usuario(idAdmin)
-      userFetch = await getUsuarioporID(idAdmin)
+  function cheatPuntos() {
+    if (idAdmin == "" || Object.keys(useFetch.getUsuarioporID(idAdmin)).length === 0) {
+      setMensajeError("Complete el campo con un ID valido.")
+    } else {
+      let newPuntos = useFetch.getUsuarioporID(idAdmin).points + 500
+      useFetch.putPoints(newPuntos, idAdmin)
     }
-    let newPuntos = userFetch.points + 500
-    putPoints(newPuntos, idAdmin)
-    objetoUsuario.updateuser()
-    alert("Puntaje modificado.")
-  }*/
+
+  }
 
   /*async function adminUser() {
     let idAdmin = prompt("¿Que ID de usuario desea alterar?")
@@ -280,18 +277,26 @@ export default function AdminPage() {
           <button onclick={modItemPrice}>
             Modificar precio
           </button>
-        </div>
+        </div>*/}
         <div className="admin_div">
           <h2 className="admin_h">Cheats</h2>
 
-          <button onclick={cheatPuntos}>
+          <button onClick={() => setEopen(true)}>
             +500 puntos
           </button>
+          <Popup open={Eopen} onClose={() => { setEopen(false) }} closeOnDocumentClick={false}>
+            {arrayUsuarios &&
+              <>
+                <input placeholder="¿Que ID de usuario desea alterar?" value={idAdmin} onChange={(event)=>{setIdAdmin(event.target.value)}}></input> <button onClick={cheatPuntos}>Confirmar</button><br></br>
+                <button onClick={() => { setEopen(false) }}>Cerrar</button>
+              </>
+            }
+          </Popup>
 
-          <button onclick={cheatItems}>
+          {/* <button onclick={cheatItems}>
             Dar todos los items
-          </button>
-        </div> */}
+          </button> */}
+        </div>
 
         <div id="admin_table">
           <div className="divTabla">
