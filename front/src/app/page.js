@@ -131,8 +131,8 @@ const [disabled,setDisabled]=useState(false)
       <input placeholder='Contraseña' value={contrasena} onChange={(event)=>{setContrasena(event.target.value)}} type="password"></input>
       <p>{errorMessage}</p>
       {disabled?(<>
-       <button onClick={handleLogin}>Iniciar sesión</button>
-      <button onClick={handleSignup}>Registrarse</button>
+       <button disabled>Iniciar sesión</button>
+      <button disabled>Registrarse</button>
   
       </>):(<>
       <button onClick={handleLogin}>Iniciar sesión</button>

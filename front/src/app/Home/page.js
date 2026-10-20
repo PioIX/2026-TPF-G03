@@ -92,7 +92,6 @@ useEffect(()=>{
             <button onClick={()=>{router.push("/Ranking")}}>Ranking</button>
         </section>
         {/*POPUPS*/}
-
         {/*Apuesta para comenzar juego*/}
         <Popup open={Popen} onClose={()=>{setPopen(false)}} closeOnDocumentClick={false}>
         {usuario&&

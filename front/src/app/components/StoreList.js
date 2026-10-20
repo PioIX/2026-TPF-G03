@@ -13,19 +13,19 @@ export default function StoreList({items, estaEnInv,unequip,equip,buy}) {
           <tr key={i}>
               <td>{item.name}</td>
               {/*imgsrc */}
-              <td><img></img></td>
+              <td><img src={item.imgsrc} style={{height:"50px"}}></img></td>
               
               {(t=estaEnInv(item.id))==1&&
               <>
-              <td><button onClick={()=>{unequip(item.id)}}>Desequipar</button></td>
+              <td><button onClick={()=>{unequip(item)}}>Desequipar</button></td>
               </>}   
               {(t==0)&&
               <>
-              <td><button onClick={()=>{equip(item.id)}}>Equipar</button></td>
+              <td><button onClick={()=>{equip(item)}}>Equipar</button></td>
               </>}
              {(t==-1)&&
               <>
-              <td><button onClick={()=>{buy(item.id)}}>Comprar</button></td>
+              <td><button onClick={()=>{buy(item)}}>Comprar</button></td>
               </>}
           </tr>
         ))}
