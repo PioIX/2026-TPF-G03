@@ -9,15 +9,20 @@ export default function AdminPage() {
   const [arrayUsuarios, setArrayUsuarios] = useState([])
   const [arrayItems, setArrayItems] = useState([])
   const [arrayIxU, setArrayIxU] = useState([])
-  const [Aopen,setAopen]=useState(false)
-  const [Bopen,setBopen] = useState(false)
-  const [Copen,setCopen] = useState(false)
-  const [Dopen,setDopen] = useState(false)
+  const [CPopen, setCPopen]=useState(false)
+  const [CIopen, setCIopen] = useState(false)
+  const [AUopen, setAUopen] = useState(false)
+  const [AUNopen, setAUNopen] = useState(false)
+  const [AIUopen,setAIUopen] = useState(false)
+  const [BUopen,setBUopen] = useState(false)
   const [idAdmin, setIdAdmin] = useState("")
+  const [idAdminItem, setIdAdminItem] = useState("")
   const [mensajeErrorCP, setMensajeErrorCP] = useState("")
   const [mensajeErrorCI, setMensajeErrorCI] = useState("")
   const [mensajeErrorAU, setMensajeErrorAU] = useState("")
   const [mensajeErrorAUN, setMensajeErrorAUN] = useState("")
+  const [mensajeErrorAIU, setMensajeErrorAIU] = useState("")
+  const [mensajeErrorBU, setMensajeErrorBU] = useState("")
   let i = 0
 
   useEffect(() => {
@@ -41,18 +46,19 @@ export default function AdminPage() {
       })
   }, [])
 
-  /*async function borrarUser() {
-    let idAdmin = prompt("¿Que ID de usuario desea eliminar?")
-    let objetoUsuario = new Usuario(idAdmin)
-    let userFetch = await getUsuarioPorId(idAdmin)
-    while (idAdmin == "" || Object.keys(userFetch).length === 0) {
-      idAdmin = prompt("Complete el campo con un ID valido.")
-      objetoUsuario = new Usuario(idAdmin)
-      userFetch = await getUsuarioPorId(idAdmin)
+  async function borrarUser() {
+    let aux = await useFetch.getUsuarioPorId(idAdmin)
+    if (idAdmin == "" || aux[0] === undefined) {
+      setMensajeErrorBU("Complete el campo con un ID valido.")
+    } else {
+      setMensajeErrorBU("")
+      setBUopen(false)
+      useFetch.deleteEstadistica(idAdmin)
+      useFetch.vaciarInventario(idAdmin)
+      useFetch.deleteUsuario(idAdmin)
     }
-    deleteUsuario(idAdmin)
-    alert("Usuario Borrado.")
-  }*/
+    console.log("Usuario Borrado.")
+  }
 
   /*async function borrarItem() {
     let idAdminItem = prompt("¿Que ID de item desea eliminar?")
@@ -86,23 +92,25 @@ export default function AdminPage() {
   }*/
 
   async function cheatPuntos() {
-    if (idAdmin == "" || useFetch.getUsuarioPorId(idAdmin).length === 0) {
+    let aux = await useFetch.getUsuarioPorId(idAdmin)
+    if (idAdmin == "" || aux[0] === undefined) {
       setMensajeErrorCP("Complete el campo con un ID valido.")
     } else {
       setMensajeErrorCP("")
-      let aux = await useFetch.getUsuarioPorId(idAdmin)
+      setCPopen(false)
       let newPuntos = aux[0].points + 500
-      console.log("Los puntos nuevos son:",newPuntos)
       useFetch.putPoints(newPuntos, idAdmin)
-      console.log("Hola vaitis")
+      console.log("Puntos añadidos.")
     }
   }
 
-  function adminUser() {
-    if (idAdmin == "" || useFetch.getUsuarioPorId(idAdmin).length === 0) {
+  async function adminUser() {
+    let aux = await useFetch.getUsuarioPorId(idAdmin)
+    if (idAdmin == "" || aux[0] === undefined) {
       setMensajeErrorAU("Complete el campo con un ID valido.")
     } else {
       setMensajeErrorAU("")
+      setAUopen(false)
       useFetch.putAdmin(true, idAdmin)
       console.log("Administrador designado.")
     }
@@ -174,47 +182,43 @@ export default function AdminPage() {
     return newItem.id
   }*/
 
-  function adminUserNon() {
-    if (idAdmin == "" || useFetch.getUsuarioPorId(idAdmin).length === 0) {
+  async function adminUserNon() {
+    let aux = await useFetch.getUsuarioPorId(idAdmin)
+    if (idAdmin == "" || aux[0] === undefined) {
       setMensajeErrorAUN("Complete el campo con un ID valido.")
     } else {  
       setMensajeErrorAUN("")
+      setAUNopen(false)
       useFetch.putAdmin(false, idAdmin)
       console.log("Administrador descartado.")
     }
   }
 
-  /*async function addItemUser() {
-    let idAdmin = prompt("¿Que ID de usuario desea añadir el item?")
-    let objetoUsuario = new Usuario(idAdmin)
-    let userFetch = await getUsuarioPorId(idAdmin)
-    while (idAdmin == "" || Object.keys(userFetch).length === 0) {
-      idAdmin = prompt("Complete el campo con un ID valido.")
-      objetoUsuario = new Usuario(idAdmin)
-      userFetch = await getUsuarioPorId(idAdmin)
+  async function addItemUser() {
+    let aux = await useFetch.getUsuarioPorId(idAdmin)
+    let auxItem = await useFetch.getItemPorId(idAdminItem)
+    if (idAdmin == "" || idAdminItem == "" || aux[0] === undefined || auxItem[0] === undefined) {
+      setMensajeErrorAIU("Complete los campos con un ID valido.")
+    } else {
+      setMensajeErrorAIU("")
+      setAIUopen(false)
+      let newItemUser = {
+        userid: idAdmin,
+        itemid: idAdminItem,
+        active: 0
+      }
+      useFetch.postItemPorUsuario(newItemUser)
+      console.log("Item añadido al usuario.")
     }
-    let idAdminItem = prompt("Escriba el ID del item que le dara al usuario.")
-    let objetoItem = new Item(idAdminItem)
-    let itemFetch = await getItemporID(idAdminItem)
-    while (idAdminItem == "" || Object.keys(itemFetch).length === 0) {
-      idAdminItem = prompt("Complete con un dato valido.")
-      objetoItem = new Item(idAdminItem)
-      itemFetch = await getItemporID(idAdminItem)
-    }
-    newItemUser = {
-      userid: idAdmin,
-      itemid: idAdminItem,
-      active: 0
-    }
-    postItemporUsuario(newItemUser)
-    alert("Item añadido al usuario.")
-  }*/
+  }
 
   async function cheatItems() {
-    if (idAdmin == "" || useFetch.getUsuarioPorId(idAdmin).length === 0) {
+    let aux = await useFetch.getUsuarioPorId(idAdmin)
+    if (idAdmin == "" || aux[0] === undefined) {
       setMensajeErrorCI("Complete el campo con un ID valido.")
     } else {
       setMensajeErrorCI("")
+      setCIopen(false)
       let allItems = await useFetch.getItems()
       for (i=0; i < allItems.length; i++) {
         let idAllItems = allItems[i].id
@@ -238,43 +242,62 @@ export default function AdminPage() {
         <div className="admin_div">
           <h2 className="admin_h">Usuarios </h2>
 
-          {/* <button onClick={borrarUser}>
+          <button onClick={() => { setBUopen(true) }}>
             Eliminar
-          </button> */}
+          </button>
+          <Popup open={BUopen} onClose={() => { setBUopen(false) }} closeOnDocumentClick={false}>
+            {arrayUsuarios &&
+              <>
+                <input placeholder="¿Que ID de usuario desea alterar?" value={idAdmin} onChange={(event)=>{setIdAdmin(event.target.value)}}></input> <button onClick={borrarUser}>Confirmar</button><br></br>
+                <button onClick={() => { setBUopen(false) }}>Cerrar</button>
+              </>
+            }
+          </Popup>
+          <p>{mensajeErrorBU}</p>
 
-          <button onClick={() => { setCopen(true) }}>
+          <button onClick={() => { setAUopen(true) }}>
             Designar como administrador
           </button>
-          <Popup open={Copen} onClose={() => { setCopen(false) }} closeOnDocumentClick={false}>
+          <Popup open={AUopen} onClose={() => { setAUopen(false) }} closeOnDocumentClick={false}>
             {arrayUsuarios &&
               <>
                 <input placeholder="¿Que ID de usuario desea alterar?" value={idAdmin} onChange={(event)=>{setIdAdmin(event.target.value)}}></input> <button onClick={adminUser}>Confirmar</button><br></br>
-                <button onClick={() => { setCopen(false) }}>Cerrar</button>
+                <button onClick={() => { setAUopen(false) }}>Cerrar</button>
               </>
             }
           </Popup>
           <p>{mensajeErrorAU}</p>
 
-          <button onClick={() => { setDopen(true) }}>
+          <button onClick={() => { setAUNopen(true) }}>
             Descartar como administrador
           </button>
-          <Popup open={Dopen} onClose={() => { setDopen(false) }} closeOnDocumentClick={false}>
+          <Popup open={AUNopen} onClose={() => { setAUNopen(false) }} closeOnDocumentClick={false}>
           {arrayUsuarios &&
             <>
               <input placeholder="¿Que ID de usuario desea alterar?" value={idAdmin} onChange={(event)=>{setIdAdmin(event.target.value)}}></input> <button onClick={adminUserNon}>Confirmar</button><br></br>
-              <button onClick={() => { setDopen(false) }}>Cerrar</button>
+              <button onClick={() => { setAUNopen(false) }}>Cerrar</button>
             </>
           }
         </Popup>
         <p>{mensajeErrorAUN}</p>
 
-          {/* <button onClick={modPuntosUser}>
+          {/*<button onClick={modPuntosUser}>
             Modificar puntaje
-          </button>
+          </button>*/}
 
-          <button onClick={addItemUser}>
+          <button onClick={() => { setAIUopen(true) }}>
             Añadir items
-          </button> */}
+          </button>
+          <Popup open={AIUopen} onClose={() => { setAIUopen(false) }} closeOnDocumentClick={false}>
+          {arrayUsuarios &&
+            <>
+              <input placeholder="¿Que ID de usuario desea alterar?" value={idAdmin} onChange={(event)=>{setIdAdmin(event.target.value)}}></input><br></br>
+              <input placeholder="¿Que ID de item desea dar al usuario?" value={idAdminItem} onChange={(event)=>{setIdAdminItem(event.target.value)}}></input><br></br>
+              <button onClick={addItemUser}>Confirmar</button> <button onClick={() => { setAIUopen(false) }}>Cerrar</button>
+            </>
+          }
+        </Popup>
+        <p>{mensajeErrorAIU}</p>
         </div>
 
         {/* <div className="admin_div">
@@ -299,27 +322,27 @@ export default function AdminPage() {
         <div className="admin_div">
           <h2 className="admin_h">Cheats</h2>
 
-          <button onClick={() => setAopen(true)}>
+          <button onClick={() => setCPopen(true)}>
             +500 puntos
           </button>
-          <Popup open={Aopen} onClose={() => { setAopen(false) }} closeOnDocumentClick={false}>
+          <Popup open={CPopen} onClose={() => { setCPopen(false) }} closeOnDocumentClick={false}>
             {arrayUsuarios &&
               <>
                 <input placeholder="¿Que ID de usuario desea alterar?" value={idAdmin} onChange={(event)=>{setIdAdmin(event.target.value)}}></input> <button onClick={cheatPuntos}>Confirmar</button><br></br>
-                <button onClick={() => { setAopen(false) }}>Cerrar</button>
+                <button onClick={() => { setCPopen(false) }}>Cerrar</button>
               </>
             }
           </Popup>
           <p>{mensajeErrorCP}</p>
 
-          <button onClick={() => setBopen(true)}>
+          <button onClick={() => setCIopen(true)}>
             Dar todos los items
           </button>
-          <Popup open={Bopen} onClose={() => { setBopen(false) }} closeOnDocumentClick={false}>
+          <Popup open={CIopen} onClose={() => { setCIopen(false) }} closeOnDocumentClick={false}>
             {arrayUsuarios &&
               <>
                 <input placeholder="¿Que ID de usuario desea alterar?" value={idAdmin} onChange={(event)=>{setIdAdmin(event.target.value)}}></input> <button onClick={cheatItems}>Confirmar</button><br></br>
-                <button onClick={() => { setBopen(false) }}>Cerrar</button>
+                <button onClick={() => { setCIopen(false) }}>Cerrar</button>
               </>
             }
           </Popup>

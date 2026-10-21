@@ -373,13 +373,13 @@ app.delete('/Items', async function(req, res){
 app.delete('/ItemsporUsuario', async function(req, res){
 	try {
 		if(req.body.userid && req.body.itemid){
-			await MySQL.realizarQuery(`SET FOREIGN_KEY_CHECKS = 0;DELETE FROM ItemsporUsuario WHERE userid = ${req.body.userid} AND itemid= ${req.body.itemid};SET FOREIGN_KEY_CHECKS = 1;`)
+			await MySQL.realizarQuery(`DELETE FROM ItemsporUsuario WHERE userid = ${req.body.userid} AND itemid= ${req.body.itemid};`)
 			res.send({message: "Item eliminado del usuario"})
 		}else if(req.body.userid){
-			await MySQL.realizarQuery(`SET FOREIGN_KEY_CHECKS = 0;DELETE FROM ItemsporUsuario WHERE userid = ${req.body.userid};SET FOREIGN_KEY_CHECKS = 1;`)
+			await MySQL.realizarQuery(`DELETE FROM ItemsporUsuario WHERE userid = ${req.body.userid};`)
 			res.send({message: "Inventario Vaciado"})
 		}else if(req.body.itemid){
-			await MySQL.realizarQuery(`SET FOREIGN_KEY_CHECKS = 0;DELETE FROM ItemsporUsuario WHERE itemid = ${req.body.itemid};SET FOREIGN_KEY_CHECKS = 1;`)
+			await MySQL.realizarQuery(`DELETE FROM ItemsporUsuario WHERE itemid = ${req.body.itemid};`)
 			res.send({message: "Item eliminado"})
 		}
 
