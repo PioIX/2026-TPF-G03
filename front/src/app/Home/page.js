@@ -4,6 +4,25 @@ import * as useFetch from "@/hooks/useFetch.js"
 import { useRouter } from "next/navigation"
 import Popup from 'reactjs-popup';
 
+/*MASTERLIST DE COSAS QUE FALTAN:
+
+-PIPIS CON FUNCIONALIDAD
+-PODER MOVER A PIPI
+-VER DONDE PONER LOS ICONOS
+-CSSS LOL LOL
+-MULTIJUGADOR CON SALA:
+  -Sala sin dealer para competir entre jugadores (solo un ganador)
+  -Modo loco: los jugadores pueden elegir restarle o sumarle a otro (limitado)
+-IMPLEMENTAR REGLAS COMO SEGURO O RENDIRSE, SPLIT O DOBLE
+
+NO NECESARIOS:
+-ENTRETENIMIENTO EN SALA DE ESPERA (DUDOSO)
+-PODER MOVER LAS LETRAS DEL TITULO
+-PERSONALIZACION DEL MAZO
+-ANIMACIONES DE CARTAS
+-PODER SUBIR IMAGENES DE FONDO
+*/
+
 export default function HomePage() {
   const [estadistica,setEstadistica]=useState({})
   const [usuario,setUsuario]=useState({})

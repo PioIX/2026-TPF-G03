@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import * as useFetch from "@/hooks/useFetch.js"
 import { useRouter } from "next/navigation"
 import {useBlackJackLogic} from "@/hooks/useBlackjack"
-import ArrCartas from "../components/ArrCartas";
+import ArrCartas from "../Components/ArrCartas";
 import Popup from 'reactjs-popup';
 
 

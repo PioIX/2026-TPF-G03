@@ -2,7 +2,9 @@
 import { useEffect, useState } from "react";
 import * as useFetch from "@/hooks/useFetch.js"
 import { useRouter } from "next/navigation"
-import StoreList from "../components/StoreList";
+import StoreList from "../Components/StoreList";
+import Popup from 'reactjs-popup';
+
 /*IDEAS PARA PIPIS:
 PIPI QUE TE MULTIPLICA LOS PUNTOS (COME PUNTOS)
 PIPI RANDOM QUE RESTA O SUMA PUNTOS
@@ -24,6 +26,8 @@ export default function TiendaPage() {
     const [inv,setInv]=useState([])
     const [loading,setLoading]=useState(true)
     const [Iloading,setILoading]=useState(false)
+    const [open,setOpen]=useState(false)
+
 
     let t=-2
     let usuarioId = 0
@@ -39,13 +43,11 @@ export default function TiendaPage() {
         setUsuario(data[0])
         useFetch.getItems(usuarioId)
         .then((data)=>{
-          console.log(data)
           setItems(data)
         })
         .then(
           useFetch.getInventario(usuarioId)
           .then((data)=>{
-            console.log(data)
             setInv(data)
           })
           )
@@ -57,9 +59,7 @@ export default function TiendaPage() {
       if(Iloading){
         useFetch.getInventario(usuario.id)
           .then((data)=>{
-            console.log(data)
             setInv(data)
-            setILoading(false)
             setLoading(true)
           })
           
@@ -68,17 +68,13 @@ export default function TiendaPage() {
 
     useEffect(()=>{
       if(Iloading){
-        console.log(inv)
         setILoading(false)
         setLoading(true)
       }
     },[inv])
 
     useEffect(()=>{
-      console.log("HOLA") 
-      console.log(loading)
       if(inv.length!=0&&fondos.length!=0&&Object.keys(usuario).length!=0&&misc.length!=0&&loading){
-        console.log("listo")
         setLoading(false)
       }
     },[usuario,fondos,misc,loading,inv])
@@ -95,7 +91,6 @@ export default function TiendaPage() {
         })
         setFondos(f)
         setMisc(m)
-      //mostrar/cargar items de la tienda
     },[items])
 
     function estaEnInv(id){
@@ -115,7 +110,6 @@ export default function TiendaPage() {
     }
   
 
-    //arreglar la carga desfasada cuando se tiene que desequipar uno para equipar el otro
     function equip(item){
       //check si otro item del mismo tipo está equipado
       let act=inv.filter((i)=>i.active)
@@ -128,20 +122,20 @@ export default function TiendaPage() {
           .then((data)=>{
             t=data[0]
             if(t.name.includes("Fondo")){
-              console.log("Ya hay fondo equipado")
               f=t.id
-              console.log(f)
-              console.log(t)
               if(item.name.includes("Fondo")){
                 useFetch.deactivateItem(f,usuario.id)
-                .then(console.log("fondo desactivado"))
+                 .then(()=>{
+                  setILoading(true)
+                })
               }
             }else{
-              console.log("Ya hay item equipado")
               m=t.id
               if(!item.name.includes("Fondo")){
                 useFetch.deactivateItem(m,usuario.id)
-                .then(console.log("item desactivado"))
+                .then(()=>{
+                  setILoading(true)
+                })
               }
             }
           })
@@ -159,9 +153,8 @@ export default function TiendaPage() {
     //chequear si funciona la compra
     function buy(item){
       if(usuario.points<item.price){
-        console.log("Puntos insuficientes"
-          //mostrar mensaje de error
-        )
+        console.log("Puntos insuficientes")
+        setOpen(true)
       }else{
         //popup para confirmar compra
         let e
@@ -174,11 +167,15 @@ export default function TiendaPage() {
             active: 0   
             }
           useFetch.postItemPorUsuario(newitem)
-          .then(
+          .then(()=>{
+
             useFetch.putEstadistica({cant_items: e.cant_items+1, userid: usuario.id}),
             usuario.points-=item.price,
-            useFetch.putPoints(usuario.points,usuario.id),
-            setILoading(true)
+            useFetch.putPoints(usuario.points,usuario.id)
+            .then(
+              ()=>{setILoading(true)})
+            
+          }
           )
         })
       }
@@ -201,6 +198,17 @@ export default function TiendaPage() {
      <StoreList equip={equip} unequip={unequip} buy={buy} items={misc} estaEnInv={estaEnInv}></StoreList>
     </div>
       <button onClick={()=>{router.back()}}>Volver</button>
+
+
+       <Popup open={open} onClose={()=>{setOpen(false)}} closeOnDocumentClick={true}>
+              {usuario&&
+                <div>
+                  <h2>No tiene suficientes puntos para hacer esta compra</h2>
+                  <button onClick={()=>{setOpen(false)}}>Cerrar</button>
+                </div>       
+                      }
+             </Popup>
+
     </>)}
     </>
   );

@@ -25,7 +25,7 @@ export default function StoreList({items, estaEnInv,unequip,equip,buy}) {
               </>}
              {(t==-1)&&
               <>
-              <td><button onClick={()=>{buy(item)}}>Comprar</button></td>
+              <td><button onClick={()=>{buy(item)}}>${item.price}</button></td>
               </>}
           </tr>
         ))}

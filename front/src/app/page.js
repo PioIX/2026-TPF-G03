@@ -135,8 +135,8 @@ const [disabled,setDisabled]=useState(false)
       <button disabled>Registrarse</button>
   
       </>):(<>
-      <button onClick={handleLogin}>Iniciar sesión</button>
-      <button onClick={handleSignup}>Registrarse</button>
+      <button onClick={()=>{setDisabled(true);handleLogin()}}>Iniciar sesión</button>
+      <button onClick={()=>{setDisabled(true);handleSignup()}}>Registrarse</button>
       </>)}
          
     </>
