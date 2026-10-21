@@ -45,16 +45,19 @@ io.on("connection", (socket) => {
   const req = socket.request;
 
   socket.on("joinRoom", (data) => {
-	if (req.session.room != undefined && req.session.room.length > 0) {
-	  socket.leave(req.session.room);
+	users = io.sockets.adapter.rooms.get(data.room);
+	if(users.length<4){
+		if (req.session.room != undefined && req.session.room.length > 0) {
+		  socket.leave(req.session.room);
+		}
+		req.session.room = data.room;
+		socket.join(req.session.room);
+	
+		io.to(req.session.room).emit("joined", {
+		  user: req.session.user,
+		  room: req.session.room,
+		});
 	}
-	req.session.room = data.room;
-	socket.join(req.session.room);
-
-	io.to(req.session.room).emit("inf", {
-	  user: req.session.user,
-	  room: req.session.room,
-	});
   });
 
   socket.on("pingAll", (data) => {

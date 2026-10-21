@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import * as useFetch from "@/hooks/useFetch.js"
 import { useRouter } from "next/navigation"
-import StoreList from "../Components/StoreList";
+import StoreList from "../components/StoreList";
 import Popup from 'reactjs-popup';
 
 /*IDEAS PARA PIPIS:
@@ -122,7 +122,7 @@ export default function TiendaPage() {
           .then((data)=>{
             t=data[0]
             if(t.name.includes("Fondo")){
-              f=t.id
+               f=t.id
               if(item.name.includes("Fondo")){
                 useFetch.deactivateItem(f,usuario.id)
                  .then(()=>{

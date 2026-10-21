@@ -1,23 +1,30 @@
 "use client"
 import { useEffect, useState } from "react";
 import * as useFetch from "@/hooks/useFetch.js"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import {useBlackJackLogic} from "@/hooks/useBlackjack"
-import ArrCartas from "../Components/ArrCartas";
+import ArrCartas from "../components/ArrCartas";
 import Popup from 'reactjs-popup';
+import useSocket from "@/hooks/useSocket";
 
 
 export default function JuegoMJPage() {
-  const {usersum,dealsum,isuserturn,usercards,dealcards,reset,givedealcard,giveusercard,wl,setWL,setIsUserTurn} = useBlackJackLogic()
+  const {sum,ucards,reset,giveusercard,wl,setWL} = useMultiBlackJack()
   const router=useRouter()
+  const { socket, isConnected } = useSocket();
+  const searchParams = useSearchParams();
+
   const [usuario,setUsuario]=useState({})
   const [estadistica,setEstadistica]=useState({})
-
   const [loading,setLoading]=useState(true)
   const [replay,setReplay]=useState(false)
   const [valueError,setValueError]=useState(false)
   const [disabled,setDisabled]=useState(true)
   const [open,setOpen]=useState(false)
+  const [inRoom,setInRoom]=useState(false)
+  const [members,setMembers]=useState([])
+
+
 
   const [popupText,setPopupText]=useState("")
   const [puntosA,setPuntosA]=useState(0)
@@ -48,20 +55,50 @@ export default function JuegoMJPage() {
 
         }
       },[loading])
-/*
+
+
   useEffect(()=>{
     if (usuario && estadistica && loading){
       if(Object.keys(usuario).length!=0&&Object.keys(estadistica).length!=0){
-        givedealcard()
         giveusercard()
         setLoading(false)
         setDisabled(false)
       }
-      
     }
-      
   },[estadistica,usuario, loading])
 
+
+  useEffect(()=>{
+    if (!socket){
+      return      
+    }else{
+      if(!inRoom && !loading){
+        socket.nickname=usuario.username
+        let room=searchParams.get("room")
+        socket.emit("joinRoom",{room:room, user:usuario.username})
+      }
+      socket.on("start",(data)=>{
+
+      })
+
+       socket.on("joined",(data)=>{
+        console.log(data)
+        if(data.user!=usuario.username &&!members.includes(data.user)){
+          setMembers((prev)=>[...prev,data.user])
+        }
+      })
+
+       socket.on("left",(data)=>{
+        console.log(data)
+        if(members.includes(data.user)){
+          let t=members
+          t.splice(t.indexOf(data.user),1)
+          setMembers(t)
+        }
+      })
+    }
+  },[socket,loading])
+/*
 useEffect(()=>{
     if (wl==1){
       setDisabled(true)
@@ -150,15 +187,14 @@ useEffect(()=>{
 */
   return (
     <>
-    {/*
-    {(loading)?(
+    {(loading || !socket)?(
       <>
       <header><button disabled>Volver</button></header>
        
         <section>
-          <h2>Cargando cartas...</h2>
+          <h2>Cargando...</h2>
         </section>
-
+      {/*Mostrar un mejor framework*/}
         <section>
       <button disabled>Hit</button>
       <button disabled>Stand</button>
@@ -167,14 +203,12 @@ useEffect(()=>{
       </>
     ):(
       <>
-      <header><button onClick={()=>{reset();router.back()}}>Volver</button></header>
+    {/*  <header><button onClick={()=>{reset();router.back()}}>Volver</button></header>*/}
         <section>
           <div>
-            <p>Dealer: {dealsum}</p>
-            <p>Vos: {usersum}</p>
+            <p>Vos: {sum}</p>
           </div>
-          <ArrCartas cards={dealcards}></ArrCartas>
-          <ArrCartas cards={usercards}></ArrCartas>
+          <ArrCartas cards={ucards}></ArrCartas>
         </section>
         <section>
           {(disabled)?(<>
@@ -230,7 +264,7 @@ useEffect(()=>{
      
       
     )}
-        */}
+        
     </>
   );
 }
