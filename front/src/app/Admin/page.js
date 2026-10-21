@@ -9,8 +9,13 @@ export default function AdminPage() {
   const [arrayUsuarios, setArrayUsuarios] = useState([])
   const [arrayItems, setArrayItems] = useState([])
   const [arrayIxU, setArrayIxU] = useState([])
-  const [Eopen,setEopen]=useState(false)
+  const [Aopen,setAopen]=useState(false)
+  const [Bopen,setBopen] = useState(false)
   const [idAdmin, setIdAdmin] = useState("")
+  const [mensajeErrorCP, setMensajeErrorCP] = useState("")
+  const [mensajeErrorCI, setMensajeErrorCI] = useState("")
+
+  let i = 0
 
   useEffect(() => {
     useFetch.getUsuarios()
@@ -36,11 +41,11 @@ export default function AdminPage() {
   /*async function borrarUser() {
     let idAdmin = prompt("¿Que ID de usuario desea eliminar?")
     let objetoUsuario = new Usuario(idAdmin)
-    let userFetch = await getUsuarioporID(idAdmin)
+    let userFetch = await getUsuarioPorId(idAdmin)
     while (idAdmin == "" || Object.keys(userFetch).length === 0) {
       idAdmin = prompt("Complete el campo con un ID valido.")
       objetoUsuario = new Usuario(idAdmin)
-      userFetch = await getUsuarioporID(idAdmin)
+      userFetch = await getUsuarioPorId(idAdmin)
     }
     deleteUsuario(idAdmin)
     alert("Usuario Borrado.")
@@ -62,11 +67,11 @@ export default function AdminPage() {
   /*sync function modPuntosUser() {
     let idAdmin = prompt("¿Que ID de usuario desea alterar?")
     let objetoUsuario = new Usuario(idAdmin)
-    let userFetch = await getUsuarioporID(idAdmin)
+    let userFetch = await getUsuarioPorId(idAdmin)
     while (idAdmin == "" || Object.keys(userFetch).length === 0) {
       idAdmin = prompt("Complete el campo con un ID valido.")
       objetoUsuario = new Usuario(idAdmin)
-      userFetch = await getUsuarioporID(idAdmin)
+      userFetch = await getUsuarioPorId(idAdmin)
     }
     let newPuntos = prompt("Escriba el nuevo puntaje total del usuario.")
     while (newPuntos == "") {
@@ -77,24 +82,27 @@ export default function AdminPage() {
     alert("Puntaje modificado.")
   }*/
 
-  function cheatPuntos() {
-    if (idAdmin == "" || Object.keys(useFetch.getUsuarioporID(idAdmin)).length === 0) {
-      setMensajeError("Complete el campo con un ID valido.")
+  async function cheatPuntos() {
+    if (idAdmin == "" || useFetch.getUsuarioPorId(idAdmin).length === 0) {
+      setMensajeErrorCP("Complete el campo con un ID valido.")
     } else {
-      let newPuntos = useFetch.getUsuarioporID(idAdmin).points + 500
+      setMensajeErrorCP("")
+      let aux = await useFetch.getUsuarioPorId(idAdmin)
+      let newPuntos = aux[0].points + 500
+      console.log("Los puntos nuevos son:",newPuntos)
       useFetch.putPoints(newPuntos, idAdmin)
+      console.log("Hola vaitis")
     }
-
   }
 
   /*async function adminUser() {
     let idAdmin = prompt("¿Que ID de usuario desea alterar?")
     let objetoUsuario = new Usuario(idAdmin)
-    let userFetch = await getUsuarioporID(idAdmin)
+    let userFetch = await getUsuarioPorId(idAdmin)
     while (idAdmin == "" || Object.keys(userFetch).length === 0) {
       idAdmin = prompt("Complete el campo con un ID valido.")
       objetoUsuario = new Usuario(idAdmin)
-      userFetch = await getUsuarioporID(idAdmin)
+      userFetch = await getUsuarioPorId(idAdmin)
     }
     putAdmin(true, idAdmin)
     objetoUsuario.updateuser()
@@ -170,11 +178,11 @@ export default function AdminPage() {
   /*async function adminUserNon() {
     let idAdmin = prompt("¿Que ID de usuario desea alterar?")
     let objetoUsuario = new Usuario(idAdmin)
-    let userFetch = await getUsuarioporID(idAdmin)
+    let userFetch = await getUsuarioPorId(idAdmin)
     while (idAdmin == "" || Object.keys(userFetch).length === 0) {
       idAdmin = prompt("Complete el campo con un ID valido.")
       objetoUsuario = new Usuario(idAdmin)
-      userFetch = await getUsuarioporID(idAdmin)
+      userFetch = await getUsuarioPorId(idAdmin)
     }
     putAdmin(false, idAdmin)
     objetoUsuario.updateuser()
@@ -184,11 +192,11 @@ export default function AdminPage() {
   /*async function addItemUser() {
     let idAdmin = prompt("¿Que ID de usuario desea añadir el item?")
     let objetoUsuario = new Usuario(idAdmin)
-    let userFetch = await getUsuarioporID(idAdmin)
+    let userFetch = await getUsuarioPorId(idAdmin)
     while (idAdmin == "" || Object.keys(userFetch).length === 0) {
       idAdmin = prompt("Complete el campo con un ID valido.")
       objetoUsuario = new Usuario(idAdmin)
-      userFetch = await getUsuarioporID(idAdmin)
+      userFetch = await getUsuarioPorId(idAdmin)
     }
     let idAdminItem = prompt("Escriba el ID del item que le dara al usuario.")
     let objetoItem = new Item(idAdminItem)
@@ -207,28 +215,25 @@ export default function AdminPage() {
     alert("Item añadido al usuario.")
   }*/
 
-  /*async function cheatItems() {
-    let idAdmin = prompt("¿Que ID de usuario desea alterar?")
-    let objetoUsuario = new Usuario(idAdmin)
-    let userFetch = await getUsuarioporID(idAdmin)
-    while (idAdmin == "" || Object.keys(userFetch).length === 0) {
-      idAdmin = prompt("Complete el campo con un ID valido.")
-      objetoUsuario = new Usuario(idAdmin)
-      userFetch = await getUsuarioporID(idAdmin)
-    }
-    let allItems = await getItems()
-    for (i = 0; i < allItems.length; i++) {
+  async function cheatItems() {
+    if (idAdmin == "" || useFetch.getUsuarioPorId(idAdmin).length === 0) {
+      setMensajeErrorCI("Complete el campo con un ID valido.")
+    } else {
+      setMensajeErrorCI("")
+    let allItems = await useFetch.getItems()
+    for (i=0; i < allItems.length; i++) {
       let idAllItems = allItems[i].id
       console.log(idAllItems)
-      currentItem = {
+      let currentItem = {
         userid: idAdmin,
         itemid: idAllItems,
         active: 0
       }
-      postItemporUsuario(currentItem)
+      useFetch.postItemPorUsuario(currentItem)
     }
-    alert("Todos los items añadidos al usuario.")
-  }*/
+    console.log("Todos los items añadidos al usuario.")
+    }
+  }
 
   return (
     <>
@@ -281,21 +286,33 @@ export default function AdminPage() {
         <div className="admin_div">
           <h2 className="admin_h">Cheats</h2>
 
-          <button onClick={() => setEopen(true)}>
+          <button onClick={() => setAopen(true)}>
             +500 puntos
           </button>
-          <Popup open={Eopen} onClose={() => { setEopen(false) }} closeOnDocumentClick={false}>
+          <Popup open={Aopen} onClose={() => { setAopen(false) }} closeOnDocumentClick={false}>
             {arrayUsuarios &&
               <>
                 <input placeholder="¿Que ID de usuario desea alterar?" value={idAdmin} onChange={(event)=>{setIdAdmin(event.target.value)}}></input> <button onClick={cheatPuntos}>Confirmar</button><br></br>
-                <button onClick={() => { setEopen(false) }}>Cerrar</button>
+                <button onClick={() => { setAopen(false) }}>Cerrar</button>
               </>
             }
           </Popup>
 
-          {/* <button onclick={cheatItems}>
+          <p>{mensajeErrorCP}</p>
+
+          <button onClick={() => setBopen(true)}>
             Dar todos los items
-          </button> */}
+          </button>
+          <Popup open={Bopen} onClose={() => { setBopen(false) }} closeOnDocumentClick={false}>
+            {arrayUsuarios &&
+              <>
+                <input placeholder="¿Que ID de usuario desea alterar?" value={idAdmin} onChange={(event)=>{setIdAdmin(event.target.value)}}></input> <button onClick={cheatItems}>Confirmar</button><br></br>
+                <button onClick={() => { setBopen(false) }}>Cerrar</button>
+              </>
+            }
+          </Popup>
+
+
         </div>
 
         <div id="admin_table">
@@ -360,8 +377,8 @@ export default function AdminPage() {
               <tbody>
                 {arrayIxU.map((element, i) => (
                   <tr key={i}>
-                    <td>{element.itemid}</td>
                     <td>{element.userid}</td>
+                    <td>{element.itemid}</td>
                     <td>{element.active}</td>
                   </tr>))}
               </tbody>
