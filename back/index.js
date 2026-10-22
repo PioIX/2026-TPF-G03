@@ -14,6 +14,8 @@ app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json());
 
 /*SOCKET*/ 
+const maxPlayers=4
+const roomData = new Map();
 const sessionMiddleware = session({
   secret: "supersarasa",
   resave: false,
@@ -44,20 +46,42 @@ io.on("connection", (socket) => {
 	console.log('connection')
   const req = socket.request;
 
-  socket.on("joinRoom", (data) => {
-	users = io.sockets.adapter.rooms.get(data.room);
-	if(users.length<4){
-		if (req.session.room != undefined && req.session.room.length > 0) {
-		  socket.leave(req.session.room);
+  socket.on("joinRoom", ({roomId,user}) => {
+
+	  if (!roomData.has(roomId)) {
+		  roomData.set(roomId, {
+			createdAt: new Date(),
+			users: new Map(),
+			started: false,
+			ended: false
+
+
+			//datos de la sala que se crean al principio
+		  });
 		}
-		req.session.room = data.room;
-		socket.join(req.session.room);
+		const roomInfo = roomData.get(roomId);
+		if (roomInfo.users.size<maxPlayers&&!roomInfo.started){
+			socket.data.username=user
+			socket.join(roomId);
+			if(!roomInfo.users.has(user)){
+				roomInfo.users.set(user,{
+					sum:0,
+					cards:[],
+					held:false,
+					connected:true
+					//datos de cada usuario que inicia
+				});
+			}
+			io.to(roomId).emit("joined", {
+				room:roomId,
+				usersCount: roomInfo.users.size,
+				users: Array.from(roomInfo.users.keys())
+			});
+			io.emit("roomChange")
+		}else{
+			io.emit("msg",{message:"No hay lugar en la sala"})
+		}
 	
-		io.to(req.session.room).emit("joined", {
-		  user: req.session.user,
-		  room: req.session.room,
-		});
-	}
   });
 
   socket.on("pingAll", (data) => {
@@ -65,21 +89,68 @@ io.on("connection", (socket) => {
 	io.emit("pingAll", { event: "Ping to all", message: data });
   });
 
-  socket.on("sendMessage", (data) => {
+  socket.on("newmsg", (data) => {
 	console.log("Message recieved")
 	console.log(data.message)
-	io.to(req.session.room).emit("newMessage", {
+	io.to(req.session.room).emit("msg", {
 	  room: req.session.room,
 	  message: data.message,
 	  
 	});
   });
 
+  socket.on("updateHold", ({cards,sum,username,roomId}) => {
+	roomData.get(roomId).users.set(username,{
+		sum:sum,
+		cards:cards,
+		held:true,
+		connected:true
+
+		//datos de cada usuario cuando hace hold
+	});
+	io.emit("msg", {message: "Cartas y suma del usuario actualizadas",user:username});
+  });
+
+  socket.on("listRooms", () => {
+	const rooms=Array.from(roomData)
+	.filter(([roomId, roomInf]) => {
+		return !roomInf.started;
+	  })
+	  .map(([roomId,roomInf])=>{
+
+		return{
+			roomId,
+			...roomInf,
+			users:[...roomInf.users.keys()]
+		}
+	})
+
+	io.emit("allRooms", {message: rooms});
+  });
+
 
   socket.on("disconnect", () => {
-	console.log("Disconnect");
+	const user=socket.data.username
+	for (const roomId of socket.rooms) {
+		if (roomData.has(roomId)) {
+		  roomData.get(roomId).users.set(user,{
+			sum:sum,
+			cards:cards,
+			held:true,
+			connected:false
+	
+			//datos de cada usuario cuando hace hold
+		});
+		  io.emit("disconnect", {message: "Usuario desconectado",username:user});
+
+		  if (roomInfo.users.size === 0) {
+			roomData.delete(roomId);
+		  }
+		}
+	  }
+	});
   });
-});
+
 
 
 

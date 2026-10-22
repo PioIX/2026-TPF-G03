@@ -96,6 +96,9 @@ export default function JuegoMJPage() {
           setMembers(t)
         }
       })
+      socket.on("msg",(data)=>{
+        console.log(data)
+      })
     }
   },[socket,loading])
 /*
