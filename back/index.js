@@ -84,17 +84,31 @@ io.on("connection", (socket) => {
 	
   });
 
+
+  socket.on("leave", ({user,roomId}) => {
+	const roomInfo = roomData.get(roomId);
+	if(roomInfo.users.has(user)){
+		roomInfo.users.delete(user);
+			}
+		io.to(roomId).emit("left", {
+				room:roomId,
+				usersCount: roomInfo.users.size,
+				users: Array.from(roomInfo.users.keys())
+			});
+		io.emit("roomChange")
+  });
+
   socket.on("pingAll", (data) => {
 	console.log("PING ALL:", data);
 	io.emit("pingAll", { event: "Ping to all", message: data });
   });
 
-  socket.on("newmsg", (data) => {
+  socket.on("newmsg", ({roomId,message}) => {
 	console.log("Message recieved")
-	console.log(data.message)
-	io.to(req.session.room).emit("msg", {
-	  room: req.session.room,
-	  message: data.message,
+	console.log(message)
+	io.to(roomId).emit("msg", {
+	  room: roomId,
+	  message:message,
 	  
 	});
   });
@@ -108,7 +122,17 @@ io.on("connection", (socket) => {
 
 		//datos de cada usuario cuando hace hold
 	});
-	io.emit("msg", {message: "Cartas y suma del usuario actualizadas",user:username});
+	io.emit("held", {message: "Cartas y suma del usuario actualizadas",user:username});
+	let us=Array.from(roomData.get(roomId).users.values())
+	let na=us.filter(u=>u.held)
+	//posiblemente verifica quién ganó y lo manda (mejor)
+	if(na.length==us.length){
+		io.to(roomId).emit("ended", {
+	  	room: roomId,
+	  	userArr:Array.from(roomData.get(roomId).users)
+	  
+	});
+	}
   });
 
   socket.on("listRooms", () => {

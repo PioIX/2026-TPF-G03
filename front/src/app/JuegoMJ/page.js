@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import * as useFetch from "@/hooks/useFetch.js"
 import { useRouter, useSearchParams } from "next/navigation"
-import {useBlackJackLogic} from "@/hooks/useBlackjack"
+import {useMultiBlackJack} from "@/hooks/useMultiBlackJack"
 import ArrCartas from "../components/ArrCartas";
 import Popup from 'reactjs-popup';
 import useSocket from "@/hooks/useSocket";
@@ -13,12 +13,9 @@ export default function JuegoMJPage() {
   const router=useRouter()
   const { socket, isConnected } = useSocket();
   const searchParams = useSearchParams();
-
   const [usuario,setUsuario]=useState({})
   const [estadistica,setEstadistica]=useState({})
   const [loading,setLoading]=useState(true)
-  const [replay,setReplay]=useState(false)
-  const [valueError,setValueError]=useState(false)
   const [disabled,setDisabled]=useState(true)
   const [open,setOpen]=useState(false)
   const [inRoom,setInRoom]=useState(false)
@@ -77,31 +74,43 @@ export default function JuegoMJPage() {
         let room=searchParams.get("room")
         socket.emit("joinRoom",{room:room, user:usuario.username})
       }
-      socket.on("start",(data)=>{
-
-      })
-
+     
        socket.on("joined",(data)=>{
         console.log(data)
-        if(data.user!=usuario.username &&!members.includes(data.user)){
-          setMembers((prev)=>[...prev,data.user])
+        if(data.user==usuario.username){
+          setInRoom(true)
         }
+        setMembers(data.users)
+        
       })
 
-       socket.on("left",(data)=>{
+      /* socket.on("left",(data)=>{
         console.log(data)
-        if(members.includes(data.user)){
-          let t=members
-          t.splice(t.indexOf(data.user),1)
-          setMembers(t)
-        }
-      })
+        setMembers(data.users)
+      })*/
       socket.on("msg",(data)=>{
         console.log(data)
       })
+      socket.on("disconnect",(data)=>{
+        setInRoom(false)
+        console.log("desconectado")
+      })
     }
+
+    //eventos del juego
+     socket.on("start",(data)=>{
+
+      })
+      socket.on("end",(data)=>{
+
+      })
+      socket.on("held",(data)=>{
+
+      })
   },[socket,loading])
-/*
+
+
+  //ver si conviene que el back le mande a cada uno su estado o que envie el ganador y ahí se decida
 useEffect(()=>{
     if (wl==1){
       setDisabled(true)
@@ -117,11 +126,6 @@ useEffect(()=>{
       
   },[wl])
 
-  useEffect(()=>{
-    if(wl==0 && !isuserturn){
-      stand()
-    }
-  },[dealsum])
 
 useEffect(()=>{
   if(wl!=0){
@@ -136,18 +140,7 @@ useEffect(()=>{
   }
 
   function stand(){
-    setDisabled(true)
-    if(isuserturn){
-      setIsUserTurn(false)
-    }
-    const timer = setTimeout(() => {
-      if(wl==0 && dealsum<=usersum && dealsum<21){
-        let res=givedealcard()
-        console.log(res)
-      }
-      
-    }, 1500);
-    return () => clearTimeout(timer);
+    //envia los datos al back de socket y espera
   }
 
 
@@ -187,7 +180,7 @@ useEffect(()=>{
   }
 
 
-*/
+
   return (
     <>
     {(loading || !socket)?(
@@ -205,6 +198,7 @@ useEffect(()=>{
      
       </>
     ):(
+    (started)?(
       <>
     {/*  <header><button onClick={()=>{reset();router.back()}}>Volver</button></header>*/}
         <section>
@@ -212,6 +206,7 @@ useEffect(()=>{
             <p>Vos: {sum}</p>
           </div>
           <ArrCartas cards={ucards}></ArrCartas>
+          {/*Cartas de los otros usuarios dadas vuelta*/}
         </section>
         <section>
           {(disabled)?(<>
@@ -227,46 +222,38 @@ useEffect(()=>{
             <div>
             <h2>{popupText}</h2>
             <ul>
-              <li>Dealer: {dealsum}</li>
               <li>Vos: {usersum}</li>
               <li>Tu dinero: {usuario.points}</li>
             </ul>
-            {(replay)?(<>
-            <p>¿Cuántos puntos quiere apostar?</p>
-              <input onChange={(e)=>{setPuntosA(e.target.value)}} value={puntosA}></input>
-              {valueError&&<p>Valor inválido</p>}
-            <button onClick={()=>{
-              if((puntosA>0 && puntosA<=usuario.points) || puntosA==1){
-                setOpen(false);
-                setValueError(false)
-                setReplay(false)
-                setPopupText("")
-                sessionStorage.setItem("puntosApostados",puntosA)
-                reset()
-                setLoading(true)
-
-              }else{
-                setValueError(true)
-              }
-            }}>Comenzar</button>
-
-            </>):(<>
-
-              <button onClick={()=>{reset();router.back()}}>Volver</button>
-              <button onClick={()=>{setReplay(true)}}>Nuevo Juego</button>
-            </>)}
           </div>       
 
           ):(
-            <p>no deberías ver esto</p>
+            <p>no deberí
+              as ver esto</p>
           )}
              
         </Popup>
         </>
       
      
+    ):(
+      <>
+      {}
+      {(searchParams.get("room")==usuario.id)?(
+        <>
+        <button onClick={startGame()}>Comenzar partida</button>
+        
+        </>
+      ):(
+        <>
+      <h1>Esperando a que el administrador comienze la partida...</h1>
+      </>
+      )}
+      </>
+    )
       
-    )}
+    ) 
+    }
         
     </>
   );
