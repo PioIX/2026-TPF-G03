@@ -317,7 +317,7 @@ export function deleteItemDeTodoInventario(itemid){
 
 export function deleteEstadistica(userid){
    try {
-     return fetch('http://localhost:4000/ItemsporUsuario', {
+     return fetch('http://localhost:4000/Estadistica', {
          method: 'DELETE',
          headers: {
          'Content-Type': 'application/json'
