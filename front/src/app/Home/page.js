@@ -1,8 +1,10 @@
 "use client"
 import { useEffect, useState } from "react";
 import * as useFetch from "@/hooks/useFetch.js"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import Popup from 'reactjs-popup';
+import useSocket from "@/hooks/useSocket";
+
 
 /*MASTERLIST DE COSAS QUE FALTAN:
 
@@ -23,6 +25,15 @@ NO NECESARIOS:
 -PODER SUBIR IMAGENES DE FONDO
 */
 
+
+/*Hacer ahora:
+-que todos tengan que salir de la sala cuando el host se desconecta
+-mensaje de error como popup
+-puntos de apuesta de la sala vienen de base de datos (junto con otra info de sala)
+-que se pueda jugar en multijugador lol lol
+-ver cómo enviaría el socket la info de resultado de partida
+*/
+
 export default function HomePage() {
   const [estadistica,setEstadistica]=useState({})
   const [usuario,setUsuario]=useState({})
@@ -31,14 +42,28 @@ export default function HomePage() {
   const [Popen,setPopen]=useState(false)
   const [Eopen,setEopen]=useState(false)
   const [Lopen,setLopen]=useState(false)
+  const [Mopen,setMopen]=useState(false)
+  const [Erropen,setErropen]=useState(false)
+  const [errM,setErrM]=useState("")
+
+
+  const [avRooms,setAvRooms]=useState(null)
+
+  const { socket, isConnected } =useSocket()
+
+
 
   const [valueError,setValueError]=useState(false)
   const [puntosA,setPuntosA]=useState(1)
 
-  let usuarioId = 0 /*(usuarioLogueado lo importamos de login)*/
+  let usuarioId = 0 
   const router = useRouter()
-
+  const searchParams=useSearchParams()
   useEffect(()=>{
+    let err=searchParams.get("err")
+    if(err==1){
+      setErrM("Host desconectado")
+    }
     usuarioId=localStorage.getItem("userid")
     console.log(usuarioId)
     if (!Number(usuarioId)){
@@ -62,12 +87,39 @@ export default function HomePage() {
   },[Eopen])
 
 
-useEffect(()=>{
+  useEffect(()=>{
+    if(errM){
+      setErropen(true)
+    }
+  },[errM])
+  
+  useEffect(()=>{
     if(estadistica && Object.keys(estadistica).length!=0){
       seteLoading(false)
     }
   },[estadistica])
 
+  useEffect(()=>{
+    if(Mopen){
+      socket.emit("listRooms")
+    }
+  },[Mopen])
+
+
+  useEffect(()=>{
+      if(!socket){
+        return
+      }
+      socket.on("allRooms",(data)=>{
+        let rooms=data.message
+        console.log(rooms)
+        setAvRooms(rooms)
+      })
+      socket.on("roomChange",()=>{
+        socket.emit("listRooms")
+      })
+    },[socket])
+  
   function logout(){
     localStorage.setItem("userid",0)
     router.replace("./")
@@ -86,8 +138,15 @@ useEffect(()=>{
     )
   }
 
+  
+
   return (
     <>
+    {Erropen&&
+    <>
+    {/*convertir a popup*/}
+    <p>{errM}</p>
+    </>}
     {(loading)?(
       <>
         <h1>Cargando...</h1>
@@ -109,7 +168,12 @@ useEffect(()=>{
             <button onClick={()=>{router.push("/Tienda")}}>Tienda</button>
             <button onClick={()=>{setPopen(true)}}>Ir al juego</button>
             <button onClick={()=>{router.push("/Ranking")}}>Ranking</button>
+            <button onClick={()=>{setMopen(true)}}>Multijugador</button>
+
+
         </section>
+
+
         {/*POPUPS*/}
         {/*Apuesta para comenzar juego*/}
         <Popup open={Popen} onClose={()=>{setPopen(false)}} closeOnDocumentClick={false}>
@@ -130,6 +194,34 @@ useEffect(()=>{
               }}}>Comenzar</button>
                 </div>       
                 }
+       </Popup>
+
+
+       {/*Multijugador*/}
+        <Popup open={Mopen} onClose={()=>{setMopen(false)}} closeOnDocumentClick={false}>
+          {usuario&&
+              <>
+              <h2>Salas multijugador</h2> 
+              {(avRooms)?(<>
+              {(avRooms.length>0)?(<>
+              {avRooms.map((room,i)=><div key={i}>
+              <p>Sala de {room.ownerName}</p>
+              <p>ID {room.roomId}</p>
+              <p>{room.usersCount} usuario(s)</p>
+              <button onClick={()=>{router.push(`/JuegoMJ?room=${room.roomId}`)}}>Unirse a la sala</button>
+              </div>)}
+              </>):(<>
+              <p>No hay salas disponibles</p>
+              </>)}
+              <button onClick={()=>{socket.emit("listRooms")}}>Recargar</button>
+              </>):(<>
+              <p>cargando salas...</p>
+              </>)}
+              
+            <button onClick={()=>{router.push(`/JuegoMJ?room=${usuario.id}`)}}>Crear sala</button>
+            <button onClick={()=>{setMopen(false)}}>Volver</button>
+              </>   
+          }
        </Popup>
               
         {/*Estadística de usuario*/}

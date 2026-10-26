@@ -53,7 +53,8 @@ io.on("connection", (socket) => {
 			createdAt: new Date(),
 			users: new Map(),
 			started: false,
-			ended: false
+			ended: false,
+			ownerName:user
 
 
 			//datos de la sala que se crean al principio
@@ -70,6 +71,15 @@ io.on("connection", (socket) => {
 					held:false,
 					connected:true
 					//datos de cada usuario que inicia
+				});
+			}else{
+				let userT=roomInfo.users.get(user)
+				userT.active=true
+				roomInfo.users.set(user,userT)
+				io.to(roomId).emit("activated", {
+					room:roomId,
+					usersCount: roomInfo.users.size,
+					user: userT
 				});
 			}
 			io.to(roomId).emit("joined", {
@@ -136,20 +146,27 @@ io.on("connection", (socket) => {
   });
 
   socket.on("listRooms", () => {
-	const rooms=Array.from(roomData)
-	.filter(([roomId, roomInf]) => {
-		return !roomInf.started;
-	  })
-	  .map(([roomId,roomInf])=>{
-
-		return{
-			roomId,
-			...roomInf,
-			users:[...roomInf.users.keys()]
-		}
-	})
+	const rooms=Array.from(roomData,([roomId,roomInf]) => ({
+		//roomid undefined idk
+		roomId,        
+		...roomInf,
+		users:[...roomInf.users.keys()],
+		usersCount:roomInf.users.size
+	  }))
+	  .filter((room) => {
+			return !room.started;
+		})
+	
 
 	io.emit("allRooms", {message: rooms});
+  });
+
+  socket.on("hostDisconnect", (roomId) => {
+	console.log("Host Disconnect")
+	io.to(roomId).emit("hostDisconnect");
+	if (roomData.has(roomId)){
+		roomData.delete(roomId)
+	}
   });
 
 
@@ -157,19 +174,21 @@ io.on("connection", (socket) => {
 	const user=socket.data.username
 	for (const roomId of socket.rooms) {
 		if (roomData.has(roomId)) {
-		  roomData.get(roomId).users.set(user,{
-			sum:sum,
-			cards:cards,
-			held:true,
-			connected:false
-	
-			//datos de cada usuario cuando hace hold
-		});
-		  io.emit("disconnect", {message: "Usuario desconectado",username:user});
+			if(roomData.get(roomId).started){
 
-		  if (roomInfo.users.size === 0) {
-			roomData.delete(roomId);
-		  }
+				roomData.get(roomId).users.set(user,{
+				  sum:sum,
+				  cards:cards,
+				  held:true,
+				  connected:false
+			})
+			}else{
+				roomData.get(roomId).users.delete(user)
+			}
+			if (roomInfo.users.size === 0) {
+				roomData.delete(roomId);
+			}
+			io.to(roomId).emit("disconnect", {message: "Usuario desconectado",user:user});
 		}
 	  }
 	});

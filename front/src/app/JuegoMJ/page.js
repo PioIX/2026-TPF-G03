@@ -20,6 +20,7 @@ export default function JuegoMJPage() {
   const [open,setOpen]=useState(false)
   const [inRoom,setInRoom]=useState(false)
   const [members,setMembers]=useState([])
+  const [started,setStarted]=useState(false)
 
 
 
@@ -29,7 +30,8 @@ export default function JuegoMJPage() {
 
   useEffect(()=>{
         usuarioId = localStorage.getItem("userid")
-        let ptemp=sessionStorage.getItem("puntosApostados")
+        let ptemp=1
+        //CAMBIAR ESTO A PUNTOS DE LA SALA
         setWL(0)
         setOpen(false)
         if(ptemp){
@@ -57,7 +59,6 @@ export default function JuegoMJPage() {
   useEffect(()=>{
     if (usuario && estadistica && loading){
       if(Object.keys(usuario).length!=0&&Object.keys(estadistica).length!=0){
-        giveusercard()
         setLoading(false)
         setDisabled(false)
       }
@@ -84,14 +85,22 @@ export default function JuegoMJPage() {
         
       })
 
-      /* socket.on("left",(data)=>{
+      socket.on("left",(data)=>{
         console.log(data)
         setMembers(data.users)
-      })*/
+      })
       socket.on("msg",(data)=>{
         console.log(data)
       })
+      socket.on("hostDisconnect",()=>{
+        console.log("hostDisconnect")
+       router.replace("/Home?err=1")
+      })
       socket.on("disconnect",(data)=>{
+        let room=searchParams.get("room")
+        if(room==usuario.id){
+          socket.emit("hostDisconnect",room)
+        }
         setInRoom(false)
         console.log("desconectado")
       })
@@ -133,7 +142,9 @@ useEffect(()=>{
   }
   },[popupText])
 
-
+  function start(){
+    {/*check de cantidad de usuarios y manda comienzo al socket*/}
+  }
   function hit(){
     let res = giveusercard()
     console.log(res)
@@ -218,7 +229,7 @@ useEffect(()=>{
           </>)}
         </section>
         <Popup open={open} onClose={()=>{setOpen(false)}} closeOnDocumentClick={false} closeOnEscape={false}>
-          {(usuario)?(
+          {usuario&&
             <div>
             <h2>{popupText}</h2>
             <ul>
@@ -226,22 +237,21 @@ useEffect(()=>{
               <li>Tu dinero: {usuario.points}</li>
             </ul>
           </div>       
-
-          ):(
-            <p>no deberí
-              as ver esto</p>
-          )}
-             
+          }
         </Popup>
         </>
       
      
     ):(
       <>
-      {}
+      {members.length>0&&
+      <>
+      <h2>Miembros en la sala:</h2>
+      {members.map((m,i)=><p key={i}>{m}</p>)}
+      </>}
       {(searchParams.get("room")==usuario.id)?(
         <>
-        <button onClick={startGame()}>Comenzar partida</button>
+        <button onClick={()=>{startGame()}}>Comenzar partida</button>
         
         </>
       ):(
