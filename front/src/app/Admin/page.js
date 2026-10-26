@@ -2,27 +2,44 @@
 
 import { useEffect, useState } from "react";
 import * as useFetch from "@/hooks/useFetch.js"
-import { useRouter } from "next/navigation"
 import Popup from 'reactjs-popup';
 
 export default function AdminPage() {
   const [arrayUsuarios, setArrayUsuarios] = useState([])
   const [arrayItems, setArrayItems] = useState([])
   const [arrayIxU, setArrayIxU] = useState([])
-  const [CPopen, setCPopen]=useState(false)
-  const [CIopen, setCIopen] = useState(false)
+
+  const [idAdmin, setIdAdmin] = useState("")
+  const [idAdminItem, setIdAdminItem] = useState("")
+  const [newPuntos, setNewPuntos] = useState(0)
+  const [respuestaName, setRespuestaName] = useState("")
+  const [respuestaPrice, setRespuestaPrice] = useState(0)
+  const [respuestaImgSrc, setRespuestaImgSrc] = useState("")
+
+  const [XPopen, setXPopen] = useState(false)
+  const [XIopen, setXIopen] = useState(false)
   const [AUopen, setAUopen] = useState(false)
   const [AUNopen, setAUNopen] = useState(false)
   const [AIUopen,setAIUopen] = useState(false)
   const [BUopen,setBUopen] = useState(false)
-  const [idAdmin, setIdAdmin] = useState("")
-  const [idAdminItem, setIdAdminItem] = useState("")
-  const [mensajeErrorCP, setMensajeErrorCP] = useState("")
-  const [mensajeErrorCI, setMensajeErrorCI] = useState("")
+  const [MPopen, setMPopen] = useState(false)
+  const [CIopen, setCIopen] = useState(false)
+  const [BIopen,setBIopen] = useState(false)
+  const [MIIopen,setMIIopen] = useState(false)
+  const [MIPopen,setMIPopen] = useState(false)
+
+  const [mensajeErrorXP, setMensajeErrorXP] = useState("")
+  const [mensajeErrorXI, setMensajeErrorXI] = useState("")
   const [mensajeErrorAU, setMensajeErrorAU] = useState("")
   const [mensajeErrorAUN, setMensajeErrorAUN] = useState("")
   const [mensajeErrorAIU, setMensajeErrorAIU] = useState("")
   const [mensajeErrorBU, setMensajeErrorBU] = useState("")
+  const [mensajeErrorMP, setMensajeErrorMP] = useState("")
+  const [mensajeErrorCI, setMensajeErrorCI] = useState("")
+  const [mensajeErrorBI, setMensajeErrorBI] = useState("")
+  const [mensajeErrorMII, setMensajeErrorMII] = useState("")
+  const [mensajeErrorMIP, setMensajeErrorMIP] = useState("")
+
   let i = 0
 
   useEffect(() => {
@@ -56,48 +73,42 @@ export default function AdminPage() {
       useFetch.deleteEstadistica(idAdmin)
       useFetch.vaciarInventario(idAdmin)
       useFetch.deleteUsuario(idAdmin)
+      console.log("Usuario Borrado.")
     }
-    console.log("Usuario Borrado.")
   }
 
-  /*async function borrarItem() {
-    let idAdminItem = prompt("¿Que ID de item desea eliminar?")
-    let objetoItem = new Item(idAdminItem)
-    let itemFetch = await getItemporID(idAdminItem)
-    while (idAdminItem == "" || Object.keys(itemFetch).length === 0) {
-      idAdminItem = prompt("Complete con un dato valido.")
-      objetoItem = new Item(idAdminItem)
-      itemFetch = await getItemporID(idAdminItem)
+  async function borrarItem() {
+    let aux = await useFetch.getItemPorId(idAdminItem)
+    if (idAdminItem == "" || aux[0] === undefined) {
+      setMensajeErrorBI("Complete el campo con un ID valido.")
+    } else {
+      setMensajeErrorBI("")
+      setBIopen(false)
+      useFetch.deleteItemDeTodoInventario(idAdminItem)
+      useFetch.deleteItem(idAdminItem)
+      console.log("Item Borrado.")
     }
-    deleteItem(idAdminItem)
-    alert("Item borrado.")
-  }*/
+  }
 
-  /*sync function modPuntosUser() {
-    let idAdmin = prompt("¿Que ID de usuario desea alterar?")
-    let objetoUsuario = new Usuario(idAdmin)
-    let userFetch = await getUsuarioPorId(idAdmin)
-    while (idAdmin == "" || Object.keys(userFetch).length === 0) {
-      idAdmin = prompt("Complete el campo con un ID valido.")
-      objetoUsuario = new Usuario(idAdmin)
-      userFetch = await getUsuarioPorId(idAdmin)
+  async function modPuntosUser() {
+    let aux = await useFetch.getUsuarioPorId(idAdmin)
+    if (idAdmin == "" || aux[0] === undefined || newPuntos == "") {
+      setMensajeErrorMP("Complete los campos con datos validos.")
+    } else {
+      setMensajeErrorMP("")
+      setMPopen(false)
+      useFetch.putPoints(newPuntos, idAdmin)
+      console.log("Puntaje modificado.")
     }
-    let newPuntos = prompt("Escriba el nuevo puntaje total del usuario.")
-    while (newPuntos == "") {
-      newPuntos = prompt("El campo esta vacio.")
-    }
-    putPoints(newPuntos, idAdmin)
-    objetoUsuario.updateuser()
-    alert("Puntaje modificado.")
-  }*/
+  }
 
   async function cheatPuntos() {
     let aux = await useFetch.getUsuarioPorId(idAdmin)
     if (idAdmin == "" || aux[0] === undefined) {
-      setMensajeErrorCP("Complete el campo con un ID valido.")
+      setMensajeErrorXP("Complete el campo con un ID valido.")
     } else {
-      setMensajeErrorCP("")
-      setCPopen(false)
+      setMensajeErrorXP("")
+      setXPopen(false)
       let newPuntos = aux[0].points + 500
       useFetch.putPoints(newPuntos, idAdmin)
       console.log("Puntos añadidos.")
@@ -116,71 +127,46 @@ export default function AdminPage() {
     }
   }
 
-  /*async function modItemPrice() {
-    let idAdminItem = prompt("¿Que ID de item desea eliminar?")
-    let objetoItem = new Item(idAdminItem)
-    let itemFetch = await getItemporID(idAdminItem)
-    while (idAdminItem == "" || Object.keys(itemFetch).length === 0) {
-      idAdminItem = prompt("Complete con un dato valido.")
-      objetoItem = new Item(idAdminItem)
-      itemFetch = await getItemporID(idAdminItem)
+  async function modItemPrice() {
+    let auxItem = await useFetch.getItemPorId(idAdminItem)
+    if (idAdminItem == "" || auxItem[0] === undefined || respuestaPrice == "") {
+      setMensajeErrorMIP("Complete los campos con datos validos.")
+    } else {
+      setMensajeErrorMIP("")
+      setMIPopen(false)
+      useFetch.putPrice(respuestaPrice, idAdminItem)
+      console.log("Precio modificado.")
     }
-    let newPrice = prompt("Ingrese el nuevo precio de su Item.")
-    while (newPrice == "") {
-      newPrice = prompt("Llene los campos.")
-    }
-    putPrice(newPrice, idAdminItem)
-    objetoItem.updateitem()
-    alert("Precio modificado.")
-  }*/
+  }
 
-  /*async function modItemImage() {
-    let idAdminItem = prompt("¿Que ID de item desea eliminar?")
-    let objetoItem = new Item(idAdminItem)
-    let itemFetch = await getItemporID(idAdminItem)
-    while (idAdminItem == "" || Object.keys(itemFetch).length === 0) {
-      idAdminItem = prompt("Complete con un dato valido.")
-      objetoItem = new Item(idAdminItem)
-      itemFetch = await getItemporID(idAdminItem)
+  async function modItemImage() {
+    let auxItem = await useFetch.getItemPorId(idAdminItem)
+    if (arrayItems.some(ite => ite.imgsrc == respuestaImgSrc) == true || idAdminItem == "" || auxItem[0] === undefined || respuestaImgSrc == "") {
+      setMensajeErrorMII("Complete los campos con datos validos.")
+    } else {
+      setMensajeErrorMII("")
+      setMIIopen(false)
+      useFetch.putItemSRC(respuestaImgSrc, idAdminItem)
+      console.log("Imagen modificada.")
     }
-    let newImg = prompt("Ingrese el nuevo archivo de la imagen de su Item.")
-    while (newImg == "") {
-      newImg = prompt("Llene los campos.")
-    }
-    putItemSRC(newImg, idAdminItem)
-    objetoItem.updateitem()
-    alert("Imagen modificada.")
-  }*/
+  }
 
 
-  /*async function creaItem() {
-    let respuestaName = prompt("Ingrese su nombre de item deseado.");
-    while (respuestaName == "") {
-      respuestaName = prompt("Valor vacio. Por favor, ingrese uno nuevo.")
-    }
-    let respuestaImgSrc = prompt("Ingrese el nombre de archivo de la imagen de su item.")
-    let arrayItems = await getItems()
-    for (i = 0; i < await arrayItems.length; i++) {
-      while (respuestaImgSrc == await arrayItems[i].imgsrc || respuestaImgSrc == "") {
-        respuestaImgSrc = prompt("Valor vacio o en uso. Completelo.")
+  async function creaItem() {
+    if (arrayItems.some(ite => ite.name == respuestaName) == true || respuestaPrice == "" || arrayItems.some(ite => ite.imgsrc == respuestaImgSrc) == true) {
+      setMensajeErrorCI("Complete los campos con datos validos.")
+    } else {  
+      setMensajeErrorCI("")
+      setCIopen(false)
+      let newItem = {
+        name: respuestaName,
+        imgsrc: respuestaImgSrc,
+        price: respuestaPrice
       }
-      console.log("arrayItems.imgsrc: ", arrayItems[i].imgsrc)
+      useFetch.postItem(newItem)
+      console.log("Creacion exitosa.")
     }
-    let respuestaPrice = prompt("Ingrese el precio de su Item.")
-    while (respuestaPrice == "") {
-      respuestaPrice = prompt("Valor vacio. Completelo.")
-    }
-    let newItem = {
-      name: respuestaName,
-      imgsrc: respuestaImgSrc,
-      price: respuestaPrice,
-      id: arrayItems.length + 1
-    };
-    postItem(newItem)
-    alert("Registro exitoso.")
-    console.log(newItem)
-    return newItem.id
-  }*/
+  }
 
   async function adminUserNon() {
     let aux = await useFetch.getUsuarioPorId(idAdmin)
@@ -198,7 +184,7 @@ export default function AdminPage() {
     let aux = await useFetch.getUsuarioPorId(idAdmin)
     let auxItem = await useFetch.getItemPorId(idAdminItem)
     if (idAdmin == "" || idAdminItem == "" || aux[0] === undefined || auxItem[0] === undefined) {
-      setMensajeErrorAIU("Complete los campos con un ID valido.")
+      setMensajeErrorAIU("Complete los campos con datos validos.")
     } else {
       setMensajeErrorAIU("")
       setAIUopen(false)
@@ -215,10 +201,10 @@ export default function AdminPage() {
   async function cheatItems() {
     let aux = await useFetch.getUsuarioPorId(idAdmin)
     if (idAdmin == "" || aux[0] === undefined) {
-      setMensajeErrorCI("Complete el campo con un ID valido.")
+      setMensajeErrorXI("Complete el campo con un ID valido.")
     } else {
-      setMensajeErrorCI("")
-      setCIopen(false)
+      setMensajeErrorXI("")
+      setXIopen(false)
       let allItems = await useFetch.getItems()
       for (i=0; i < allItems.length; i++) {
         let idAllItems = allItems[i].id
@@ -281,9 +267,19 @@ export default function AdminPage() {
         </Popup>
         <p>{mensajeErrorAUN}</p>
 
-          {/*<button onClick={modPuntosUser}>
+          <button onClick={() => { setMPopen(true) }}>
             Modificar puntaje
-          </button>*/}
+          </button>
+          <Popup open={MPopen} onClose={() => { setMPopen(false) }} closeOnDocumentClick={false}>
+            {arrayUsuarios &&
+              <>
+                <input placeholder="¿Que ID de usuario desea alterar?" value={idAdmin} onChange={(event)=>{setIdAdmin(event.target.value)}}></input> <br></br>
+                <input placeholder="¿Cuantos puntos quiere que tenga?" value={newPuntos} onChange={(event)=>{setNewPuntos(event.target.value)}}></input> <br></br>
+                <button onClick={modPuntosUser}>Confirmar</button> <button onClick={() => { setMPopen(false) }}>Cerrar</button>
+              </>
+            }
+          </Popup>
+          <p>{mensajeErrorMP}</p>
 
           <button onClick={() => { setAIUopen(true) }}>
             Añadir items
@@ -296,59 +292,98 @@ export default function AdminPage() {
               <button onClick={addItemUser}>Confirmar</button> <button onClick={() => { setAIUopen(false) }}>Cerrar</button>
             </>
           }
-        </Popup>
-        <p>{mensajeErrorAIU}</p>
+          </Popup>
+          <p>{mensajeErrorAIU}</p>
         </div>
 
-        {/* <div className="admin_div">
+        <div className="admin_div">
           <h2 className="admin_h">Items</h2>
 
-          <button onClick={creaItem}>
+          <button onClick={() => { setCIopen(true) }}>
             Crear
-          </button>
-
-          <button onClick={borrarItem}>
-            Borrar
-          </button>
-
-          <button onClick={modItemImage}>
-            Modificar imagen
-          </button>
-
-          <button onClick={modItemPrice}>
-            Modificar precio
-          </button>
-        </div>*/}
-        <div className="admin_div">
-          <h2 className="admin_h">Cheats</h2>
-
-          <button onClick={() => setCPopen(true)}>
-            +500 puntos
-          </button>
-          <Popup open={CPopen} onClose={() => { setCPopen(false) }} closeOnDocumentClick={false}>
-            {arrayUsuarios &&
-              <>
-                <input placeholder="¿Que ID de usuario desea alterar?" value={idAdmin} onChange={(event)=>{setIdAdmin(event.target.value)}}></input> <button onClick={cheatPuntos}>Confirmar</button><br></br>
-                <button onClick={() => { setCPopen(false) }}>Cerrar</button>
-              </>
-            }
-          </Popup>
-          <p>{mensajeErrorCP}</p>
-
-          <button onClick={() => setCIopen(true)}>
-            Dar todos los items
           </button>
           <Popup open={CIopen} onClose={() => { setCIopen(false) }} closeOnDocumentClick={false}>
             {arrayUsuarios &&
               <>
-                <input placeholder="¿Que ID de usuario desea alterar?" value={idAdmin} onChange={(event)=>{setIdAdmin(event.target.value)}}></input> <button onClick={cheatItems}>Confirmar</button><br></br>
-                <button onClick={() => { setCIopen(false) }}>Cerrar</button>
+                <input placeholder="Ingrese su nombre de su item" value={respuestaName} onChange={(event)=>{setRespuestaName(event.target.value)}}></input><br></br>
+                <input placeholder="Ingrese el nombre de archivo de la imagen de su item." value={respuestaImgSrc} onChange={(event)=>{setRespuestaImgSrc(event.target.value)}}></input><br></br>
+                <input placeholder="Ingrese el precio de su item." value={respuestaPrice} onChange={(event)=>{setRespuestaPrice(event.target.value)}}></input><br></br>
+                <button onClick={creaItem}>Confirmar</button><button onClick={() => { setCIopen(false) }}>Cerrar</button>
               </>
             }
           </Popup>
           <p>{mensajeErrorCI}</p>
 
+          <button onClick={() => { setBIopen(true) }}>
+            Borrar
+          </button>
+          <Popup open={BIopen} onClose={() => { setBIopen(false) }} closeOnDocumentClick={false}>
+            {arrayUsuarios &&
+              <>
+                <input placeholder="¿Que ID de usuario desea alterar?" value={idAdminItem} onChange={(event)=>{setIdAdminItem(event.target.value)}}></input> <button onClick={borrarItem}>Confirmar</button><br></br>
+                <button onClick={() => { setBIopen(false) }}>Cerrar</button>
+              </>
+            }
+          </Popup>
+          <p>{mensajeErrorBI}</p>
 
+          <button onClick={() => { setMIIopen(true) }}>
+            Modificar imagen
+          </button>
+          <Popup open={MIIopen} onClose={() => { setMIIopen(false) }} closeOnDocumentClick={false}>
+            {arrayUsuarios &&
+              <>
+                <input placeholder="¿Que ID de item desea dar al usuario?" value={idAdminItem} onChange={(event)=>{setIdAdminItem(event.target.value)}}></input><br></br>
+                <input placeholder="¿Que imagen desea que el item tenga?" value={respuestaImgSrc} onChange={(event)=>{setRespuestaImgSrc(event.target.value)}}></input><br></br>
+                <button onClick={modItemImage}>Confirmar</button> <button onClick={() => { setMIIopen(false) }}>Cerrar</button>
+              </>
+            }
+          </Popup>
+        <p>{mensajeErrorMII}</p>
+
+          <button onClick={() => { setMIPopen(true) }}>
+            Modificar precio
+          </button>
+          <Popup open={MIPopen} onClose={() => { setMIPopen(false) }} closeOnDocumentClick={false}>
+            {arrayUsuarios &&
+              <>
+                <input placeholder="¿Que ID de item desea dar al usuario?" value={idAdminItem} onChange={(event)=>{setIdAdminItem(event.target.value)}}></input><br></br>
+                <input placeholder="¿Que imagen desea que el item tenga?" value={respuestaPrice} onChange={(event)=>{setRespuestaPrice(event.target.value)}}></input><br></br>
+                <button onClick={modItemPrice}>Confirmar</button> <button onClick={() => { setMIPopen(false) }}>Cerrar</button>
+              </>
+            }
+          </Popup>
+        <p>{mensajeErrorMIP}</p>
+
+        </div>
+        <div className="admin_div">
+          <h2 className="admin_h">Cheats</h2>
+
+          <button onClick={() => setXPopen(true)}>
+            +500 puntos
+          </button>
+          <Popup open={XPopen} onClose={() => { setXPopen(false) }} closeOnDocumentClick={false}>
+            {arrayUsuarios &&
+              <>
+                <input placeholder="¿Que ID de usuario desea alterar?" value={idAdmin} onChange={(event)=>{setIdAdmin(event.target.value)}}></input> <button onClick={cheatPuntos}>Confirmar</button><br></br>
+                <button onClick={() => { setXPopen(false) }}>Cerrar</button>
+              </>
+            }
+          </Popup>
+          <p>{mensajeErrorXP}</p>
+
+          <button onClick={() => setXIopen(true)}>
+            Dar todos los items
+          </button>
+          <Popup open={XIopen} onClose={() => { setXIopen(false) }} closeOnDocumentClick={false}>
+            {arrayUsuarios &&
+              <>
+                <input placeholder="¿Que ID de usuario desea alterar?" value={idAdmin} onChange={(event)=>{setIdAdmin(event.target.value)}}></input> <button onClick={cheatItems}>Confirmar</button><br></br>
+                <button onClick={() => { setXIopen(false) }}>Cerrar</button>
+              </>
+            }
+          </Popup>
+          <p>{mensajeErrorXI}</p>
         </div>
 
         <div id="admin_table">
