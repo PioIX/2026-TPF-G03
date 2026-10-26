@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import * as useFetch from "@/hooks/useFetch.js"
 import { useRouter, useSearchParams } from "next/navigation"
 import {useMultiBlackJack} from "@/hooks/useMultiBlackJack"
-import ArrCartas from "../components/ArrCartas";
+import ArrCartas from "@/components/ArrCartas";
 import Popup from 'reactjs-popup';
 import useSocket from "@/hooks/useSocket";
 
@@ -21,6 +21,8 @@ export default function JuegoMJPage() {
   const [inRoom,setInRoom]=useState(false)
   const [members,setMembers]=useState([])
   const [started,setStarted]=useState(false)
+  const [startDisabled,setStartDisabled]=useState(true)
+
 
 
 
@@ -65,6 +67,12 @@ export default function JuegoMJPage() {
     }
   },[estadistica,usuario, loading])
 
+    useEffect(()=>{
+      if (members.length>1){
+        setStartDisabled(false)
+      }
+  },[members])
+
 
   useEffect(()=>{
     if (!socket){
@@ -73,7 +81,7 @@ export default function JuegoMJPage() {
       if(!inRoom && !loading){
         socket.nickname=usuario.username
         let room=searchParams.get("room")
-        socket.emit("joinRoom",{room:room, user:usuario.username})
+        socket.emit("joinRoom",{roomId:room, user:usuario.username})
       }
      
        socket.on("joined",(data)=>{
@@ -94,27 +102,38 @@ export default function JuegoMJPage() {
       })
       socket.on("hostDisconnect",()=>{
         console.log("hostDisconnect")
-       router.replace("/Home?err=1")
+        router.replace("/Error?err=1")
       })
-      socket.on("disconnect",(data)=>{
-        let room=searchParams.get("room")
-        if(room==usuario.id){
-          socket.emit("hostDisconnect",room)
-        }
-        setInRoom(false)
-        console.log("desconectado")
+       socket.on("disconnecting",()=>{
+          setInRoom(false)
+          console.log("desconectado")
+        })
+      
+      socket.on("disconnected",(data)=>{
+        console.log("usuario desconectado")
+          let room=data.room
+          let roomId=searchParams.get("room")
+          if(room.ownerName==data.user){
+            socket.emit("hostDisconnect",roomId)
+          }else if(started){
+            //setear el usuario desconectado en gris o algo lol
+          }
+          console.log("desconectado")
+        
       })
     }
 
     //eventos del juego
-     socket.on("start",(data)=>{
-
+     socket.on("started",()=>{
+        setStarted(true)
       })
       socket.on("end",(data)=>{
 
       })
-      socket.on("held",(data)=>{
-
+      socket.on("held",({user})=>{
+        if (user!=usuario.username){
+          //poner que este usuario ya hizo hold
+        }
       })
   },[socket,loading])
 
@@ -142,8 +161,9 @@ useEffect(()=>{
   }
   },[popupText])
 
-  function start(){
-    {/*check de cantidad de usuarios y manda comienzo al socket*/}
+  function startGame(){
+   socket.emit("start",{room:searchParams.get("room")})
+   
   }
   function hit(){
     let res = giveusercard()
@@ -152,6 +172,8 @@ useEffect(()=>{
 
   function stand(){
     //envia los datos al back de socket y espera
+    socket.emit("hold",{username:usuario.username,roomId:searchParams.get("room"),cards:ucards,sum:sum})
+    //poner graficos de usuario distintos o poner que espere
   }
 
 
@@ -203,12 +225,12 @@ useEffect(()=>{
         </section>
       {/*Mostrar un mejor framework*/}
         <section>
-      <button disabled>Hit</button>
-      <button disabled>Stand</button>
+      
         </section>
      
       </>
     ):(
+
     (started)?(
       <>
     {/*  <header><button onClick={()=>{reset();router.back()}}>Volver</button></header>*/}
@@ -251,7 +273,11 @@ useEffect(()=>{
       </>}
       {(searchParams.get("room")==usuario.id)?(
         <>
+        {(startDisabled)?(<>
+        <button disabled>Comenzar partida</button>
+        </>):(<>
         <button onClick={()=>{startGame()}}>Comenzar partida</button>
+        </>)}
         
         </>
       ):(
@@ -259,6 +285,7 @@ useEffect(()=>{
       <h1>Esperando a que el administrador comienze la partida...</h1>
       </>
       )}
+      <button onClick={()=>{router.replace("/Home")}}>Volver</button>
       </>
     )
       

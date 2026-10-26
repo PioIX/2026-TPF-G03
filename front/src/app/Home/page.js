@@ -27,11 +27,10 @@ NO NECESARIOS:
 
 
 /*Hacer ahora:
--que todos tengan que salir de la sala cuando el host se desconecta
--mensaje de error como popup
 -puntos de apuesta de la sala vienen de base de datos (junto con otra info de sala)
 -que se pueda jugar en multijugador lol lol
 -ver cómo enviaría el socket la info de resultado de partida
+-limpiar host disconnect, corre demasiadas veces (probablmemente por el disconnecting)
 */
 
 export default function HomePage() {
@@ -118,6 +117,13 @@ export default function HomePage() {
       socket.on("roomChange",()=>{
         socket.emit("listRooms")
       })
+      socket.on("verify",({exists,roomId})=>{
+        if(exists){
+          router.push(`/JuegoMJ?room=${roomId}`)
+        }else{
+          router.push(`/Error?err=2`)
+        }
+      })
     },[socket])
   
   function logout(){
@@ -142,11 +148,7 @@ export default function HomePage() {
 
   return (
     <>
-    {Erropen&&
-    <>
-    {/*convertir a popup*/}
-    <p>{errM}</p>
-    </>}
+   
     {(loading)?(
       <>
         <h1>Cargando...</h1>
@@ -206,14 +208,12 @@ export default function HomePage() {
               {(avRooms.length>0)?(<>
               {avRooms.map((room,i)=><div key={i}>
               <p>Sala de {room.ownerName}</p>
-              <p>ID {room.roomId}</p>
               <p>{room.usersCount} usuario(s)</p>
-              <button onClick={()=>{router.push(`/JuegoMJ?room=${room.roomId}`)}}>Unirse a la sala</button>
+              <button onClick={()=>{socket.emit("roomExists",room.roomId)}}>Unirse</button>
               </div>)}
               </>):(<>
               <p>No hay salas disponibles</p>
               </>)}
-              <button onClick={()=>{socket.emit("listRooms")}}>Recargar</button>
               </>):(<>
               <p>cargando salas...</p>
               </>)}

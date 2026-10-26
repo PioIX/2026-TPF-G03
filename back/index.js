@@ -28,7 +28,7 @@ const server = app.listen(PORT, () => {
 
 const io = new Server(server, {
   cors: {
-	origin: ["http://localhost:3000", "http://localhost:3001"],
+	origin: ["http://localhost:3000", "http://localhost:3001","http://localhost:3002","http://localhost:3003"],
 	methods: ["GET", "POST", "PUT", "DELETE"],
 	credentials: true,
 	//path: "/api/socketio",
@@ -123,29 +123,14 @@ io.on("connection", (socket) => {
 	});
   });
 
-  socket.on("updateHold", ({cards,sum,username,roomId}) => {
-	roomData.get(roomId).users.set(username,{
-		sum:sum,
-		cards:cards,
-		held:true,
-		connected:true
-
-		//datos de cada usuario cuando hace hold
-	});
-	io.emit("held", {message: "Cartas y suma del usuario actualizadas",user:username});
-	let us=Array.from(roomData.get(roomId).users.values())
-	let na=us.filter(u=>u.held)
-	//posiblemente verifica quién ganó y lo manda (mejor)
-	if(na.length==us.length){
-		io.to(roomId).emit("ended", {
-	  	room: roomId,
-	  	userArr:Array.from(roomData.get(roomId).users)
-	  
-	});
-	}
-  });
 
   socket.on("listRooms", () => {
+
+	const rooms2=[]
+	for (const [roomId,roomInf] of roomData.entries()){
+      rooms2.push({roomId:roomId,...roomInf,users:[...roomInf.users.keys()],usersCount:roomInf.users.size})
+    }
+
 	const rooms=Array.from(roomData,([roomId,roomInf]) => ({
 		//roomid undefined idk
 		roomId,        
@@ -154,48 +139,95 @@ io.on("connection", (socket) => {
 		usersCount:roomInf.users.size
 	  }))
 	  .filter((room) => {
-			return !room.started;
+			return !room.started && room.users.size<4;
 		})
 	
-
-	io.emit("allRooms", {message: rooms});
+	console.log(rooms2)
+	io.emit("allRooms", {message: rooms2});
   });
 
   socket.on("hostDisconnect", (roomId) => {
-	console.log("Host Disconnect")
-	io.to(roomId).emit("hostDisconnect");
 	if (roomData.has(roomId)){
 		roomData.delete(roomId)
+		io.emit("roomChange")
 	}
+	io.to(roomId).emit("hostDisconnect");
+});
+
+  socket.on("roomChange", () => {
+	io.emit("roomChange")
   });
 
+  socket.on("roomExists", (roomId) => {
+	io.emit("verify",{exists:roomData.has(roomId),roomId:roomId}) 
+  });
 
-  socket.on("disconnect", () => {
+  socket.on("disconnecting", () => {
 	const user=socket.data.username
+	console.log("User")
+	console.log(user)
 	for (const roomId of socket.rooms) {
 		if (roomData.has(roomId)) {
 			if(roomData.get(roomId).started){
-
 				roomData.get(roomId).users.set(user,{
 				  sum:sum,
 				  cards:cards,
 				  held:true,
 				  connected:false
-			})
+				})
 			}else{
 				roomData.get(roomId).users.delete(user)
+				io.to(roomId).emit("left", {
+				room:roomId,
+				usersCount: roomData.get(roomId).users.size,
+				users: Array.from(roomData.get(roomId).users.keys())
+				});
+				io.emit("roomChange")
 			}
-			if (roomInfo.users.size === 0) {
+			if (roomData.get(roomId).users.size === 0) {
 				roomData.delete(roomId);
 			}
-			io.to(roomId).emit("disconnect", {message: "Usuario desconectado",user:user});
+			io.emit("roomChange")
+			io.to(roomId).emit("disconnected", {message: "Usuario desconectado",user:user,room:roomData.get(roomId)});
+
 		}
 	  }
 	});
+
+	
+	/*Juego*/
+	  socket.on("updateHold", ({cards,sum,username,roomId}) => {
+		roomData.get(roomId).users.set(username,{
+			sum:sum,
+			cards:cards,
+			held:true,
+			connected:true
+	
+			//datos de cada usuario cuando hace hold
+		});
+		io.emit("held", {message: "Cartas y suma del usuario actualizadas",user:username});
+		let us=Array.from(roomData.get(roomId).users.values())
+		let na=us.filter(u=>u.held)
+		
+		if(na.length==us.length){
+			//posiblemente verifica quién ganó y lo manda (mejor)
+	
+			io.to(roomId).emit("ended", {
+			  room: roomId,
+			  userArr:Array.from(roomData.get(roomId).users)
+		  
+		});
+		}
+	  });
+	
+	
+		socket.on("start", ({roomId}) => {
+			io.to(roomId).emit("started")
+	  });
+
+
+	
   });
-
-
-
 
 
 /*MYSQL*/ 

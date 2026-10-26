@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "dev:a": "cross-env NEXT_DIST_DIR=.next-a PORT=3000 next dev",
-    "dev:b": "cross-env NEXT_DIST_DIR=.next-b PORT=3001 next dev"
+    "dev:b": "cross-env NEXT_DIST_DIR=.next-b PORT=3001 next dev",
+    "dev:c": "cross-env NEXT_DIST_DIR=.next-c PORT=3002 next dev",
+    "dev:d": "cross-env NEXT_DIST_DIR=.next-d PORT=3003 next dev"
   },
   "dependencies": {
     "clsx": "^2.1.1",

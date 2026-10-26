@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import * as useFetch from "@/hooks/useFetch.js"
 import { useRouter } from "next/navigation"
-import StoreList from "../components/StoreList";
+import StoreList from "@/components/StoreList";
 import Popup from 'reactjs-popup';
 
 /*IDEAS PARA PIPIS:
