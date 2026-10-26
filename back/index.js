@@ -14,6 +14,8 @@ app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json());
 
 /*SOCKET*/ 
+const maxPlayers=4
+const roomData = new Map();
 const sessionMiddleware = session({
   secret: "supersarasa",
   resave: false,
@@ -26,7 +28,7 @@ const server = app.listen(PORT, () => {
 
 const io = new Server(server, {
   cors: {
-	origin: ["http://localhost:3000", "http://localhost:3001"],
+	origin: ["http://localhost:3000", "http://localhost:3001","http://localhost:3002","http://localhost:3003"],
 	methods: ["GET", "POST", "PUT", "DELETE"],
 	credentials: true,
 	//path: "/api/socketio",
@@ -44,17 +46,66 @@ io.on("connection", (socket) => {
 	console.log('connection')
   const req = socket.request;
 
-  socket.on("joinRoom", (data) => {
-	if (req.session.room != undefined && req.session.room.length > 0) {
-	  socket.leave(req.session.room);
-	}
-	req.session.room = data.room;
-	socket.join(req.session.room);
+  socket.on("joinRoom", ({roomId,user}) => {
 
-	io.to(req.session.room).emit("inf", {
-	  user: req.session.user,
-	  room: req.session.room,
-	});
+	  if (!roomData.has(roomId)) {
+		  roomData.set(roomId, {
+			createdAt: new Date(),
+			users: new Map(),
+			started: false,
+			ended: false,
+			ownerName:user
+
+
+			//datos de la sala que se crean al principio
+		  });
+		}
+		const roomInfo = roomData.get(roomId);
+		if (roomInfo.users.size<maxPlayers&&!roomInfo.started){
+			socket.data.username=user
+			socket.join(roomId);
+			if(!roomInfo.users.has(user)){
+				roomInfo.users.set(user,{
+					sum:0,
+					cards:[],
+					held:false,
+					connected:true
+					//datos de cada usuario que inicia
+				});
+			}else{
+				let userT=roomInfo.users.get(user)
+				userT.active=true
+				roomInfo.users.set(user,userT)
+				io.to(roomId).emit("activated", {
+					room:roomId,
+					usersCount: roomInfo.users.size,
+					user: userT
+				});
+			}
+			io.to(roomId).emit("joined", {
+				room:roomId,
+				usersCount: roomInfo.users.size,
+				users: Array.from(roomInfo.users.keys())
+			});
+			io.emit("roomChange")
+		}else{
+			io.emit("msg",{message:"No hay lugar en la sala"})
+		}
+	
+  });
+
+
+  socket.on("leave", ({user,roomId}) => {
+	const roomInfo = roomData.get(roomId);
+	if(roomInfo.users.has(user)){
+		roomInfo.users.delete(user);
+			}
+		io.to(roomId).emit("left", {
+				room:roomId,
+				usersCount: roomInfo.users.size,
+				users: Array.from(roomInfo.users.keys())
+			});
+		io.emit("roomChange")
   });
 
   socket.on("pingAll", (data) => {
@@ -62,23 +113,121 @@ io.on("connection", (socket) => {
 	io.emit("pingAll", { event: "Ping to all", message: data });
   });
 
-  socket.on("sendMessage", (data) => {
+  socket.on("newmsg", ({roomId,message}) => {
 	console.log("Message recieved")
-	console.log(data.message)
-	io.to(req.session.room).emit("newMessage", {
-	  room: req.session.room,
-	  message: data.message,
+	console.log(message)
+	io.to(roomId).emit("msg", {
+	  room: roomId,
+	  message:message,
 	  
 	});
   });
 
 
-  socket.on("disconnect", () => {
-	console.log("Disconnect");
+  socket.on("listRooms", () => {
+
+	const rooms2=[]
+	for (const [roomId,roomInf] of roomData.entries()){
+      rooms2.push({roomId:roomId,...roomInf,users:[...roomInf.users.keys()],usersCount:roomInf.users.size})
+    }
+
+	const rooms=Array.from(roomData,([roomId,roomInf]) => ({
+		//roomid undefined idk
+		roomId,        
+		...roomInf,
+		users:[...roomInf.users.keys()],
+		usersCount:roomInf.users.size
+	  }))
+	  .filter((room) => {
+			return !room.started && room.users.size<4;
+		})
+	
+	console.log(rooms2)
+	io.emit("allRooms", {message: rooms2});
   });
+
+  socket.on("hostDisconnect", (roomId) => {
+	if (roomData.has(roomId)){
+		roomData.delete(roomId)
+		io.emit("roomChange")
+	}
+	io.to(roomId).emit("hostDisconnect");
 });
 
+  socket.on("roomChange", () => {
+	io.emit("roomChange")
+  });
 
+  socket.on("roomExists", (roomId) => {
+	io.emit("verify",{exists:roomData.has(roomId),roomId:roomId}) 
+  });
+
+  socket.on("disconnecting", () => {
+	const user=socket.data.username
+	console.log("User")
+	console.log(user)
+	for (const roomId of socket.rooms) {
+		if (roomData.has(roomId)) {
+			if(roomData.get(roomId).started){
+				roomData.get(roomId).users.set(user,{
+				  sum:sum,
+				  cards:cards,
+				  held:true,
+				  connected:false
+				})
+			}else{
+				roomData.get(roomId).users.delete(user)
+				io.to(roomId).emit("left", {
+				room:roomId,
+				usersCount: roomData.get(roomId).users.size,
+				users: Array.from(roomData.get(roomId).users.keys())
+				});
+				io.emit("roomChange")
+			}
+			if (roomData.get(roomId).users.size === 0) {
+				roomData.delete(roomId);
+			}
+			io.emit("roomChange")
+			io.to(roomId).emit("disconnected", {message: "Usuario desconectado",user:user,room:roomData.get(roomId)});
+
+		}
+	  }
+	});
+
+	
+	/*Juego*/
+	  socket.on("updateHold", ({cards,sum,username,roomId}) => {
+		roomData.get(roomId).users.set(username,{
+			sum:sum,
+			cards:cards,
+			held:true,
+			connected:true
+	
+			//datos de cada usuario cuando hace hold
+		});
+		io.emit("held", {message: "Cartas y suma del usuario actualizadas",user:username});
+		let us=Array.from(roomData.get(roomId).users.values())
+		let na=us.filter(u=>u.held)
+		
+		if(na.length==us.length){
+			//posiblemente verifica quién ganó y lo manda (mejor)
+	
+			io.to(roomId).emit("ended", {
+			  room: roomId,
+			  userArr:Array.from(roomData.get(roomId).users)
+		  
+		});
+		}
+	  });
+	
+	
+		socket.on("start", ({roomId}) => {
+			io.to(roomId).emit("started")
+	  });
+
+
+	
+  });
 
 
 /*MYSQL*/ 

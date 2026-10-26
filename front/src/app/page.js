@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 export default function LoginPage() {
  const [logged,setLogged]=useState(false)
 const [disabled,setDisabled]=useState(false)
+ const [process,setProcess]=useState("")
 
  const [loading,setLoading]=useState(true)
   const [arrayUsuarios, setArrayUsuarios] = useState([])
@@ -13,6 +14,9 @@ const [disabled,setDisabled]=useState(false)
   const [contrasena, setContrasena] = useState("")
   const [errorMessage, setErrorMessage] = useState("")
   const router = useRouter();
+
+
+ 
 
   useEffect(() => {
     let t=localStorage.getItem("userid")
@@ -40,21 +44,34 @@ const [disabled,setDisabled]=useState(false)
     }
   },[loading,arrayUsuarios])
 
+    useEffect(()=>{
+    if(disabled){
+      if(process=="login"){
+        handleLogin()
+      }else if(process=="registro"){
+        handleSignup()
+      }
+    }
+  },[process,disabled])
+
   function handleSignup() {
-    setDisabled(true)
     console.log("signup REACHED")
     if (usuario == ""  || contrasena == "") {
       setErrorMessage("Rellene todos los campos.")
+      setProcess("")
       setDisabled(false)
 
     }else{
       if(/\W/.test(usuario) ||/[^a-zA-Z0-9_]/.test(contrasena)){
       setErrorMessage("Alguno de los datos no es válido. Revise si utilizó caracteres especiales o espacios.")
+      setProcess("")
       setDisabled(false)
+
 
       }else{
         if (arrayUsuarios.some(usu => usu.username == usuario) == true ) {
         setErrorMessage("Nombre de usuario repetido")
+        setProcess("")
         setDisabled(false)
         } else {
           let nuevoUsuario = {
@@ -71,6 +88,7 @@ const [disabled,setDisabled]=useState(false)
           //fetch de post devuelve el id del dato insertado
               useFetch.postEstadistica(data)
             .then((data)=>{
+              setProcess("")
               setDisabled(false)
               setLogged(true)
               })
@@ -83,9 +101,9 @@ const [disabled,setDisabled]=useState(false)
   }
 
   function handleLogin() {
-    setDisabled(true)
      if (usuario == ""  || contrasena == "") {
       setErrorMessage("Rellene todos los campos.")
+      setProcess("")
       setDisabled(false)
 
     }else{
@@ -97,6 +115,7 @@ const [disabled,setDisabled]=useState(false)
               console.log(t)
               localStorage.setItem("userid",t)
                /*sessionStorage.setItem("User", JSON.stringify(usuarioLogueado))*/ //ver si hacemos con cookies o que
+               setProcess("")
               setDisabled(false)
               setLogged(true)
   
@@ -105,6 +124,7 @@ const [disabled,setDisabled]=useState(false)
       }
       if(!t){
         setErrorMessage("Usuario o contraseña incorrecta")
+        setProcess("")
         setDisabled(false)
   
       }
@@ -128,12 +148,12 @@ const [disabled,setDisabled]=useState(false)
       <input placeholder='Contraseña' value={contrasena} onChange={(event)=>{setContrasena(event.target.value)}} type="password"></input>
       <p>{errorMessage}</p>
       {disabled?(<>
-       <button onClick={handleLogin}>Iniciar sesión</button>
-      <button onClick={handleSignup}>Registrarse</button>
+       <button disabled>Iniciar sesión</button>
+      <button disabled>Registrarse</button>
   
       </>):(<>
-      <button onClick={handleLogin}>Iniciar sesión</button>
-      <button onClick={handleSignup}>Registrarse</button>
+      <button onClick={()=>{setDisabled(true);setProcess("login")}}>Iniciar sesión</button>
+      <button onClick={()=>{setDisabled(true);setProcess("registro")}}>Registrarse</button>
       </>)}
          
     </>
