@@ -31,6 +31,8 @@ NO NECESARIOS:
 -que se pueda jugar en multijugador lol lol
 -ver cómo enviaría el socket la info de resultado de partida
 -limpiar host disconnect, corre demasiadas veces (probablmemente por el disconnecting)
+-rari que cuando hay 3 localhost 2 automaticamente se unen a la sala
+-tambien kickear al host cuando se desconecteeee (?)
 */
 
 export default function HomePage() {
@@ -117,11 +119,14 @@ export default function HomePage() {
       socket.on("roomChange",()=>{
         socket.emit("listRooms")
       })
-      socket.on("verify",({exists,roomId})=>{
-        if(exists){
-          router.push(`/JuegoMJ?room=${roomId}`)
-        }else{
-          router.push(`/Error?err=2`)
+      socket.on("verify",({exists,roomId,user})=>{
+        if(user==usuario.username){
+
+          if(exists){
+            router.push(`/JuegoMJ?room=${roomId}`)
+          }else{
+            router.push(`/Error?err=2`)
+          }
         }
       })
     },[socket])
@@ -209,7 +214,7 @@ export default function HomePage() {
               {avRooms.map((room,i)=><div key={i}>
               <p>Sala de {room.ownerName}</p>
               <p>{room.usersCount} usuario(s)</p>
-              <button onClick={()=>{socket.emit("roomExists",room.roomId)}}>Unirse</button>
+              <button onClick={()=>{socket.emit("roomExists",{roomId:room.roomId,user:usuario.username})}}>Unirse</button>
               </div>)}
               </>):(<>
               <p>No hay salas disponibles</p>

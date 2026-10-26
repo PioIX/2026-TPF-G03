@@ -158,8 +158,8 @@ io.on("connection", (socket) => {
 	io.emit("roomChange")
   });
 
-  socket.on("roomExists", (roomId) => {
-	io.emit("verify",{exists:roomData.has(roomId),roomId:roomId}) 
+  socket.on("roomExists", ({roomId,user}) => {
+	io.emit("verify",{exists:roomData.has(roomId),roomId:roomId,user:user}) 
   });
 
   socket.on("disconnecting", () => {
