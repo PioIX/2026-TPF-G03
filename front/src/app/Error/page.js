@@ -17,6 +17,10 @@ export default function ErrorPage() {
         setEMsg("Host desconectado")
     }else if(err==2){
          setEMsg("Sala no existe")
+    }else if(err==3){
+         setEMsg("Sala ya existe")
+    }else if(err==4){
+         setEMsg("Sala no disponible")
     }
     },[])
 

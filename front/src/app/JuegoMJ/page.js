@@ -92,6 +92,15 @@ export default function JuegoMJPage() {
         setMembers(data.users)
         
       })
+      //usuario no recibe el error
+      socket.on("error",({type,user})=>{
+        console.log(usuario)
+        if(user==usuario.username){
+
+          console.log("Error recieved")
+          router.replace(`/Error?err=${type}`)
+        }
+      })
 
       socket.on("left",(data)=>{
         console.log(data)

@@ -111,22 +111,31 @@ export default function HomePage() {
       if(!socket){
         return
       }
+      console.log(socket.id)
       socket.on("allRooms",(data)=>{
         let rooms=data.message
         console.log(rooms)
         setAvRooms(rooms)
       })
+      
       socket.on("roomChange",()=>{
         socket.emit("listRooms")
       })
-      socket.on("verify",({exists,roomId,user})=>{
-        if(user==usuario.username){
-
+      socket.on("verify",({exists,roomId,userId})=>{
+      
+        if(userId==localStorage.getItem("userid")){
           if(exists){
             router.push(`/JuegoMJ?room=${roomId}`)
           }else{
             router.push(`/Error?err=2`)
           }
+        }
+      })
+      socket.on("created",({userId})=>{
+        if(userId==localStorage.getItem("userId")){
+
+          router.push(`/JuegoMJ?room=${userId}`)
+
         }
       })
     },[socket])
@@ -214,7 +223,7 @@ export default function HomePage() {
               {avRooms.map((room,i)=><div key={i}>
               <p>Sala de {room.ownerName}</p>
               <p>{room.usersCount} usuario(s)</p>
-              <button onClick={()=>{socket.emit("roomExists",{roomId:room.roomId,user:usuario.username})}}>Unirse</button>
+              <button onClick={()=>{socket.emit("roomExists",{roomId:room.roomId,userId:usuario.id})}}>Unirse</button>
               </div>)}
               </>):(<>
               <p>No hay salas disponibles</p>
@@ -223,7 +232,7 @@ export default function HomePage() {
               <p>cargando salas...</p>
               </>)}
               
-            <button onClick={()=>{router.push(`/JuegoMJ?room=${usuario.id}`)}}>Crear sala</button>
+            <button onClick={()=>{socket.emit("createRoom",{userId:usuario.id})}}>Crear sala</button>
             <button onClick={()=>{setMopen(false)}}>Volver</button>
               </>   
           }
