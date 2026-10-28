@@ -8,13 +8,15 @@ export const useMultiBlackJack = () => {
     const [sum,setSum] = useState([])
     const [ace11,setAce11]= useState([])
     const [ucards,setUCards] = useState([])
-    const [wl,setWL] = useState(0)
-    
+    const [held,setHeld] = useState(false)
 
 useEffect (()=>{
-        let temp=sum
+        let temp=Number(sum)
+        console.log(temp)
         if (sum>21 & ace11){
-            setSum((prev)=>prev-10)
+            console.log("SUM")
+            console.log(sum)
+            setSum(temp-10)
             setAce11(false)
             temp-=10
             
@@ -24,30 +26,31 @@ useEffect (()=>{
         
         if (temp>21){
             console.log("Perdiste")
-            setWL(-1)
+            setHeld(true)
         }else{
             if(temp==21){
                 console.log("Ganaste!")
-                setIsUserTurn(false)
-                setWL(1)
+                setHeld(true)
             }
         
         }
     },[sum])
 
     const giveusercard= ()=>{
+        let temp=Number(sum)
+        console.log(temp)
         let usertemp=cards[Math.floor(Math.random() * cards.length)]
         setUCards((prev)=>[...prev,[usertemp,Math.random()>=0.5]])
         if (usertemp=="A"){
             setAce11(true)
             usertemp=11
-            setSum((prev)=>prev+11)
+            setSum(temp+11)
         }else{ 
             if(usertemp=="J" || usertemp=="Q" || usertemp=="K"){
                 usertemp=10
-                setSum((prev)=>prev+10)
+                setSum(temp+10)
             }else{
-                setSum((prev)=>prev+usertemp)
+                setSum(temp+usertemp)
             }
         
         }
@@ -63,15 +66,16 @@ useEffect (()=>{
         setSum(0)
         setUCards([])
         setAce11(false)
-        setWL(0)
+        setHeld(false)
     }
  return {
         sum,
         ucards,
         reset,
         giveusercard,
-        wl,
-        setWL,
+        held,
+        setHeld
+        
         
     }
 

@@ -9,20 +9,19 @@ import useSocket from "@/hooks/useSocket";
 
 
 export default function JuegoMJPage() {
-  const {sum,ucards,reset,giveusercard,wl,setWL} = useMultiBlackJack()
+  const {sum,ucards,reset,giveusercard,held,setHeld} = useMultiBlackJack()
   const router=useRouter()
   const { socket, isConnected } = useSocket();
   const searchParams = useSearchParams();
   const [usuario,setUsuario]=useState({})
   const [estadistica,setEstadistica]=useState({})
   const [loading,setLoading]=useState(true)
-  const [disabled,setDisabled]=useState(true)
   const [open,setOpen]=useState(false)
   const [inRoom,setInRoom]=useState(false)
   const [members,setMembers]=useState([])
   const [started,setStarted]=useState(false)
   const [startDisabled,setStartDisabled]=useState(true)
-
+//hay que guardar los datos de los usuarios para mostrarlos (saber nombre y si están conectados)
 
 
 
@@ -34,7 +33,7 @@ export default function JuegoMJPage() {
         usuarioId = localStorage.getItem("userid")
         let ptemp=1
         //CAMBIAR ESTO A PUNTOS DE LA SALA
-        setWL(0)
+        setPopupText("")
         setOpen(false)
         if(ptemp){
           setPuntosA(ptemp)
@@ -62,7 +61,6 @@ export default function JuegoMJPage() {
     if (usuario && estadistica && loading){
       if(Object.keys(usuario).length!=0&&Object.keys(estadistica).length!=0){
         setLoading(false)
-        setDisabled(false)
       }
     }
   },[estadistica,usuario, loading])
@@ -74,19 +72,34 @@ export default function JuegoMJPage() {
   },[members])
 
 
+ 
+
+    useEffect(()=>{
+      if (started){
+       giveusercard()
+      }
+  },[started])
+
+    useEffect(()=>{
+      if (held){
+            //envia los datos al back de socket y espera
+            socket.emit("updateHold",{username:usuario.username,roomId:searchParams.get("room"),cards:ucards,sum:sum})
+          //poner graficos de usuario distintos o poner que espere
+      }
+  },[held])
+
+
   useEffect(()=>{
     if (!socket){
       return      
     }else{
       if(!inRoom && !loading){
-        console.log("joining")
         socket.nickname=usuario.username
         let room=searchParams.get("room")
         socket.emit("joinRoom",{roomId:room, user:usuario.username,socketId:socket.id})
       }
      
        socket.on("joined",(data)=>{
-        console.log(data)
         if(data.user==usuario.username){
           console.log("joined")
           setInRoom(true)
@@ -101,40 +114,34 @@ export default function JuegoMJPage() {
       })
 
       socket.on("left",(data)=>{
-        console.log(data)
         setMembers(data.users)
       })
       socket.on("msg",(data)=>{
         console.log(data)
       })
       socket.on("hostDisconnect",()=>{
-        console.log("hostDisconnect")
         router.replace("/Error?err=1")
       })
        socket.on("disconnecting",()=>{
           setInRoom(false)
-          console.log("desconectado")
         })
       
       socket.on("disconnected",(data)=>{
         console.log("usuario desconectado")
           let room=data.room
           let roomId=searchParams.get("room")
-          console.log(room.ownerName)
-          console.log(data.user)
           if(room.ownerName==data.user){
-            console.log("host disconnect emitting")
             socket.emit("hostDisconnect",roomId)
           }else if(started){
             //setear el usuario desconectado en gris o algo lol
           }
-          console.log("desconectado")
         
       })
     }
 
     //eventos del juego
      socket.on("started",()=>{
+        console.log("started recieved")
         setStarted(true)
       })
       socket.on("end",(data)=>{
@@ -149,30 +156,19 @@ export default function JuegoMJPage() {
 
 
   //ver si conviene que el back le mande a cada uno su estado o que envie el ganador y ahí se decida
-useEffect(()=>{
-    if (wl==1){
-      setDisabled(true)
-      if(usersum==21){
-        win(parseInt(puntosA)*3)
-      }else{
-        win(puntosA)
-      }
-      }else if(wl==-1){
-        setDisabled(true)
-        lose(puntosA)
-      }
-      
-  },[wl])
 
 
 useEffect(()=>{
-  if(wl!=0){
+  if(popupText){
+
     setOpen(true)
   }
+
   },[popupText])
 
   function startGame(){
-   socket.emit("start",{room:searchParams.get("room")})
+    console.log("start")
+    socket.emit("start",{roomId:searchParams.get("room")})
    
   }
   function hit(){
@@ -181,9 +177,8 @@ useEffect(()=>{
   }
 
   function stand(){
-    //envia los datos al back de socket y espera
-    socket.emit("hold",{username:usuario.username,roomId:searchParams.get("room"),cards:ucards,sum:sum})
-    //poner graficos de usuario distintos o poner que espere
+    setHeld(true)
+
   }
 
 
@@ -252,7 +247,8 @@ useEffect(()=>{
           {/*Cartas de los otros usuarios dadas vuelta*/}
         </section>
         <section>
-          {(disabled)?(<>
+          {(held )?(<>
+          <h2>Esperando a los otros jugadores....</h2>
           <button disabled>Hit</button>
           <button disabled>Stand</button>
           </>):(<>
@@ -265,7 +261,7 @@ useEffect(()=>{
             <div>
             <h2>{popupText}</h2>
             <ul>
-              <li>Vos: {usersum}</li>
+              <li>Vos: {sum}</li>
               <li>Tu dinero: {usuario.points}</li>
             </ul>
           </div>       

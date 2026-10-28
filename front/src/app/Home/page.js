@@ -28,11 +28,10 @@ NO NECESARIOS:
 
 /*Hacer ahora:
 -puntos de apuesta de la sala vienen de base de datos (junto con otra info de sala)
--que se pueda jugar en multijugador lol lol
--ver cómo enviaría el socket la info de resultado de partida
--limpiar host disconnect, corre demasiadas veces (probablmemente por el disconnecting)  NO ANDA LPM
--mostrar error cuando sala a la que se quiere unir no existe (CASI ANDA)
-ver como mandar resultados individualmente
+-que se pueda jugar en multijugador lol lol (cerca)
+-ver cómo enviaría el socket la info de resultado de partida (parte 2)
+-ver qué pasa con los desconectados en el medio de la partida
+-todavia se ven salas empezadas en home
 */
 
 export default function HomePage() {
@@ -136,7 +135,6 @@ export default function HomePage() {
         }
       })
       socket.on("created",({roomId})=>{
-        console.log("room created")
         router.replace(`/JuegoMJ?room=${roomId}`)
       })
     },[socket])

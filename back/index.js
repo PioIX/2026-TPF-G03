@@ -43,7 +43,6 @@ io.use((socket, next) => {
 
 
 io.on("connection", (socket) => {
-	console.log('connection')
   const req = socket.request;
 
 	
@@ -55,6 +54,7 @@ io.on("connection", (socket) => {
   //falta terminar created room 
   //verificar a quien le manda mejor
 	socket.on("createRoom",({roomId,user,socketId})=>{
+		roomId=parseInt(roomId)
 	  if (!roomData.has(roomId)) {
 		
 		  roomData.set(roomId, {
@@ -65,9 +65,6 @@ io.on("connection", (socket) => {
 			ownerName:user
 			//datos de la sala que se crean al principio
 		  });
-		  console.log("SALA CREADA")
-		console.log(roomId)
-		console.log(user)
 			roomData.get(roomId).users.set(user,{
 					sum:0,
 					cards:[],
@@ -88,22 +85,14 @@ io.on("connection", (socket) => {
 
   socket.on("joinRoom", ({roomId,user,socketId}) => {
 	roomId=parseInt(roomId)
-	console.log(parseInt(roomId))
-	console.log(user)
-	console.log(socketId)
-	console.log(roomData)
-	console.log(roomData.has(roomId))
 
 		if (roomData.has(roomId)){
 			const roomInfo = roomData.get(roomId);
-			console.log("Room exists")
 			if (roomInfo.users.size<maxPlayers&&!roomInfo.started){
-				console.log("Room is valid")
 
 				socket.data.username=user
 				socket.join(roomId);
 				if(!roomInfo.users.has(user)){
-					console.log("Room doesnt have user")
 					roomInfo.users.set(user,{
 						sum:0,
 						cards:[],
@@ -112,7 +101,6 @@ io.on("connection", (socket) => {
 						//datos de cada usuario que inicia
 					});
 				}else{
-					console.log("Room has user")
 					let userT=roomInfo.users.get(user)
 					userT.active=true
 					roomInfo.users.set(user,userT)
@@ -132,7 +120,6 @@ io.on("connection", (socket) => {
 				io.to(socketId).emit("error",{type:4})
 			}
 		}else{
-			console.log("SALA NO EXISTE")
 			io.to(socketId).emit("error",{type:2})
 		}
 	
@@ -140,6 +127,7 @@ io.on("connection", (socket) => {
 
 
   socket.on("leave", ({user,roomId}) => {
+	roomId=parseInt(roomId)
 	const roomInfo = roomData.get(roomId);
 	if(roomInfo.users.has(user)){
 		roomInfo.users.delete(user);
@@ -160,11 +148,12 @@ io.on("connection", (socket) => {
       rooms2.push({roomId:roomId,...roomInf,users:[...roomInf.users.keys()],usersCount:roomInf.users.size})
     }
 
-	console.log(rooms2)
 	io.emit("allRooms", {message: rooms2});
   });
 
   socket.on("hostDisconnect", (roomId) => {
+	roomId=parseInt(roomId)
+		console.log(roomId)
 	if (roomData.has(roomId)){
 		roomData.delete(roomId)
 		io.emit("roomChange")
@@ -189,12 +178,9 @@ io.on("connection", (socket) => {
 	for (const roomId of socket.rooms) {
 		if (roomData.has(roomId)) {
 			if(roomData.get(roomId).started){
-				roomData.get(roomId).users.set(user,{
-				  sum:sum,
-				  cards:cards,
-				  held:true,
-				  connected:false
-				})
+				let temp=roomData.get(roomId).users.get(user)
+				temp.connected=false
+				roomData.get(roomId).users.set(user,temp)
 			}else{
 				roomData.get(roomId).users.delete(user)
 				io.to(roomId).emit("left", {
@@ -217,6 +203,7 @@ io.on("connection", (socket) => {
 	
 	/*Juego*/
 	  socket.on("updateHold", ({cards,sum,username,roomId}) => {
+		roomId=parseInt(roomId)
 		roomData.get(roomId).users.set(username,{
 			sum:sum,
 			cards:cards,
@@ -227,14 +214,21 @@ io.on("connection", (socket) => {
 		});
 		io.emit("held", {message: "Cartas y suma del usuario actualizadas",user:username});
 		let us=Array.from(roomData.get(roomId).users.values())
-		let na=us.filter(u=>u.held)
+		let na=us.filter(u=>u.held||!u.connected)
 		
 		if(na.length==us.length){
-			//posiblemente verifica quién ganó y lo manda (mejor)
-	
+			
+			let winner=["",{sum:0}]
+			const userArr=Array.from(roomData.get(roomId).users)
+			for(const [user,data] of userArr){
+				if(data.sum>winner[1].sum&&data.sum<=21){
+					winner=[user,data]
+				}
+			}
 			io.to(roomId).emit("ended", {
 			  room: roomId,
-			  userArr:Array.from(roomData.get(roomId).users)
+			  userArr:userArr,
+			  winner:winner
 		  
 		});
 		}
@@ -242,7 +236,19 @@ io.on("connection", (socket) => {
 	
 	
 		socket.on("start", ({roomId}) => {
-			io.to(roomId).emit("started")
+			console.log("start recieved")
+			roomId=parseInt(roomId)
+			if(roomData.has(roomId)){
+				let temp=roomData.get(roomId)
+				temp.started=true
+				roomData.set(roomId,temp)
+			   io.to(roomId).emit("started")
+			   io.emit("roomChange")
+			}else{
+				io.to(roomId).emit("error",{type:2})
+			//datos de la sala que se crean al principio
+		  	}
+			
 	  });
 
 
