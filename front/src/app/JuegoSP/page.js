@@ -104,6 +104,8 @@ useEffect(()=>{
       if(wl==0 && dealsum<=usersum && dealsum<21){
         let res=givedealcard()
         console.log(res)
+      } else if(dealsum>usersum){
+       setWL(-1)
       }
       
     }, 1500);
@@ -184,7 +186,7 @@ useEffect(()=>{
           <button onClick={()=>{stand()}}>Stand</button>
           </>)}
         </section>
-        <Popup open={open} onClose={()=>{setOpen(false)}} closeOnDocumentClick={false} closeOnEscape={false}>
+        <Popup open={open} onClose={()=>{setOpen(false)}} closeOnDocumentClick={false} closeOnEscape={false} >
           {(usuario)?(
             <div>
             <h2>{popupText}</h2>

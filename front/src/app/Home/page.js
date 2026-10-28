@@ -172,8 +172,8 @@ export default function HomePage() {
       
     
           <header>
-          <button onClick={()=>{setLopen(true)}}></button>
-          <button onClick={()=>{setEopen(true)}}></button>
+          <button onClick={()=>{setLopen(true)}}>Logout</button>
+          <button onClick={()=>{setEopen(true)}}>Estadistica</button>
         </header>
 
         <div>
