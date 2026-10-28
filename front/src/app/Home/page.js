@@ -30,9 +30,9 @@ NO NECESARIOS:
 -puntos de apuesta de la sala vienen de base de datos (junto con otra info de sala)
 -que se pueda jugar en multijugador lol lol
 -ver cómo enviaría el socket la info de resultado de partida
--limpiar host disconnect, corre demasiadas veces (probablmemente por el disconnecting)
--rari que cuando hay 3 localhost 2 automaticamente se unen a la sala
--tambien kickear al host cuando se desconecteeee (?)
+-limpiar host disconnect, corre demasiadas veces (probablmemente por el disconnecting)  NO ANDA LPM
+-mostrar error cuando sala a la que se quiere unir no existe (CASI ANDA)
+ver como mandar resultados individualmente
 */
 
 export default function HomePage() {
@@ -45,6 +45,8 @@ export default function HomePage() {
   const [Lopen,setLopen]=useState(false)
   const [Mopen,setMopen]=useState(false)
   const [Erropen,setErropen]=useState(false)
+  const [disabled,setDisabled]=useState(false)
+
   const [errM,setErrM]=useState("")
 
 
@@ -78,6 +80,7 @@ export default function HomePage() {
   useEffect(()=>{
     if(usuario && Object.keys(usuario).length!=0){
       setLoading(false)
+      setDisabled(false)
     }
   },[usuario])
 
@@ -88,11 +91,7 @@ export default function HomePage() {
   },[Eopen])
 
 
-  useEffect(()=>{
-    if(errM){
-      setErropen(true)
-    }
-  },[errM])
+
   
   useEffect(()=>{
     if(estadistica && Object.keys(estadistica).length!=0){
@@ -111,13 +110,18 @@ export default function HomePage() {
       if(!socket){
         return
       }
-      console.log(socket.id)
+      
       socket.on("allRooms",(data)=>{
         let rooms=data.message
         console.log(rooms)
         setAvRooms(rooms)
       })
-      
+      socket.on("error",({type})=>{
+        
+      })
+      socket.on("connect",()=>{
+        console.log(socket.id)
+      })
       socket.on("roomChange",()=>{
         socket.emit("listRooms")
       })
@@ -131,12 +135,9 @@ export default function HomePage() {
           }
         }
       })
-      socket.on("created",({userId})=>{
-        if(userId==localStorage.getItem("userId")){
-
-          router.push(`/JuegoMJ?room=${userId}`)
-
-        }
+      socket.on("created",({roomId})=>{
+        console.log("room created")
+        router.replace(`/JuegoMJ?room=${roomId}`)
       })
     },[socket])
   
@@ -223,7 +224,14 @@ export default function HomePage() {
               {avRooms.map((room,i)=><div key={i}>
               <p>Sala de {room.ownerName}</p>
               <p>{room.usersCount} usuario(s)</p>
-              <button onClick={()=>{socket.emit("roomExists",{roomId:room.roomId,userId:usuario.id})}}>Unirse</button>
+              {/*<button onClick={()=>{socket.emit("roomExists",{roomId:room.roomId,userId:usuario.id})}}>Unirse</button>*/}
+              {(disabled)?(
+                <button disabled>Unirse</button>
+              ):(
+                <button onClick={()=>{setDisabled(true);router.push(`/JuegoMJ?room=${room.roomId}`)}}>Unirse</button>
+              )}
+              
+
               </div>)}
               </>):(<>
               <p>No hay salas disponibles</p>
@@ -231,9 +239,14 @@ export default function HomePage() {
               </>):(<>
               <p>cargando salas...</p>
               </>)}
-              
-            <button onClick={()=>{socket.emit("createRoom",{userId:usuario.id})}}>Crear sala</button>
+             {(disabled)?(<>
+            <button disabled>Crear sala</button>
+            <button disabled>Volver</button>
+             </>):(<>
+            <button onClick={()=>{setDisabled(true);socket.emit("createRoom",{user:usuario.username,socketId:socket.id,roomId:usuario.id});}}>Crear sala</button>
             <button onClick={()=>{setMopen(false)}}>Volver</button>
+             </>)} 
+           
               </>   
           }
        </Popup>

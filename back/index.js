@@ -28,7 +28,7 @@ const server = app.listen(PORT, () => {
 
 const io = new Server(server, {
   cors: {
-	origin: ["http://localhost:3000", "http://localhost:3001","http://localhost:3002","http://localhost:3003"],
+	origin: ["http://localhost:3000", "http://localhost:3001","http://localhost:3002","http://localhost:3003","http://localhost:3004"],
 	methods: ["GET", "POST", "PUT", "DELETE"],
 	credentials: true,
 	//path: "/api/socketio",
@@ -46,11 +46,17 @@ io.on("connection", (socket) => {
 	console.log('connection')
   const req = socket.request;
 
+	
+  socket.on("pingAll", (data) => {
+	console.log("PING ALL:", data);
+	io.emit("pingAll", { event: "Ping to all", message: data });
+  });
 
   //falta terminar created room 
   //verificar a quien le manda mejor
-	socket.on("createRoom",({roomId,user})=>{
+	socket.on("createRoom",({roomId,user,socketId})=>{
 	  if (!roomData.has(roomId)) {
+		
 		  roomData.set(roomId, {
 			createdAt: new Date(),
 			users: new Map(),
@@ -59,17 +65,18 @@ io.on("connection", (socket) => {
 			ownerName:user
 			//datos de la sala que se crean al principio
 		  });
-			roomInfo.users.set(user,{
+		  console.log("SALA CREADA")
+		console.log(roomId)
+		console.log(user)
+			roomData.get(roomId).users.set(user,{
 					sum:0,
 					cards:[],
 					held:false,
 					connected:true
 					//datos de cada usuario que inicia
 				});
-			io.to(roomId).emit("created", {
-					room:roomId,
-					usersCount: roomInfo.users.size,
-					users: Array.from(roomInfo.users.keys())
+			io.to(socketId).emit("created", {
+					roomId:roomId,
 				});
 			io.emit("roomChange")	
 		}else{
@@ -79,13 +86,24 @@ io.on("connection", (socket) => {
 	})
 
 
-  socket.on("joinRoom", ({roomId,user}) => {
+  socket.on("joinRoom", ({roomId,user,socketId}) => {
+	roomId=parseInt(roomId)
+	console.log(parseInt(roomId))
+	console.log(user)
+	console.log(socketId)
+	console.log(roomData)
+	console.log(roomData.has(roomId))
+
 		if (roomData.has(roomId)){
 			const roomInfo = roomData.get(roomId);
+			console.log("Room exists")
 			if (roomInfo.users.size<maxPlayers&&!roomInfo.started){
+				console.log("Room is valid")
+
 				socket.data.username=user
 				socket.join(roomId);
 				if(!roomInfo.users.has(user)){
+					console.log("Room doesnt have user")
 					roomInfo.users.set(user,{
 						sum:0,
 						cards:[],
@@ -94,6 +112,7 @@ io.on("connection", (socket) => {
 						//datos de cada usuario que inicia
 					});
 				}else{
+					console.log("Room has user")
 					let userT=roomInfo.users.get(user)
 					userT.active=true
 					roomInfo.users.set(user,userT)
@@ -110,10 +129,11 @@ io.on("connection", (socket) => {
 				});
 				io.emit("roomChange")
 			}else{
-				io.emit("error",{type:4})
+				io.to(socketId).emit("error",{type:4})
 			}
 		}else{
-			io.emit("error",{type:2,user:user})
+			console.log("SALA NO EXISTE")
+			io.to(socketId).emit("error",{type:2})
 		}
 	
   });
@@ -132,11 +152,6 @@ io.on("connection", (socket) => {
 		io.emit("roomChange")
   });
 
-  socket.on("pingAll", (data) => {
-	console.log("PING ALL:", data);
-	io.emit("pingAll", { event: "Ping to all", message: data });
-  });
-
 
   socket.on("listRooms", () => {
 
@@ -145,17 +160,6 @@ io.on("connection", (socket) => {
       rooms2.push({roomId:roomId,...roomInf,users:[...roomInf.users.keys()],usersCount:roomInf.users.size})
     }
 
-	const rooms=Array.from(roomData,([roomId,roomInf]) => ({
-		//roomid undefined idk
-		roomId,        
-		...roomInf,
-		users:[...roomInf.users.keys()],
-		usersCount:roomInf.users.size
-	  }))
-	  .filter((room) => {
-			return !room.started && room.users.size<maxPlayers;
-		})
-	
 	console.log(rooms2)
 	io.emit("allRooms", {message: rooms2});
   });
@@ -174,9 +178,9 @@ io.on("connection", (socket) => {
 
 
   //puede que haya quedado obsoleto
-  socket.on("roomExists", ({roomId,userId}) => {
+ /* socket.on("roomExists", ({roomId,userId}) => {
 	io.emit("verify",{exists:roomData.has(roomId),roomId:roomId,userId:userId}) 
-  });
+  });*/
 
   socket.on("disconnecting", () => {
 	const user=socket.data.username

@@ -79,27 +79,25 @@ export default function JuegoMJPage() {
       return      
     }else{
       if(!inRoom && !loading){
+        console.log("joining")
         socket.nickname=usuario.username
         let room=searchParams.get("room")
-        socket.emit("joinRoom",{roomId:room, user:usuario.username})
+        socket.emit("joinRoom",{roomId:room, user:usuario.username,socketId:socket.id})
       }
      
        socket.on("joined",(data)=>{
         console.log(data)
         if(data.user==usuario.username){
+          console.log("joined")
           setInRoom(true)
         }
         setMembers(data.users)
         
       })
       //usuario no recibe el error
-      socket.on("error",({type,user})=>{
-        console.log(usuario)
-        if(user==usuario.username){
-
-          console.log("Error recieved")
-          router.replace(`/Error?err=${type}`)
-        }
+      socket.on("error",({type})=>{
+        console.log("Error recieved")
+        router.replace(`/Error?err=${type}`)
       })
 
       socket.on("left",(data)=>{
@@ -122,7 +120,10 @@ export default function JuegoMJPage() {
         console.log("usuario desconectado")
           let room=data.room
           let roomId=searchParams.get("room")
+          console.log(room.ownerName)
+          console.log(data.user)
           if(room.ownerName==data.user){
+            console.log("host disconnect emitting")
             socket.emit("hostDisconnect",roomId)
           }else if(started){
             //setear el usuario desconectado en gris o algo lol
