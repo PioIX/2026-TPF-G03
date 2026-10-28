@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import * as useFetch from "@/hooks/useFetch.js"
 import { useRouter } from "next/navigation"
+import Popup from 'reactjs-popup';
 
 export default function LoginPage() {
  const [logged,setLogged]=useState(false)
@@ -13,6 +14,8 @@ const [disabled,setDisabled]=useState(false)
   const [usuario, setUsuario] = useState("")
   const [contrasena, setContrasena] = useState("")
   const [errorMessage, setErrorMessage] = useState("")
+  const [logOpen, setLogOpen] = useState(false)
+  const [regOpen, setRegOpen] = useState(false)
   const router = useRouter();
 
 
@@ -143,17 +146,35 @@ const [disabled,setDisabled]=useState(false)
     ):(
     <>
      <h1>BlackJack</h1>
-      <p>Llene los campos para registrarse o iniciar sesión</p>
-      <input placeholder='Nombre de usuario' value={usuario} onChange={(event)=>{setUsuario(event.target.value)}}></input>
-      <input placeholder='Contraseña' value={contrasena} onChange={(event)=>{setContrasena(event.target.value)}} type="password"></input>
-      <p>{errorMessage}</p>
+      <h4>Llene los campos para registrarse o iniciar sesión</h4>
+      <Popup open={logOpen} onClose={() => { setLogOpen(false) }} closeOnDocumentClick={false}>
+        {arrayUsuarios &&
+          <>
+            <input placeholder='Nombre de usuario' value={usuario} onChange={(event)=>{setUsuario(event.target.value)}}></input><br></br>
+            <input placeholder='Contraseña' value={contrasena} onChange={(event)=>{setContrasena(event.target.value)}} type="password"></input><br></br>
+            <button onClick={handleLogin}>Confirmar</button> <button onClick={() => { setLogOpen(false);setDisabled(false);setProcess("")}}>Cerrar</button>
+            <p>{errorMessage}</p>
+          </>
+        }
+      </Popup>
+      <Popup open={regOpen} onClose={() => { setRegOpen(false) }} closeOnDocumentClick={false}>
+        {arrayUsuarios &&
+          <>
+            <input placeholder='Nombre de usuario' value={usuario} onChange={(event)=>{setUsuario(event.target.value)}}></input><br></br>
+            <input placeholder='Contraseña' value={contrasena} onChange={(event)=>{setContrasena(event.target.value)}} type="password"></input><br></br>
+            <button onClick={handleSignup}>Confirmar</button> <button onClick={() => { setRegOpen(false);setDisabled(false);setProcess("")}}>Cerrar</button>
+            <p>{errorMessage}</p>
+          </>
+        }
+      </Popup>
+
       {disabled?(<>
        <button disabled>Iniciar sesión</button>
       <button disabled>Registrarse</button>
   
       </>):(<>
-      <button onClick={()=>{setDisabled(true);setProcess("login")}}>Iniciar sesión</button>
-      <button onClick={()=>{setDisabled(true);setProcess("registro")}}>Registrarse</button>
+      <button onClick={()=>{setDisabled(true);setProcess("login");setLogOpen(true)}}>Iniciar sesión</button>
+      <button onClick={()=>{setDisabled(true);setProcess("registro");setRegOpen(true)}}>Registrarse</button>
       </>)}
          
     </>
