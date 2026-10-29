@@ -4,6 +4,16 @@ import * as useFetch from "@/hooks/useFetch.js"
 import { useRouter, useSearchParams } from "next/navigation"
 import Popup from 'reactjs-popup';
 import useSocket from "@/hooks/useSocket";
+import clsx from "clsx";
+import { Press_Start_2P } from "next/font/google";
+import styles from "./Home.module.css";
+
+const pixel = Press_Start_2P({ weight: "400", subsets: ["latin"] });
+
+const popupProps = {
+  contentStyle: { background: "none", border: "none", padding: 0, width: "auto" },
+  overlayStyle: { background: "rgba(0,0,0,0.65)" },
+};
 
 
 /*MASTERLIST DE COSAS QUE FALTAN:
@@ -161,30 +171,30 @@ export default function HomePage() {
   
 
   return (
-    <>
+    <div className={clsx(styles.page, pixel.className)}>
    
     {(loading)?(
       <>
-        <h1>Cargando...</h1>
+        <h1 className={styles.loading}>Cargando...</h1>
       </>
     ):(
       <>
       
     
-          <header>
-          <button onClick={()=>{setLopen(true)}}>Logout</button>
-          <button onClick={()=>{setEopen(true)}}>Estadistica</button>
+          <header className={styles.header}>
+          <button className={clsx(styles.btn, styles.small)} onClick={()=>{setLopen(true)}}>Logout</button>
+          <button className={clsx(styles.btn, styles.small)} onClick={()=>{setEopen(true)}}>Estadistica</button>
         </header>
 
-        <div>
-          <h1> Blackjack </h1>
+        <div className={styles.titleWrap}>
+          <h1 className={styles.title}> Blackjack </h1>
         </div>
 
-        <section>
-            <button onClick={()=>{router.push("/Tienda")}}>Tienda</button>
-            <button onClick={()=>{setPopen(true)}}>Ir al juego</button>
-            <button onClick={()=>{router.push("/Ranking")}}>Ranking</button>
-            <button onClick={()=>{setMopen(true)}}>Multijugador</button>
+        <section className={styles.menu}>
+            <button className={styles.btn} onClick={()=>{router.push("/Tienda")}}>Tienda</button>
+            <button className={styles.btn} onClick={()=>{setPopen(true)}}>Ir al juego</button>
+            <button className={styles.btn} onClick={()=>{router.push("/Ranking")}}>Ranking</button>
+            <button className={styles.btn} onClick={()=>{setMopen(true)}}>Multijugador</button>
 
 
         </section>
@@ -192,14 +202,14 @@ export default function HomePage() {
 
         {/*POPUPS*/}
         {/*Apuesta para comenzar juego*/}
-        <Popup open={Popen} onClose={()=>{setPopen(false)}} closeOnDocumentClick={false}>
+        <Popup open={Popen} onClose={()=>{setPopen(false)}} closeOnDocumentClick={false} {...popupProps}>
         {usuario&&
-          <div>
-            <h2>¿Cuántos puntos quiere apostar?</h2>
-            <p>Tus puntos: {usuario.points}</p>
-            <input onChange={(e)=>{setPuntosA(e.target.value)}} value={puntosA}></input>
-            {valueError&&<p>Valor inválido</p>}
-            <button onClick={()=>{
+          <div className={clsx(styles.popupBox, pixel.className)}>
+            <h2 className={styles.popupTitle}>¿Cuántos puntos quiere apostar?</h2>
+            <p className={styles.popupText}>Tus puntos: {usuario.points}</p>
+            <input className={styles.input} onChange={(e)=>{setPuntosA(e.target.value)}} value={puntosA}></input>
+            {valueError&&<p className={styles.error}>Valor inválido</p>}
+            <button className={styles.btn} onClick={()=>{
               if((puntosA>0 && puntosA<=usuario.points) || puntosA==1){
                 setPopen(false);
                 setValueError(false)
@@ -214,63 +224,71 @@ export default function HomePage() {
 
 
        {/*Multijugador*/}
-        <Popup open={Mopen} onClose={()=>{setMopen(false)}} closeOnDocumentClick={false}>
+        <Popup open={Mopen} onClose={()=>{setMopen(false)}} closeOnDocumentClick={false} {...popupProps}>
           {usuario&&
-              <>
-              <h2>Salas multijugador</h2> 
+              <div className={clsx(styles.popupBox, pixel.className)}>
+              <h2 className={styles.popupTitle}>Salas multijugador</h2> 
               {(avRooms)?(<>
-              {(avRooms.length>0)?(<>
-              {avRooms.map((room,i)=><div key={i}>
+              {(avRooms.length>0)?(<div className={styles.roomList}>
+              {avRooms.map((room,i)=><div className={styles.room} key={i}>
+              <div className={styles.roomInfo}>
               <p>Sala de {room.ownerName}</p>
               <p>{room.usersCount} usuario(s)</p>
-              <button onClick={()=>{socket.emit("roomExists",{roomId:room.roomId,userId:usuario.id})}}>Unirse</button>
+              </div>
+              <button className={clsx(styles.btn, styles.small)} onClick={()=>{socket.emit("roomExists",{roomId:room.roomId,userId:usuario.id})}}>Unirse</button>
               </div>)}
-              </>):(<>
-              <p>No hay salas disponibles</p>
+              </div>):(<>
+              <p className={styles.popupText}>No hay salas disponibles</p>
               </>)}
               </>):(<>
-              <p>cargando salas...</p>
+              <p className={styles.popupText}>cargando salas...</p>
               </>)}
               
-            <button onClick={()=>{socket.emit("createRoom",{userId:usuario.id})}}>Crear sala</button>
-            <button onClick={()=>{setMopen(false)}}>Volver</button>
-              </>   
+            <div className={styles.popupActions}>
+            <button className={styles.btn} onClick={()=>{socket.emit("createRoom",{userId:usuario.id})}}>Crear sala</button>
+            <button className={styles.btn} onClick={()=>{setMopen(false)}}>Volver</button>
+            </div>
+              </div>   
           }
        </Popup>
               
         {/*Estadística de usuario*/}
-       <Popup open={Eopen} onClose={()=>{setEopen(false)}} closeOnDocumentClick={false}>
+       <Popup open={Eopen} onClose={()=>{setEopen(false)}} closeOnDocumentClick={false} {...popupProps}>
           {usuario&&
-          <>
+          <div className={clsx(styles.popupBox, pixel.className)}>
             {(eloading)?(
-                <h2>Cargando estadistica....</h2>
+                <h2 className={styles.popupTitle}>Cargando estadistica....</h2>
             ):(
               <>
-                <p>Partidas ganadas: {estadistica.wins}</p>
-                <p>Partidas perdidas: {estadistica.losses}</p>
-                <p>Racha actual: {estadistica.streak}</p>
-                <p>Puntos perdidos: {estadistica.points_lost}</p>
-                <p>Puntos actuales: {usuario.points}</p>
-                <p>Cantidad de items: {estadistica.cant_items}</p>
-              <button onClick={()=>{setEopen(false)}}>Cerrar</button>
+                <div className={styles.stats}>
+                <p className={styles.stat}>Partidas ganadas: {estadistica.wins}</p>
+                <p className={styles.stat}>Partidas perdidas: {estadistica.losses}</p>
+                <p className={styles.stat}>Racha actual: {estadistica.streak}</p>
+                <p className={styles.stat}>Puntos perdidos: {estadistica.points_lost}</p>
+                <p className={styles.stat}>Puntos actuales: {usuario.points}</p>
+                <p className={styles.stat}>Cantidad de items: {estadistica.cant_items}</p>
+                </div>
+              <button className={styles.btn} onClick={()=>{setEopen(false)}}>Cerrar</button>
               </>   
             )}
-            </>
+            </div>
           }
        </Popup>
 
 
         {/*Logout*/}
-        <Popup open={Lopen} onClose={()=>{setLopen(false)}} closeOnDocumentClick={false}>
+        <Popup open={Lopen} onClose={()=>{setLopen(false)}} closeOnDocumentClick={false} {...popupProps}>
           {usuario&&
-              <>
-              <h2>¿Está seguro de que quiere cerrar sesión?</h2> 
-              <button onClick={()=>{setLopen(false)}}>Volver</button>
-              <button onClick={()=>{logout()}}>Cerrar sesión</button>
-              </>   
+              <div className={clsx(styles.popupBox, pixel.className)}>
+              <h2 className={styles.popupTitle}>¿Está seguro de que quiere cerrar sesión?</h2> 
+              <div className={styles.popupActions}>
+              <button className={styles.btn} onClick={()=>{setLopen(false)}}>Volver</button>
+              <button className={styles.btn} onClick={()=>{logout()}}>Cerrar sesión</button>
+              </div>
+              </div>   
           }
        </Popup>
     </>)}
-    </>
+    </div>
   );
 }
