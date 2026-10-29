@@ -6,7 +6,7 @@ import Popup from 'reactjs-popup';
 import useSocket from "@/hooks/useSocket";
 import clsx from "clsx";
 import { Press_Start_2P } from "next/font/google";
-import styles from "./Home.module.css";
+import styles from "./page.module.css";
 
 const pixel = Press_Start_2P({ weight: "400", subsets: ["latin"] });
 
