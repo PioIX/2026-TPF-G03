@@ -28,10 +28,10 @@ NO NECESARIOS:
 
 /*Hacer ahora:
 -puntos de apuesta de la sala vienen de base de datos (junto con otra info de sala)
--que se pueda jugar en multijugador lol lol (cerca)
--ver cómo enviaría el socket la info de resultado de partida (parte 2)
 -ver qué pasa con los desconectados en el medio de la partida
--todavia se ven salas empezadas en home
+-algo de loading cuando se entra al juego
+-ver como mostrar datos de partida
+-que routee a admin
 */
 
 export default function HomePage() {

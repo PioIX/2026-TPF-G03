@@ -145,7 +145,10 @@ io.on("connection", (socket) => {
 
 	const rooms2=[]
 	for (const [roomId,roomInf] of roomData.entries()){
-      rooms2.push({roomId:roomId,...roomInf,users:[...roomInf.users.keys()],usersCount:roomInf.users.size})
+		if(!roomInf.started&&roomInf.users.size<maxPlayers){
+
+			rooms2.push({roomId:roomId,...roomInf,users:[...roomInf.users.keys()],usersCount:roomInf.users.size})
+		}
     }
 
 	io.emit("allRooms", {message: rooms2});
@@ -213,11 +216,12 @@ io.on("connection", (socket) => {
 			//datos de cada usuario cuando hace hold
 		});
 		io.emit("held", {message: "Cartas y suma del usuario actualizadas",user:username});
+		console.log("USER HELD")
 		let us=Array.from(roomData.get(roomId).users.values())
 		let na=us.filter(u=>u.held||!u.connected)
 		
 		if(na.length==us.length){
-			
+			console.log("ALL USERS HELD")
 			let winner=["",{sum:0}]
 			const userArr=Array.from(roomData.get(roomId).users)
 			for(const [user,data] of userArr){
@@ -225,6 +229,7 @@ io.on("connection", (socket) => {
 					winner=[user,data]
 				}
 			}
+			console.log(winner)
 			io.to(roomId).emit("ended", {
 			  room: roomId,
 			  userArr:userArr,

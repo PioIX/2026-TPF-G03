@@ -19,8 +19,14 @@ export default function JuegoMJPage() {
   const [open,setOpen]=useState(false)
   const [inRoom,setInRoom]=useState(false)
   const [members,setMembers]=useState([])
+  const [userArr,setUserArr]=useState([])
+
   const [started,setStarted]=useState(false)
+  const [ended,setEnded]=useState(false)
+
   const [startDisabled,setStartDisabled]=useState(true)
+  const [heldText,setHeldText]=useState("Esperando a los otros jugadores..")
+
 //hay que guardar los datos de los usuarios para mostrarlos (saber nombre y si están conectados)
 
 
@@ -124,6 +130,7 @@ export default function JuegoMJPage() {
       })
        socket.on("disconnecting",()=>{
           setInRoom(false)
+          
         })
       
       socket.on("disconnected",(data)=>{
@@ -144,8 +151,18 @@ export default function JuegoMJPage() {
         console.log("started recieved")
         setStarted(true)
       })
-      socket.on("end",(data)=>{
-
+      socket.on("ended",({room,userArr,winner})=>{
+        setEnded(true)
+        setUserArr(userArr)
+        console.log(usuario)
+        setHeldText("")
+        if(winner[0]==usuario.username){
+          win(puntosA)
+        }else if(winner.length==0){
+          setPopupText("No hubo ganador")
+        }else{
+          lose(puntosA)
+        }
       })
       socket.on("held",({user})=>{
         if (user!=usuario.username){
@@ -188,16 +205,18 @@ useEffect(()=>{
     console.log(points)
     let newE={
       userid:usuarioId,
-      wins:estadistica.wins+1,
+      wins:Number(estadistica.wins)+1,
       losses:estadistica.losses,
-      played:estadistica.played+1,
-      streak:estadistica.streak+1,
-      points_lost:estadistica.points_lost,
+      played:Number(estadistica.played)+1,
+      streak:Number(estadistica.streak)+1,
+      points_lost:Number(estadistica.points_lost),
       cant_items:estadistica.cant_items
     }
     useFetch.putEstadistica(newE)
-    useFetch.putPoints(usuario.points+parseInt(points),usuarioId)
-    usuario.points+=parseInt(points)
+    useFetch.putPoints(usuario.points+Number(points),usuarioId)
+    console.log(points)
+    usuario.points+=Number(points)
+    console.log(usuario.points)
   }
 
   function lose(points){
@@ -205,15 +224,17 @@ useEffect(()=>{
     let newE={
       userid:usuarioId,
       wins:estadistica.wins,
-      losses:estadistica.losses+1,
-      played:estadistica.played+1,
+      losses:Number(estadistica.losses)+1,
+      played:Number(estadistica.played)+1,
       streak:0,
-      points_lost:estadistica.points_lost+parseInt(points),
+      points_lost:estadistica.points_lost+Number(points),
       cant_items:estadistica.cant_items
     }
     useFetch.putEstadistica(newE)
-    useFetch.putPoints(usuario.points-parseInt(points),usuarioId)
-    usuario.points-=parseInt(points)
+    useFetch.putPoints(usuario.points-Number(points),usuarioId)
+    console.log(points)
+    usuario.points-=Number(points)
+    console.log(usuario.points)
 
   }
 
@@ -248,7 +269,7 @@ useEffect(()=>{
         </section>
         <section>
           {(held )?(<>
-          <h2>Esperando a los otros jugadores....</h2>
+          <h2>{heldText}</h2>
           <button disabled>Hit</button>
           <button disabled>Stand</button>
           </>):(<>
@@ -261,7 +282,13 @@ useEffect(()=>{
             <div>
             <h2>{popupText}</h2>
             <ul>
-              <li>Vos: {sum}</li>
+              
+              {userArr.length>0&&
+              <>
+              {userArr.map((u,i)=>
+              <li key={i}>{u[0]}: {u[1].sum}</li>
+              )}
+              </>}
               <li>Tu dinero: {usuario.points}</li>
             </ul>
           </div>       
