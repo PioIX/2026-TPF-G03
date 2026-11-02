@@ -8,12 +8,11 @@ import useSocket from "@/hooks/useSocket";
 
 /*MASTERLIST DE COSAS QUE FALTAN:
 
--PIPIS CON FUNCIONALIDAD
+
 -PODER MOVER A PIPI
 -VER DONDE PONER LOS ICONOS
 -CSSS LOL LOL
 -MULTIJUGADOR CON SALA:
-  -Sala sin dealer para competir entre jugadores (solo un ganador)
   -Modo loco: los jugadores pueden elegir restarle o sumarle a otro (limitado)
 -IMPLEMENTAR REGLAS COMO SEGURO O RENDIRSE, SPLIT O DOBLE
 
@@ -27,8 +26,13 @@ NO NECESARIOS:
 
 
 /*Hacer ahora:
+-hacer sección de reglas/instrucciones
 -ver como mostrar datos de partida/cartas de oponentes/desconectados y hold
--implementar empate
+-ver si deshabilitar pipis en multijugador
+-testear pipis
+-ver qué hacer con items
+-mover a pipi
+
 */
 
 export default function HomePage() {
@@ -44,6 +48,9 @@ export default function HomePage() {
 
   const [Erropen,setErropen]=useState(false)
   const [disabled,setDisabled]=useState(false)
+  const [pipi,setPipi]=useState(null)
+  const [item,setItem]=useState(null)
+  const [fondo,setFondo]=useState(null)
 
   const [errM,setErrM]=useState("")
   const [apuesta,setApuesta]=useState(1)
@@ -57,12 +64,13 @@ export default function HomePage() {
 
   const [valueError,setValueError]=useState(false)
   const [puntosA,setPuntosA]=useState(1)
-
+  let f;
+ let m;
+ let p;
   let usuarioId = 0 
   const router = useRouter()
   const searchParams=useSearchParams()
   useEffect(()=>{
-    
     usuarioId=localStorage.getItem("userid")
     console.log(usuarioId)
     if (!Number(usuarioId)){
@@ -70,6 +78,15 @@ export default function HomePage() {
     useFetch.getUsuarioPorId(usuarioId)
     .then((data)=>{
       setUsuario(data[0])
+      if(localStorage.getItem("Fondo")){
+        setFondo(JSON.parse(localStorage.getItem("Fondo")))
+      }
+      if(localStorage.getItem("Pipi")){
+        setPipi(JSON.parse(localStorage.getItem("Pipi")))
+      }
+      if(localStorage.getItem("Misc")){
+        setItem(JSON.parse(localStorage.getItem("Misc")))
+      }
     })
   },[])
 
@@ -138,6 +155,9 @@ export default function HomePage() {
   
   function logout(){
     localStorage.setItem("userid",0)
+    localStorage.removeItem("Fondo")
+    localStorage.removeItem("Pipi")
+    localStorage.removeItem("Misc")
     router.replace("./")
   }
   
@@ -185,7 +205,12 @@ export default function HomePage() {
           <button onClick={()=>{setLopen(true)}}>Logout</button>
           <button onClick={()=>{setEopen(true)}}>Estadistica</button>
         </header>
-
+      {fondo&&
+          <h2>Fondo equipado:{fondo.name}</h2>}
+        {pipi&&
+          <h2>Pipi equipado:{pipi.name}</h2>}
+        {item&&
+          <h2>Item equipado:{item.name}</h2>}
         <div>
           <h1> Blackjack </h1>
         </div>
@@ -233,6 +258,8 @@ export default function HomePage() {
           {usuario&&
               <>
               <h2>Salas multijugador</h2> 
+              
+              <p>(pipis deshabilitados)</p>
               {(avRooms)?(<>
               {(avRooms.length>0)?(<>
               {avRooms.map((room,i)=><div key={i}>

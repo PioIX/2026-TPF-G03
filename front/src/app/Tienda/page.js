@@ -6,13 +6,13 @@ import StoreList from "@/components/StoreList";
 import Popup from 'reactjs-popup';
 
 /*IDEAS PARA PIPIS:
-PIPI QUE TE MULTIPLICA LOS PUNTOS (COME PUNTOS)
-PIPI RANDOM QUE RESTA O SUMA PUNTOS
-PIPI CLICKER
-PIPI QUE NO FUNCIONA SI SOS POBRE
-PIPI QUE SE COME PUNTOS CADA APUESTA PERO TIENE CHANCE DE SUMAR MUCHOS PUNTOS (vomita)
+PIPI QUE TE MULTIPLICA LOS PUNTOS (pipi responsable)
+PIPI RANDOM QUE RESTA O SUMA PUNTOS (pipi loco)
+PIPI CLICKER (normal)
+PIPI QUE NO FUNCIONA SI SOS POBRE, pero si funciona ? (pipi clasista)
+PIPI QUE SE COME PUNTOS CADA APUESTA PERO TIENE CHANCE DE SUMAR MUCHOS PUNTOS (evil pipi)
 
-comprar pipi normal y clickearlo antes de desbloquear otros
+
 alguno tiene agenda política
 hay beef entre pipis
 */
@@ -20,14 +20,20 @@ hay beef entre pipis
 export default function TiendaPage() {
     const [items,setItems]=useState([])
     const [fondos,setFondos]=useState([])
+    const [pipis,setPipis]=useState([])
+
     const [misc,setMisc]=useState([])
 
     const [usuario,setUsuario]=useState({})
-    const [inv,setInv]=useState([])
+    const [inv,setInv]=useState(null)
     const [loading,setLoading]=useState(true)
     const [Iloading,setILoading]=useState(false)
     const [open,setOpen]=useState(false)
 
+
+    const [pipi,setPipi]=useState(null)
+    const [item,setItem]=useState(null)
+    const [fondo,setFondo]=useState(null)
 
     let t=-2
     let usuarioId = 0
@@ -49,6 +55,15 @@ export default function TiendaPage() {
           useFetch.getInventario(usuarioId)
           .then((data)=>{
             setInv(data)
+            if(localStorage.getItem("Fondo")){
+              setFondo(JSON.parse(localStorage.getItem("Fondo")))
+            }
+            if(localStorage.getItem("Pipi")){
+              setPipi(JSON.parse(localStorage.getItem("Pipi")))
+            }
+            if(localStorage.getItem("Misc")){
+              setItem(JSON.parse(localStorage.getItem("Misc")))
+            }
           })
           )
       })
@@ -74,24 +89,35 @@ export default function TiendaPage() {
     },[inv])
 
     useEffect(()=>{
-      if(inv.length!=0&&fondos.length!=0&&Object.keys(usuario).length!=0&&misc.length!=0&&loading){
+      if(inv&&fondos.length!=0&&Object.keys(usuario).length!=0&&misc.length!=0&&loading&&pipis.length!=0){
         setLoading(false)
       }
-    },[usuario,fondos,misc,loading,inv])
+    },[usuario,fondos,misc,loading,inv,pipis])
     
     useEffect(()=>{
       let f=[]
       let m=[]
-      items.map((it)=>{
-        if(it.name.includes("Fondo")){
-          f.push(it)
-        }else{
-          m.push(it)
-        }
-        })
-        setFondos(f)
-        setMisc(m)
-    },[items])
+      let p=[]
+      if(inv){
+
+        items.map((it)=>{
+          if(it.name.includes("Fondo")){
+            f.push(it)
+          }else if(it.name.includes("Pipi")){
+            if(it.name=="Pipi"||estaEnInv(9)>-1){
+              console.log(it)
+              console.log("Es pipi o tiene a pipi")
+              p.push(it)
+            }
+          }else{
+            m.push(it)
+          }
+          })
+          setFondos(f)
+          setMisc(m)
+          setPipis(p)
+      }
+    },[items,inv])
 
     function estaEnInv(id){
       let temp=-1
@@ -116,6 +142,7 @@ export default function TiendaPage() {
       let t
       let f=0
       let m=0
+      let p=0
       if(act.length!=0){
         act.map((it)=>(
           useFetch.getItemPorId(it.itemid)
@@ -124,14 +151,23 @@ export default function TiendaPage() {
             if(t.name.includes("Fondo")){
                f=t.id
               if(item.name.includes("Fondo")){
+                
                 useFetch.deactivateItem(f,usuario.id)
+                 .then(()=>{
+                  setILoading(true)
+                })
+              }
+            }else if(t.name.includes("Pipi")){
+              p=t.id
+              if(item.name.includes("Pipi")){
+                useFetch.deactivateItem(p,usuario.id)
                  .then(()=>{
                   setILoading(true)
                 })
               }
             }else{
               m=t.id
-              if(!item.name.includes("Fondo")){
+              if(!item.name.includes("Fondo")&&!item.name.includes("Pipi")){
                 useFetch.deactivateItem(m,usuario.id)
                 .then(()=>{
                   setILoading(true)
@@ -142,10 +178,31 @@ export default function TiendaPage() {
         ))
       }
       useFetch.activateItem(item.id,usuario.id)
-      .then(()=>{setILoading(true)})
+      .then(()=>{setILoading(true);
+        if(item.name.includes("Fondo")){
+          localStorage.setItem("Fondo", JSON.stringify(item))
+          setFondo(item)
+        }else if(item.name.includes("Pipi")){
+          localStorage.setItem("Pipi", JSON.stringify(item))
+          setPipi(item)
+        }else{
+          localStorage.setItem("Misc", JSON.stringify(item))
+          setItem(item)
+        }
+      })
     }
     
     function unequip(item){
+        if(item.name.includes("Fondo")){
+          localStorage.removeItem("Fondo")
+          setFondo(null)
+        }else if(item.name.includes("Pipi")){
+          localStorage.removeItem("Pipi")
+          setPipi(null)
+        }else{
+          localStorage.removeItem("Misc")
+          setItem(null)
+        }
       useFetch.deactivateItem(item.id,usuario.id)
       .then(()=>{setILoading(true)})
     }
@@ -189,13 +246,22 @@ export default function TiendaPage() {
     <h1>Cargando tienda...</h1>
     
     </>):(<>
+    {fondo&&
+          <h2>Fondo equipado:{fondo.name}</h2>}
+        {pipi&&
+          <h2>Pipi equipado:{pipi.name}</h2>}
+        {item&&
+          <h2>Item equipado:{item.name}</h2>}
     <h1>Tienda</h1>
     <p>Tus puntos: {usuario.points}</p>
     <div style={{height:"400px",overflowY:"scroll"}}>
+      {/*names define si aparecen los nombres en la tienda, inf si aparecen botones que dan info de cada uno*/}
       <h2>Fondos</h2>
-     <StoreList equip={equip} unequip={unequip} buy={buy} items={fondos} estaEnInv={estaEnInv}></StoreList>
+     <StoreList equip={equip} unequip={unequip} buy={buy} items={fondos} estaEnInv={estaEnInv} names={false} inf={false}></StoreList>
      <h2>Items</h2>
-     <StoreList equip={equip} unequip={unequip} buy={buy} items={misc} estaEnInv={estaEnInv}></StoreList>
+     <StoreList equip={equip} unequip={unequip} buy={buy} items={misc} estaEnInv={estaEnInv} names={false} inf={false}></StoreList>
+     <h2>Pipis</h2>
+     <StoreList equip={equip} unequip={unequip} buy={buy} items={pipis} estaEnInv={estaEnInv} names={true} inf={true}></StoreList>
     </div>
       <button onClick={()=>{router.back()}}>Volver</button>
 

@@ -24,6 +24,7 @@ const [disabled,setDisabled]=useState(false)
  
 
   useEffect(() => {
+    setErrorMessage("")
     let t=localStorage.getItem("userid")
     console.log(t)
     if(t==-1){
@@ -168,7 +169,6 @@ const [disabled,setDisabled]=useState(false)
     ):(
     <>
      <h1>BlackJack</h1>
-      <h4>Llene los campos para registrarse o iniciar sesión</h4>
       <Popup open={logOpen} onClose={() => { setLogOpen(false) }} closeOnDocumentClick={false}>
         {arrayUsuarios &&
           <>
