@@ -115,6 +115,8 @@ useEffect(()=>{
 
 
   function win(points){
+        console.log(usuario)
+
     setPopupText("Ganaste")
     console.log(points)
     let newE={
@@ -127,12 +129,13 @@ useEffect(()=>{
       cant_items:estadistica.cant_items
     }
     useFetch.putEstadistica(newE)
-    useFetch.putPoints(usuario.points+parseInt(points),usuarioId)
+    useFetch.putPoints(usuario.points+parseInt(points),usuario.id)
     usuario.points+=parseInt(points)
   }
 
   function lose(points){
     setPopupText("Perdiste")
+    console.log(usuario)
     let newE={
       userid:usuarioId,
       wins:estadistica.wins,
@@ -143,7 +146,7 @@ useEffect(()=>{
       cant_items:estadistica.cant_items
     }
     useFetch.putEstadistica(newE)
-    useFetch.putPoints(usuario.points-parseInt(points),usuarioId)
+    useFetch.putPoints(usuario.points-parseInt(points),usuario.id)
     usuario.points-=parseInt(points)
 
   }

@@ -27,12 +27,8 @@ NO NECESARIOS:
 
 
 /*Hacer ahora:
--puntos de apuesta de la sala vienen de base de datos (junto con otra info de sala)
--que se pueda jugar en multijugador lol lol
--ver cómo enviaría el socket la info de resultado de partida
--limpiar host disconnect, corre demasiadas veces (probablmemente por el disconnecting)
--rari que cuando hay 3 localhost 2 automaticamente se unen a la sala
--tambien kickear al host cuando se desconecteeee (?)
+-ver como mostrar datos de partida/cartas de oponentes/desconectados y hold
+-implementar empate
 */
 
 export default function HomePage() {
@@ -44,8 +40,13 @@ export default function HomePage() {
   const [Eopen,setEopen]=useState(false)
   const [Lopen,setLopen]=useState(false)
   const [Mopen,setMopen]=useState(false)
+  const [Aopen,setAopen]=useState(false)
+
   const [Erropen,setErropen]=useState(false)
+  const [disabled,setDisabled]=useState(false)
+
   const [errM,setErrM]=useState("")
+  const [apuesta,setApuesta]=useState(1)
 
 
   const [avRooms,setAvRooms]=useState(null)
@@ -61,10 +62,7 @@ export default function HomePage() {
   const router = useRouter()
   const searchParams=useSearchParams()
   useEffect(()=>{
-    let err=searchParams.get("err")
-    if(err==1){
-      setErrM("Host desconectado")
-    }
+    
     usuarioId=localStorage.getItem("userid")
     console.log(usuarioId)
     if (!Number(usuarioId)){
@@ -78,6 +76,7 @@ export default function HomePage() {
   useEffect(()=>{
     if(usuario && Object.keys(usuario).length!=0){
       setLoading(false)
+      setDisabled(false)
     }
   },[usuario])
 
@@ -88,11 +87,7 @@ export default function HomePage() {
   },[Eopen])
 
 
-  useEffect(()=>{
-    if(errM){
-      setErropen(true)
-    }
-  },[errM])
+
   
   useEffect(()=>{
     if(estadistica && Object.keys(estadistica).length!=0){
@@ -111,13 +106,18 @@ export default function HomePage() {
       if(!socket){
         return
       }
-      console.log(socket.id)
+      
       socket.on("allRooms",(data)=>{
         let rooms=data.message
         console.log(rooms)
         setAvRooms(rooms)
       })
-      
+      socket.on("error",({type})=>{
+       router.replace(`/Error?err=${type}`)
+      })
+      socket.on("connect",()=>{
+        console.log(socket.id)
+      })
       socket.on("roomChange",()=>{
         socket.emit("listRooms")
       })
@@ -131,12 +131,8 @@ export default function HomePage() {
           }
         }
       })
-      socket.on("created",({userId})=>{
-        if(userId==localStorage.getItem("userId")){
-
-          router.push(`/JuegoMJ?room=${userId}`)
-
-        }
+      socket.on("created",({roomId})=>{
+        router.replace(`/JuegoMJ?room=${roomId}`)
       })
     },[socket])
   
@@ -158,6 +154,20 @@ export default function HomePage() {
     )
   }
 
+    function pointCheck(points){
+    setErrM("")
+    if(points<1){
+      setErrM("Cantidad inválida")
+    }else{
+
+      if(usuario.points>=points){
+        return true
+      }else{
+        setErrM("Puntos insuficientes")
+        return false
+      }
+    }
+  }
   
 
   return (
@@ -199,8 +209,12 @@ export default function HomePage() {
             <p>Tus puntos: {usuario.points}</p>
             <input onChange={(e)=>{setPuntosA(e.target.value)}} value={puntosA}></input>
             {valueError&&<p>Valor inválido</p>}
+            {disabled?(
+              <button disabled>Comenzar</button>
+            ):(
             <button onClick={()=>{
               if((puntosA>0 && puntosA<=usuario.points) || puntosA==1){
+                setDisabled(true)
                 setPopen(false);
                 setValueError(false)
                 sessionStorage.setItem("puntosApostados",puntosA)
@@ -208,13 +222,14 @@ export default function HomePage() {
               }else{
                 setValueError(true)
               }}}>Comenzar</button>
+            )}
                 </div>       
                 }
        </Popup>
 
 
        {/*Multijugador*/}
-        <Popup open={Mopen} onClose={()=>{setMopen(false)}} closeOnDocumentClick={false}>
+        <Popup open={Mopen} onClose={()=>{setMopen(false);setErrM("")}} closeOnDocumentClick={false}>
           {usuario&&
               <>
               <h2>Salas multijugador</h2> 
@@ -223,7 +238,18 @@ export default function HomePage() {
               {avRooms.map((room,i)=><div key={i}>
               <p>Sala de {room.ownerName}</p>
               <p>{room.usersCount} usuario(s)</p>
-              <button onClick={()=>{socket.emit("roomExists",{roomId:room.roomId,userId:usuario.id})}}>Unirse</button>
+              <p>Apuesta: ${room.apuesta}</p>
+              {/*<button onClick={()=>{socket.emit("roomExists",{roomId:room.roomId,userId:usuario.id})}}>Unirse</button>*/}
+              {(disabled)?(
+                <button disabled>Unirse</button>
+              ):(
+                <>
+                <p>{errM}</p>
+                <button onClick={()=>{if(pointCheck(room.apuesta)){setDisabled(true);router.push(`/JuegoMJ?room=${room.roomId}`)}}}>Unirse</button>
+              </>
+              )}
+              
+
               </div>)}
               </>):(<>
               <p>No hay salas disponibles</p>
@@ -231,9 +257,26 @@ export default function HomePage() {
               </>):(<>
               <p>cargando salas...</p>
               </>)}
-              
-            <button onClick={()=>{socket.emit("createRoom",{userId:usuario.id})}}>Crear sala</button>
+             {(disabled)?(<>
+            <button disabled>Crear sala</button>
+            <button disabled>Volver</button>
+             </>):(<>
+            <button onClick={()=>{setAopen(true);setMopen(false);setErrM("")}}>Crear sala</button>
             <button onClick={()=>{setMopen(false)}}>Volver</button>
+             </>)} 
+           
+              </>   
+          }
+       </Popup>
+
+        <Popup open={Aopen} onClose={()=>{setAopen(false)}} closeOnDocumentClick={false}>
+          {usuario&&
+             <>
+             <h2>Ingrese puntos a apostar:</h2>
+            <input type="number" value={apuesta} onChange={(e)=>{setApuesta(e.target.value)}}></input>
+            <p>{errM}</p>
+            <button onClick={()=>{if(pointCheck(apuesta)){setDisabled(true);socket.emit("createRoom",{user:usuario.username,socketId:socket.id,roomId:usuario.id,apuesta:apuesta});}}}>Crear</button>
+            <button onClick={()=>{setAopen(false)}}>Volver</button>
               </>   
           }
        </Popup>

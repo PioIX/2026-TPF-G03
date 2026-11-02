@@ -393,6 +393,7 @@ export function putPassword(newpass,id){
 export function putPoints(newpoints,id){
   console.log("Puntos recibida por fetch")
   console.log(newpoints)
+  console.log("id del usuario")
   console.log(id)
 
    try {
