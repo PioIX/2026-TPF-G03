@@ -5,11 +5,13 @@ import * as useFetch from "@/hooks/useFetch.js"
 import Popup from 'reactjs-popup';
 import clsx from "clsx"
 import styles from "./page.module.css"
+import { useRouter } from "next/navigation";
 
 export default function AdminPage() {
   const [arrayUsuarios, setArrayUsuarios] = useState([])
   const [arrayItems, setArrayItems] = useState([])
   const [arrayIxU, setArrayIxU] = useState([])
+  
 
   const [idAdmin, setIdAdmin] = useState("")
   const [idAdminItem, setIdAdminItem] = useState("")
@@ -42,6 +44,7 @@ export default function AdminPage() {
   const [mensajeErrorMII, setMensajeErrorMII] = useState("")
   const [mensajeErrorMIP, setMensajeErrorMIP] = useState("")
 
+  const router = useRouter()
   let i = 0
 
   useEffect(() => {
@@ -64,6 +67,12 @@ export default function AdminPage() {
         setArrayIxU(data)
       })
   }, [])
+
+
+  function logout(){
+    localStorage.setItem("userid",0)
+    router.replace("./")
+  }
 
   async function borrarUser() {
     let aux = await useFetch.getUsuarioPorId(idAdmin)
@@ -225,6 +234,8 @@ export default function AdminPage() {
   return (
       <div id={styles.admin_body}>
         <h1 id={styles.admin_h1} className={styles.admin_h}>ADMINISTRACION</h1>
+
+        <button onClick={logout}>Logout</button>
 
         <div className={styles.admin_div}>
           <h2 className={styles.admin_h}>Usuarios </h2>

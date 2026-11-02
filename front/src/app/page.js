@@ -5,11 +5,11 @@ import { useRouter } from "next/navigation"
 import Popup from 'reactjs-popup';
 
 export default function LoginPage() {
- const [logged,setLogged]=useState(false)
-const [disabled,setDisabled]=useState(false)
- const [process,setProcess]=useState("")
+  const [logged,setLogged]=useState(false)
+  const [disabled,setDisabled]=useState(false)
+  const [process,setProcess]=useState("")
 
- const [loading,setLoading]=useState(true)
+  const [loading,setLoading]=useState(true)
   const [arrayUsuarios, setArrayUsuarios] = useState([])
   const [usuario, setUsuario] = useState("")
   const [contrasena, setContrasena] = useState("")
@@ -114,14 +114,17 @@ const [disabled,setDisabled]=useState(false)
       for (let i = 0; i < arrayUsuarios.length; i++){
         if (arrayUsuarios[i].username == usuario) {
             if (arrayUsuarios[i].password == contrasena) {
-              t=arrayUsuarios[i].id
-              console.log(t)
-              localStorage.setItem("userid",t)
-               /*sessionStorage.setItem("User", JSON.stringify(usuarioLogueado))*/ //ver si hacemos con cookies o que
-               setProcess("")
-              setDisabled(false)
-              setLogged(true)
-  
+              if (arrayUsuarios[i].is_admin == true) {
+                router.replace("./Admin")
+              } else {
+                t=arrayUsuarios[i].id
+                console.log(t)
+                localStorage.setItem("userid",t)
+                /*sessionStorage.setItem("User", JSON.stringify(usuarioLogueado))*/ //ver si hacemos con cookies o que
+                setProcess("")
+                setDisabled(false)
+                setLogged(true)
+              }
             }
           }
       }

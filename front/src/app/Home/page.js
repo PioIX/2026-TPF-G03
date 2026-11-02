@@ -19,30 +19,17 @@ const popupProps = {
 /*MASTERLIST DE COSAS QUE FALTAN:
 
 -PIPIS CON FUNCIONALIDAD
--PODER MOVER A PIPI
+-PODER MOVER A PIPI (pedirle a cami su web paraver como se hace)
 -VER DONDE PONER LOS ICONOS
 -CSSS LOL LOL
--MULTIJUGADOR CON SALA:
-  -Sala sin dealer para competir entre jugadores (solo un ganador)
-  -Modo loco: los jugadores pueden elegir restarle o sumarle a otro (limitado)
--IMPLEMENTAR REGLAS COMO SEGURO O RENDIRSE, SPLIT O DOBLE
+
 
 NO NECESARIOS:
--ENTRETENIMIENTO EN SALA DE ESPERA (DUDOSO)
+-IMPLEMENTAR REGLAS COMO SEGURO O RENDIRSE, SPLIT O DOBLE
 -PODER MOVER LAS LETRAS DEL TITULO
 -PERSONALIZACION DEL MAZO
 -ANIMACIONES DE CARTAS
 -PODER SUBIR IMAGENES DE FONDO
-*/
-
-
-/*Hacer ahora:
--puntos de apuesta de la sala vienen de base de datos (junto con otra info de sala)
--que se pueda jugar en multijugador lol lol
--ver cómo enviaría el socket la info de resultado de partida
--limpiar host disconnect, corre demasiadas veces (probablmemente por el disconnecting)
--rari que cuando hay 3 localhost 2 automaticamente se unen a la sala
--tambien kickear al host cuando se desconecteeee (?)
 */
 
 export default function HomePage() {
@@ -56,20 +43,15 @@ export default function HomePage() {
   const [Mopen,setMopen]=useState(false)
   const [Erropen,setErropen]=useState(false)
   const [errM,setErrM]=useState("")
-
-
   const [avRooms,setAvRooms]=useState(null)
-
   const { socket, isConnected } =useSocket()
-
-
-
   const [valueError,setValueError]=useState(false)
   const [puntosA,setPuntosA]=useState(1)
 
   let usuarioId = 0 
   const router = useRouter()
   const searchParams=useSearchParams()
+  
   useEffect(()=>{
     let err=searchParams.get("err")
     if(err==1){
