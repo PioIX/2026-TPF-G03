@@ -95,7 +95,6 @@ export default function LoginPage() {
               setDisabled(false)
               setLogged(true)
               })
-          /*sessionStorage.setItem("User", JSON.stringify(usuarioLogueado))*/ //ver si hacemos con cookies o que
           })
         }
 
@@ -120,7 +119,6 @@ export default function LoginPage() {
                 t=arrayUsuarios[i].id
                 console.log(t)
                 localStorage.setItem("userid",t)
-                /*sessionStorage.setItem("User", JSON.stringify(usuarioLogueado))*/ //ver si hacemos con cookies o que
                 setProcess("")
                 setDisabled(false)
                 setLogged(true)
