@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation"
 
 export default function LoginPage() {
  const [logged,setLogged]=useState(false)
+const [admin, setAdmin] = useState(false)
+
 const [disabled,setDisabled]=useState(false)
  const [process,setProcess]=useState("")
 
@@ -21,23 +23,38 @@ const [disabled,setDisabled]=useState(false)
   useEffect(() => {
     let t=localStorage.getItem("userid")
     console.log(t)
-    if (Number(t)){
-      setLogged(true)
+    if(t==-1){
+      setAdmin(true)
     }else{
-    useFetch.getUsuarios()
-      .then((data) => {
-        setArrayUsuarios(data)
-      })
+      if (Number(t)){
+        setLogged(true)
+      }else{
+      useFetch.getUsuarios()
+        .then((data) => {
+          setArrayUsuarios(data)
+        })
+      }
     }
   }, [])
   
     useEffect(()=>{
     if(logged){
-      router.replace("./Home")
+      let t=localStorage.getItem("userid")
+      console.log(t)
+      if(t==-1){
+        setAdmin(true)
+      }else{
+
+        router.replace("./Home")
+      }
     }
   },[logged])
   
-  
+  useEffect(()=>{
+    if(admin){
+      router.replace("./Admin")
+    }
+  },[admin])
    useEffect(()=>{
     if(loading && arrayUsuarios.length!=0){
       setLoading(false)
@@ -113,7 +130,12 @@ const [disabled,setDisabled]=useState(false)
             if (arrayUsuarios[i].password == contrasena) {
               t=arrayUsuarios[i].id
               console.log(t)
-              localStorage.setItem("userid",t)
+              if(arrayUsuarios[i].is_admin){
+                localStorage.setItem("userid",-1)  
+              }else{
+
+                localStorage.setItem("userid",t)
+              }
                /*sessionStorage.setItem("User", JSON.stringify(usuarioLogueado))*/ //ver si hacemos con cookies o que
                setProcess("")
               setDisabled(false)

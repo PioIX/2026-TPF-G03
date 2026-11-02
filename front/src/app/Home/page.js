@@ -27,11 +27,8 @@ NO NECESARIOS:
 
 
 /*Hacer ahora:
--puntos de apuesta de la sala vienen de base de datos (junto con otra info de sala)
--ver qué pasa con los desconectados en el medio de la partida
--algo de loading cuando se entra al juego
--ver como mostrar datos de partida
--que routee a admin
+-ver como mostrar datos de partida/cartas de oponentes/desconectados y hold
+-implementar empate
 */
 
 export default function HomePage() {
@@ -43,10 +40,13 @@ export default function HomePage() {
   const [Eopen,setEopen]=useState(false)
   const [Lopen,setLopen]=useState(false)
   const [Mopen,setMopen]=useState(false)
+  const [Aopen,setAopen]=useState(false)
+
   const [Erropen,setErropen]=useState(false)
   const [disabled,setDisabled]=useState(false)
 
   const [errM,setErrM]=useState("")
+  const [apuesta,setApuesta]=useState(1)
 
 
   const [avRooms,setAvRooms]=useState(null)
@@ -62,10 +62,7 @@ export default function HomePage() {
   const router = useRouter()
   const searchParams=useSearchParams()
   useEffect(()=>{
-    let err=searchParams.get("err")
-    if(err==1){
-      setErrM("Host desconectado")
-    }
+    
     usuarioId=localStorage.getItem("userid")
     console.log(usuarioId)
     if (!Number(usuarioId)){
@@ -116,7 +113,7 @@ export default function HomePage() {
         setAvRooms(rooms)
       })
       socket.on("error",({type})=>{
-        
+       router.replace(`/Error?err=${type}`)
       })
       socket.on("connect",()=>{
         console.log(socket.id)
@@ -157,6 +154,20 @@ export default function HomePage() {
     )
   }
 
+    function pointCheck(points){
+    setErrM("")
+    if(points<1){
+      setErrM("Cantidad inválida")
+    }else{
+
+      if(usuario.points>=points){
+        return true
+      }else{
+        setErrM("Puntos insuficientes")
+        return false
+      }
+    }
+  }
   
 
   return (
@@ -198,8 +209,12 @@ export default function HomePage() {
             <p>Tus puntos: {usuario.points}</p>
             <input onChange={(e)=>{setPuntosA(e.target.value)}} value={puntosA}></input>
             {valueError&&<p>Valor inválido</p>}
+            {disabled?(
+              <button disabled>Comenzar</button>
+            ):(
             <button onClick={()=>{
               if((puntosA>0 && puntosA<=usuario.points) || puntosA==1){
+                setDisabled(true)
                 setPopen(false);
                 setValueError(false)
                 sessionStorage.setItem("puntosApostados",puntosA)
@@ -207,13 +222,14 @@ export default function HomePage() {
               }else{
                 setValueError(true)
               }}}>Comenzar</button>
+            )}
                 </div>       
                 }
        </Popup>
 
 
        {/*Multijugador*/}
-        <Popup open={Mopen} onClose={()=>{setMopen(false)}} closeOnDocumentClick={false}>
+        <Popup open={Mopen} onClose={()=>{setMopen(false);setErrM("")}} closeOnDocumentClick={false}>
           {usuario&&
               <>
               <h2>Salas multijugador</h2> 
@@ -222,11 +238,15 @@ export default function HomePage() {
               {avRooms.map((room,i)=><div key={i}>
               <p>Sala de {room.ownerName}</p>
               <p>{room.usersCount} usuario(s)</p>
+              <p>Apuesta: ${room.apuesta}</p>
               {/*<button onClick={()=>{socket.emit("roomExists",{roomId:room.roomId,userId:usuario.id})}}>Unirse</button>*/}
               {(disabled)?(
                 <button disabled>Unirse</button>
               ):(
-                <button onClick={()=>{setDisabled(true);router.push(`/JuegoMJ?room=${room.roomId}`)}}>Unirse</button>
+                <>
+                <p>{errM}</p>
+                <button onClick={()=>{if(pointCheck(room.apuesta)){setDisabled(true);router.push(`/JuegoMJ?room=${room.roomId}`)}}}>Unirse</button>
+              </>
               )}
               
 
@@ -241,10 +261,22 @@ export default function HomePage() {
             <button disabled>Crear sala</button>
             <button disabled>Volver</button>
              </>):(<>
-            <button onClick={()=>{setDisabled(true);socket.emit("createRoom",{user:usuario.username,socketId:socket.id,roomId:usuario.id});}}>Crear sala</button>
+            <button onClick={()=>{setAopen(true);setMopen(false);setErrM("")}}>Crear sala</button>
             <button onClick={()=>{setMopen(false)}}>Volver</button>
              </>)} 
            
+              </>   
+          }
+       </Popup>
+
+        <Popup open={Aopen} onClose={()=>{setAopen(false)}} closeOnDocumentClick={false}>
+          {usuario&&
+             <>
+             <h2>Ingrese puntos a apostar:</h2>
+            <input type="number" value={apuesta} onChange={(e)=>{setApuesta(e.target.value)}}></input>
+            <p>{errM}</p>
+            <button onClick={()=>{if(pointCheck(apuesta)){setDisabled(true);socket.emit("createRoom",{user:usuario.username,socketId:socket.id,roomId:usuario.id,apuesta:apuesta});}}}>Crear</button>
+            <button onClick={()=>{setAopen(false)}}>Volver</button>
               </>   
           }
        </Popup>

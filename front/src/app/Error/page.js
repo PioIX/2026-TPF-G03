@@ -21,6 +21,8 @@ export default function ErrorPage() {
          setEMsg("Sala ya existe")
     }else if(err==4){
          setEMsg("Sala no disponible")
+    }else if(err==5){
+         setEMsg("Puntos insuficientes para seguir jugando")
     }
     },[])
 

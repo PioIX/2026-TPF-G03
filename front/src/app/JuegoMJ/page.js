@@ -6,6 +6,7 @@ import {useMultiBlackJack} from "@/hooks/useMultiBlackJack"
 import ArrCartas from "@/components/ArrCartas";
 import Popup from 'reactjs-popup';
 import useSocket from "@/hooks/useSocket";
+import { connect } from "socket.io-client";
 
 
 export default function JuegoMJPage() {
@@ -18,16 +19,16 @@ export default function JuegoMJPage() {
   const [loading,setLoading]=useState(true)
   const [open,setOpen]=useState(false)
   const [inRoom,setInRoom]=useState(false)
+
   const [members,setMembers]=useState([])
-  const [userArr,setUserArr]=useState([])
+  const [UserArr,setUserArr]=useState([])
 
   const [started,setStarted]=useState(false)
   const [ended,setEnded]=useState(false)
 
   const [startDisabled,setStartDisabled]=useState(true)
   const [heldText,setHeldText]=useState("Esperando a los otros jugadores..")
-
-//hay que guardar los datos de los usuarios para mostrarlos (saber nombre y si están conectados)
+  const [errM,setErrM]=useState("")
 
 
 
@@ -37,15 +38,9 @@ export default function JuegoMJPage() {
 
   useEffect(()=>{
         usuarioId = localStorage.getItem("userid")
-        let ptemp=1
-        //CAMBIAR ESTO A PUNTOS DE LA SALA
         setPopupText("")
         setOpen(false)
-        if(ptemp){
-          setPuntosA(ptemp)
-        }else{
-          setPuntosA(1)
-        }
+        
         if(!usuario || !estadistica || Object.keys(usuario).length==0){
           useFetch.getUsuarioPorId(usuarioId)
           .then((data)=>{
@@ -74,6 +69,8 @@ export default function JuegoMJPage() {
     useEffect(()=>{
       if (members.length>1){
         setStartDisabled(false)
+      }else{
+        setStartDisabled(true)
       }
   },[members])
 
@@ -95,6 +92,7 @@ export default function JuegoMJPage() {
   },[held])
 
 
+
   useEffect(()=>{
     if (!socket){
       return      
@@ -107,24 +105,25 @@ export default function JuegoMJPage() {
      
        socket.on("joined",(data)=>{
         if(data.user==usuario.username){
-          console.log("joined")
           setInRoom(true)
-        }
-        setMembers(data.users)
+          console.log("apuesta")
+          console.log(data.apuesta)
+          setPuntosA(data.apuesta)
+        } 
+        let t=data.users.map((m)=>({username:m,hold:false,connected:true}))
+        setMembers(t)
         
       })
-      //usuario no recibe el error
       socket.on("error",({type})=>{
-        console.log("Error recieved")
         router.replace(`/Error?err=${type}`)
       })
 
       socket.on("left",(data)=>{
-        setMembers(data.users)
+        console.log("USER LEFT")
+         let t=data.users.map((m)=>({username:m,hold:false,connected:true}))
+        setMembers(t)
       })
-      socket.on("msg",(data)=>{
-        console.log(data)
-      })
+      
       socket.on("hostDisconnect",()=>{
         router.replace("/Error?err=1")
       })
@@ -140,7 +139,13 @@ export default function JuegoMJPage() {
           if(room.ownerName==data.user){
             socket.emit("hostDisconnect",roomId)
           }else if(started){
-            //setear el usuario desconectado en gris o algo lol
+            members.map((m,i)=>{
+              if(m.username==data.user){
+                let t = members
+                t[i].connected=false
+                setMembers(t)
+              }
+            })
           }
         
       })
@@ -148,31 +153,54 @@ export default function JuegoMJPage() {
 
     //eventos del juego
      socket.on("started",()=>{
-        console.log("started recieved")
         setStarted(true)
       })
       socket.on("ended",({room,userArr,winner})=>{
         setEnded(true)
         setUserArr(userArr)
-        console.log(usuario)
         setHeldText("")
-        if(winner[0]==usuario.username){
-          win(puntosA)
-        }else if(winner.length==0){
-          setPopupText("No hubo ganador")
+        if(winner.length/2==userArr.length){
+          setPopupText("Empate")
         }else{
-          lose(puntosA)
+          if(winner.includes(usuario.username)){
+            win(Math.floor((puntosA*(userArr.length-(winner.length/2)))/(winner.length/2)))
+          }else if(!winner[0]){
+            setPopupText("No hubo ganador")
+          }else{
+            lose(puntosA)
+          }
+
         }
       })
       socket.on("held",({user})=>{
-        if (user!=usuario.username){
-          //poner que este usuario ya hizo hold
+         setMembers(prev => 
+         prev.map((m, i) => 
+         m.username ==user
+          ? { ...m, hold: true } 
+          : m 
+        )
+        );
+        
+      })
+      socket.on("restart",()=>{
+        console.log(usuario)
+        if(Object.keys(usuario).length>0){
+
+          if(pointCheck(puntosA)){
+            restartGame()
+          }else{
+            socket.emit("leave",{roomId:searchParams.get("room"),user:usuario.username})
+             router.replace("/Error?err=5")
+          }
         }
       })
-  },[socket,loading])
+
+      return () => {
+      socket.off("ended");
+      };
+  },[socket,loading,inRoom])
 
 
-  //ver si conviene que el back le mande a cada uno su estado o que envie el ganador y ahí se decida
 
 
 useEffect(()=>{
@@ -184,13 +212,11 @@ useEffect(()=>{
   },[popupText])
 
   function startGame(){
-    console.log("start")
     socket.emit("start",{roomId:searchParams.get("room")})
    
   }
   function hit(){
     let res = giveusercard()
-    console.log(res)
   }
 
   function stand(){
@@ -198,13 +224,25 @@ useEffect(()=>{
 
   }
 
+function restartGame(){
+    reset()
+    setOpen(false)
+    setUserArr([])
+    setStarted(false)
+    setEnded(false)
+    setInRoom(false)
+    setPopupText("")
+
+  }
 
 
   function win(points){
-    setPopupText("Ganaste")
+    console.log("WIN")
     console.log(points)
+    console.log('usuario')
+    console.log(usuario)
     let newE={
-      userid:usuarioId,
+      userid:usuario.id,
       wins:Number(estadistica.wins)+1,
       losses:estadistica.losses,
       played:Number(estadistica.played)+1,
@@ -213,16 +251,25 @@ useEffect(()=>{
       cant_items:estadistica.cant_items
     }
     useFetch.putEstadistica(newE)
-    useFetch.putPoints(usuario.points+Number(points),usuarioId)
-    console.log(points)
-    usuario.points+=Number(points)
-    console.log(usuario.points)
+    useFetch.putPoints(usuario.points+Number(points),usuario.id)
+    .then(()=>{
+      console.log("done")
+      let t = usuario
+      t.points+=Number(points)
+      setUsuario(t)
+      setPopupText("Ganaste")
+
+    })
+    
   }
 
   function lose(points){
-    setPopupText("Perdiste")
+    console.log("LOSE")
+    console.log(points)
+    console.log('usuario')
+    console.log(usuario)
     let newE={
-      userid:usuarioId,
+      userid:usuario.id,
       wins:estadistica.wins,
       losses:Number(estadistica.losses)+1,
       played:Number(estadistica.played)+1,
@@ -231,14 +278,31 @@ useEffect(()=>{
       cant_items:estadistica.cant_items
     }
     useFetch.putEstadistica(newE)
-    useFetch.putPoints(usuario.points-Number(points),usuarioId)
-    console.log(points)
-    usuario.points-=Number(points)
-    console.log(usuario.points)
+    useFetch.putPoints(usuario.points-Number(points),usuario.id)
+    .then(()=>{
+      console.log("done")
+      let t = usuario
+      t.points-=Number(points)
+      setUsuario(t)
+      
+      setPopupText("Perdiste")
+    })
+    
 
   }
 
-
+  function pointCheck(points){
+    setErrM("")
+    points=Number(points)
+      if(usuario.points>=points){
+        return true
+      }else{
+        setErrM("Puntos insuficientes")
+        return false
+      
+    }
+  }
+  
 
   return (
     <>
@@ -259,13 +323,30 @@ useEffect(()=>{
 
     (started)?(
       <>
-    {/*  <header><button onClick={()=>{reset();router.back()}}>Volver</button></header>*/}
         <section>
+          {members.length>0&&
+          <>
+          {/*posiblemente marcar los usuarios desconectados en gris o algo*/}
+          <div style={{display:"flex"}}>
+          {members.map((m,i)=> m.username==usuario.username?<p key={i}></p>:
+            <div key={i}>
+            <p>{m.username}:</p>
+
+            {/*lo que sea que diga cuando otro usuario ya hizo hold*/}
+            {m.hold&&<p>Listo</p>}
+
+            <img src="cartas/AV.png"></img>
+          {/*placeholder para carta dada vuelta*/}
+            </div>
+            
+          )}
+              </div>
+          </>}
           <div>
             <p>Vos: {sum}</p>
           </div>
           <ArrCartas cards={ucards}></ArrCartas>
-          {/*Cartas de los otros usuarios dadas vuelta*/}
+         
         </section>
         <section>
           {(held )?(<>
@@ -283,9 +364,9 @@ useEffect(()=>{
             <h2>{popupText}</h2>
             <ul>
               
-              {userArr.length>0&&
+              {UserArr.length>0&&
               <>
-              {userArr.map((u,i)=>
+              {UserArr.map((u,i)=>
               <li key={i}>{u[0]}: {u[1].sum}</li>
               )}
               </>}
@@ -293,6 +374,16 @@ useEffect(()=>{
             </ul>
           </div>       
           }
+          
+           {(searchParams.get("room")==usuario.id)?(
+            <>
+            <p>{errM}</p>
+            <button onClick={()=>{if(pointCheck(puntosA)){socket.emit("restart",{roomId:searchParams.get("room"),user:usuario.username,socketId:socket.id,apuesta:puntosA})}}}>Volver a jugar</button>
+           </>
+           ):(
+            <p>Esperando al administrador....</p>
+           )}
+           <button onClick={()=>{router.replace("/Home")}}>Home</button>
         </Popup>
         </>
       
@@ -302,7 +393,7 @@ useEffect(()=>{
       {members.length>0&&
       <>
       <h2>Miembros en la sala:</h2>
-      {members.map((m,i)=><p key={i}>{m}</p>)}
+      {members.map((m,i)=><p key={i}>{m.username}</p>)}
       </>}
       {(searchParams.get("room")==usuario.id)?(
         <>

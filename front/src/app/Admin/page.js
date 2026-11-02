@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import * as useFetch from "@/hooks/useFetch.js"
 import Popup from 'reactjs-popup';
+import { useRouter, useSearchParams } from "next/navigation"
 
 export default function AdminPage() {
   const [arrayUsuarios, setArrayUsuarios] = useState([])
@@ -39,7 +40,7 @@ export default function AdminPage() {
   const [mensajeErrorBI, setMensajeErrorBI] = useState("")
   const [mensajeErrorMII, setMensajeErrorMII] = useState("")
   const [mensajeErrorMIP, setMensajeErrorMIP] = useState("")
-
+  const router=useRouter()
   let i = 0
 
   useEffect(() => {
@@ -220,11 +221,17 @@ export default function AdminPage() {
     }
   }
 
+
+ function logout(){
+    localStorage.setItem("userid",0)
+    router.replace("./")
+  }
+
   return (
     <>
       <div>
         <h1 id="admin_h1" className="admin_h">ADMINISTRACION</h1>
-
+        <button onClick={()=>{logout()}}>Cerrar sesión</button>
         <div className="admin_div">
           <h2 className="admin_h">Usuarios </h2>
 

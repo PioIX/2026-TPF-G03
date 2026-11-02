@@ -51,9 +51,7 @@ io.on("connection", (socket) => {
 	io.emit("pingAll", { event: "Ping to all", message: data });
   });
 
-  //falta terminar created room 
-  //verificar a quien le manda mejor
-	socket.on("createRoom",({roomId,user,socketId})=>{
+	socket.on("createRoom",({roomId,user,socketId,apuesta})=>{
 		roomId=parseInt(roomId)
 	  if (!roomData.has(roomId)) {
 		
@@ -62,7 +60,8 @@ io.on("connection", (socket) => {
 			users: new Map(),
 			started: false,
 			ended: false,
-			ownerName:user
+			ownerName:user,
+			apuesta:apuesta
 			//datos de la sala que se crean al principio
 		  });
 			roomData.get(roomId).users.set(user,{
@@ -77,7 +76,7 @@ io.on("connection", (socket) => {
 				});
 			io.emit("roomChange")	
 		}else{
-			io.emit("error",{type:3})
+			io.to(socketId).emit("error",{type:3})
 		}
 
 	})
@@ -113,7 +112,8 @@ io.on("connection", (socket) => {
 				io.to(roomId).emit("joined", {
 					room:roomId,
 					usersCount: roomInfo.users.size,
-					users: Array.from(roomInfo.users.keys())
+					users: Array.from(roomInfo.users.keys()),
+					apuesta:roomInfo.apuesta
 				});
 				io.emit("roomChange")
 			}else{
@@ -124,6 +124,28 @@ io.on("connection", (socket) => {
 		}
 	
   });
+
+
+ socket.on("restart", ({roomId,user,socketId,apuesta}) => {
+	roomId=parseInt(roomId)
+	let cr
+		if (roomData.has(roomId)){
+			cr=roomData.get(roomId).createdAt
+		}else{
+			cr=new Date()
+		}
+		roomData.set(roomId, {
+		createdAt: cr,
+		users: new Map(),
+		started: false,
+		ended: false,
+		ownerName:user,
+		apuesta:apuesta
+	  	});
+		io.to(roomId).emit("restart")
+  });
+
+
 
 
   socket.on("leave", ({user,roomId}) => {
@@ -216,17 +238,20 @@ io.on("connection", (socket) => {
 			//datos de cada usuario cuando hace hold
 		});
 		io.emit("held", {message: "Cartas y suma del usuario actualizadas",user:username});
-		console.log("USER HELD")
 		let us=Array.from(roomData.get(roomId).users.values())
 		let na=us.filter(u=>u.held||!u.connected)
 		
 		if(na.length==us.length){
-			console.log("ALL USERS HELD")
 			let winner=["",{sum:0}]
 			const userArr=Array.from(roomData.get(roomId).users)
 			for(const [user,data] of userArr){
 				if(data.sum>winner[1].sum&&data.sum<=21){
+				
 					winner=[user,data]
+					
+				}else if(data.sum==winner[1].sum){
+					winner.push(user,data)
+				
 				}
 			}
 			console.log(winner)
@@ -251,7 +276,6 @@ io.on("connection", (socket) => {
 			   io.emit("roomChange")
 			}else{
 				io.to(roomId).emit("error",{type:2})
-			//datos de la sala que se crean al principio
 		  	}
 			
 	  });
@@ -614,6 +638,7 @@ try {
 			await MySQL.realizarQuery(`UPDATE Usuarios SET 
 			password = "${req.body.password}" WHERE id = ${req.body.id};`)
 		}else if(points || points==0){
+			console.log(points)
 			await MySQL.realizarQuery(`UPDATE Usuarios SET 
 			points = ${req.body.points} WHERE id = ${req.body.id};`)
 		}else if(is_admin!=undefined){
