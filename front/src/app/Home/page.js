@@ -16,6 +16,7 @@ import useSocket from "@/hooks/useSocket";
   -Modo loco: los jugadores pueden elegir restarle o sumarle a otro (limitado)
 -IMPLEMENTAR REGLAS COMO SEGURO O RENDIRSE, SPLIT O DOBLE
 
+
 NO NECESARIOS:
 -ENTRETENIMIENTO EN SALA DE ESPERA (DUDOSO)
 -PODER MOVER LAS LETRAS DEL TITULO
@@ -32,6 +33,7 @@ NO NECESARIOS:
 -testear pipis
 -ver qué hacer con items
 -mover a pipi
+-poner página con carga en el gatcha
 
 */
 
@@ -105,10 +107,10 @@ export default function HomePage() {
     if(usuario && Object.keys(usuario).length!=0 &&inv&&items){
 
       items.filter((it)=>!it.name.includes("Pipi")&&!it.name.includes("Fondo")).map((item,i)=>{ 
-        if(estaEnInv(item.id)){
+        if(estaEnInv(item.id)>-1){
           it.push(item)
         }else{
-          it.push({name:item.name,id:item.id,imgsrc:`/shadow${item.name}`})
+          it.push({name:item.name,id:item.id,imgsrc:`spr/shadow${item.id}.png`})
         }
       }
       )
@@ -269,12 +271,12 @@ export default function HomePage() {
             <button onClick={()=>{setMopen(true)}}>Multijugador</button>
 
 
-        </section>
           <section>
             {shownItems.map((it,i)=>(
-              <img src={it.imgsrc}></img>
+              <img key={i} src={it.imgsrc} style={{height:"50px"}}></img>
             ))}
           </section>
+        </section>
 
         {/*POPUPS*/}
         {/*Apuesta para comenzar juego*/}

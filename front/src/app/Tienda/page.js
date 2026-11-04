@@ -29,8 +29,10 @@ export default function TiendaPage() {
     const [loading,setLoading]=useState(true)
     const [Iloading,setILoading]=useState(false)
     const [open,setOpen]=useState(false)
+    const [Copen,setCOpen]=useState(false)
 
-
+     const [rarity,setRarity]=useState("")
+    const [gottenItem,setGottenItem]=useState(null)
     const [pipi,setPipi]=useState(null)
     const [item,setItem]=useState(null)
     const [fondo,setFondo]=useState(null)
@@ -87,6 +89,13 @@ export default function TiendaPage() {
         setLoading(true)
       }
     },[inv])
+
+
+ useEffect(()=>{
+      if(gottenItem &&rarity){
+        setCOpen(true)
+      }
+    },[gottenItem,rarity])
 
     useEffect(()=>{
       if(inv&&fondos.length!=0&&Object.keys(usuario).length!=0&&misc.length!=0&&loading&&pipis.length!=0){
@@ -245,24 +254,29 @@ export default function TiendaPage() {
     if(rand==1){
       im = 5 //mandarina
       console.log("5")
+      setRarity("Legendario")
       //item raro, 1 en 20 chance
     }else if(rand<=6){
       console.log("2")
+      setRarity("Épico")
       im=2 //corazón
       //item no tan raro, 5 en 20 chance
     }else if (rand<=12){
       console.log("1")
+       setRarity("Raro")
       im=1 //café
       //6 en 20
     }else{
       console.log("4")
+      setRarity("Comùn")
+
       im=4 //té
       //8 en 20
     }
-   /* useFetch.getItemPorId(im)
+   useFetch.getItemPorId(im)
     .then((data)=>{
-      return data
-    })*/
+      setGottenItem(data[0])
+    })
    let e
         useFetch.getEstadisticaDeUsuario(usuario.id)
         .then((data)=>{ 
@@ -275,9 +289,11 @@ export default function TiendaPage() {
           useFetch.postItemPorUsuario(newitem)
           .then(()=>{
 
+            let t = usuario
+            t.points-=price
+            setUsuario(t)
             useFetch.putEstadistica({cant_items: e.cant_items+1, userid: usuario.id}),
-            usuario.points-=price,
-            useFetch.putPoints(usuario.points,usuario.id)
+            useFetch.putPoints(t.points,usuario.id)
             .then(
               ()=>{setILoading(true)})
             
@@ -307,9 +323,9 @@ export default function TiendaPage() {
      <StoreList equip={equip} unequip={unequip} buy={buy} items={fondos} estaEnInv={estaEnInv} names={false} inf={false}></StoreList>
      <h2>Pipis</h2>
      <StoreList equip={equip} unequip={unequip} buy={buy} items={pipis} estaEnInv={estaEnInv} names={true} inf={true}></StoreList>
- {   /* <StoreList equip={equip} unequip={unequip} buy={buy} items={misc} estaEnInv={estaEnInv} names={false} inf={false}></StoreList>*/}
+{ /*<StoreList equip={equip} unequip={unequip} buy={buy} items={misc} estaEnInv={estaEnInv} names={false} inf={false}></StoreList>*/}
      <h2>Items</h2>
-     <button onClick={()=>{if(usuario.points<20){setOpen(true)}else{pickItem()}}}>Comprar cofre de items</button>
+     <button onClick={()=>{if(usuario.points<20){setOpen(true)}else{pickItem(20)}}}>Comprar cofre de items ($20)</button>
     </div>
       <button onClick={()=>{router.back()}}>Volver</button>
 
@@ -319,6 +335,18 @@ export default function TiendaPage() {
                 <div>
                   <h2>No tiene suficientes puntos para hacer esta compra</h2>
                   <button onClick={()=>{setOpen(false)}}>Cerrar</button>
+                </div>       
+                      }
+             </Popup>
+
+
+             <Popup open={Copen} onClose={()=>{setCOpen(false)}} closeOnDocumentClick={true}>
+              {gottenItem&&rarity&&
+                <div>
+                  <h2>Recibiste un/a {gottenItem.name}</h2>
+                  <img src={gottenItem.src}></img>
+                  <p>{rarity}</p>
+                  <button onClick={()=>{setCOpen(false);setGottenItem(null),setRarity("")}}>Cerrar</button>
                 </div>       
                       }
              </Popup>
