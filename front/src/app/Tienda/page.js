@@ -225,10 +225,11 @@ export default function TiendaPage() {
             }
           useFetch.postItemPorUsuario(newitem)
           .then(()=>{
-
+            let t=usuario
+            t.points-=price
             useFetch.putEstadistica({cant_items: e.cant_items+1, userid: usuario.id}),
-            usuario.points-=item.price,
-            useFetch.putPoints(usuario.points,usuario.id)
+            useFetch.putPoints(t.points,usuario.id)
+            setUsuario(t)
             .then(
               ()=>{setILoading(true)})
             
@@ -238,7 +239,53 @@ export default function TiendaPage() {
       }
     }
 
+  function pickItem(price){
+    let im
+    let rand = Math.floor(Math.random()*20)
+    if(rand==1){
+      im = 5 //mandarina
+      console.log("5")
+      //item raro, 1 en 20 chance
+    }else if(rand<=6){
+      console.log("2")
+      im=2 //corazón
+      //item no tan raro, 5 en 20 chance
+    }else if (rand<=12){
+      console.log("1")
+      im=1 //café
+      //6 en 20
+    }else{
+      console.log("4")
+      im=4 //té
+      //8 en 20
+    }
+   /* useFetch.getItemPorId(im)
+    .then((data)=>{
+      return data
+    })*/
+   let e
+        useFetch.getEstadisticaDeUsuario(usuario.id)
+        .then((data)=>{ 
+          e=data[0]
+          let newitem ={
+            userid: usuario.id,
+            itemid: im,
+            active: 0   
+            }
+          useFetch.postItemPorUsuario(newitem)
+          .then(()=>{
 
+            useFetch.putEstadistica({cant_items: e.cant_items+1, userid: usuario.id}),
+            usuario.points-=price,
+            useFetch.putPoints(usuario.points,usuario.id)
+            .then(
+              ()=>{setILoading(true)})
+            
+          }
+          )
+        })
+
+  }
 
   return (
     <>
@@ -258,10 +305,11 @@ export default function TiendaPage() {
       {/*names define si aparecen los nombres en la tienda, inf si aparecen botones que dan info de cada uno*/}
       <h2>Fondos</h2>
      <StoreList equip={equip} unequip={unequip} buy={buy} items={fondos} estaEnInv={estaEnInv} names={false} inf={false}></StoreList>
-     <h2>Items</h2>
-     <StoreList equip={equip} unequip={unequip} buy={buy} items={misc} estaEnInv={estaEnInv} names={false} inf={false}></StoreList>
      <h2>Pipis</h2>
      <StoreList equip={equip} unequip={unequip} buy={buy} items={pipis} estaEnInv={estaEnInv} names={true} inf={true}></StoreList>
+ {   /* <StoreList equip={equip} unequip={unequip} buy={buy} items={misc} estaEnInv={estaEnInv} names={false} inf={false}></StoreList>*/}
+     <h2>Items</h2>
+     <button onClick={()=>{if(usuario.points<20){setOpen(true)}else{pickItem()}}}>Comprar cofre de items</button>
     </div>
       <button onClick={()=>{router.back()}}>Volver</button>
 

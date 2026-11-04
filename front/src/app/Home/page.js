@@ -51,10 +51,11 @@ export default function HomePage() {
   const [pipi,setPipi]=useState(null)
   const [item,setItem]=useState(null)
   const [fondo,setFondo]=useState(null)
-
+  const [inv,setInv]=useState(null)
+  const [items,setItems]=useState(null)
   const [errM,setErrM]=useState("")
   const [apuesta,setApuesta]=useState(1)
-
+  const [shownItems,setShownItems]=useState(null)
 
   const [avRooms,setAvRooms]=useState(null)
 
@@ -75,6 +76,14 @@ export default function HomePage() {
     console.log(usuarioId)
     if (!Number(usuarioId)){
      router.replace("./")}
+    useFetch.getInventario(usuarioId)
+        .then((data)=>{
+          setInv(data)
+        })
+    useFetch.getItems()
+    .then((data)=>{
+          setItems(data)
+    })
     useFetch.getUsuarioPorId(usuarioId)
     .then((data)=>{
       setUsuario(data[0])
@@ -91,11 +100,32 @@ export default function HomePage() {
   },[])
 
   useEffect(()=>{
-    if(usuario && Object.keys(usuario).length!=0){
+    let it=[]
+
+    if(usuario && Object.keys(usuario).length!=0 &&inv&&items){
+
+      items.filter((it)=>!it.name.includes("Pipi")&&!it.name.includes("Fondo")).map((item,i)=>{ 
+        if(estaEnInv(item.id)){
+          it.push(item)
+        }else{
+          it.push({name:item.name,id:item.id,imgsrc:`/shadow${item.name}`})
+        }
+      }
+      )
+      console.log(it)
+      setShownItems(it)
+
+    }
+  },[usuario,inv,items])
+
+  useEffect(()=>{
+    
+    if(usuario && Object.keys(usuario).length!=0 &&inv&&items&&shownItems){
+
       setLoading(false)
       setDisabled(false)
     }
-  },[usuario])
+  },[usuario,inv,shownItems])
 
   useEffect(()=>{
     if(Eopen){
@@ -153,6 +183,23 @@ export default function HomePage() {
       })
     },[socket])
   
+
+ function estaEnInv(id){
+      let temp=-1
+        inv.map((item,i)=>{
+          if (item.itemid==id){
+            if(item.active){
+              temp= 1
+            }else{
+              temp= 0
+
+            }
+          }
+        })
+  
+      return temp
+    }
+
   function logout(){
     localStorage.setItem("userid",0)
     localStorage.removeItem("Fondo")
@@ -214,7 +261,7 @@ export default function HomePage() {
         <div>
           <h1> Blackjack </h1>
         </div>
-
+          
         <section>
             <button onClick={()=>{router.push("/Tienda")}}>Tienda</button>
             <button onClick={()=>{setPopen(true)}}>Ir al juego</button>
@@ -223,7 +270,11 @@ export default function HomePage() {
 
 
         </section>
-
+          <section>
+            {shownItems.map((it,i)=>(
+              <img src={it.imgsrc}></img>
+            ))}
+          </section>
 
         {/*POPUPS*/}
         {/*Apuesta para comenzar juego*/}
