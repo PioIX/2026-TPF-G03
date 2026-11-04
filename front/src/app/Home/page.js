@@ -7,6 +7,8 @@ import useSocket from "@/hooks/useSocket";
 import clsx from "clsx";
 import { Press_Start_2P } from "next/font/google";
 import styles from "./page.module.css";
+import React, { useRef } from 'react';
+import Draggable from 'react-draggable';
 
 const pixel = Press_Start_2P({ weight: "400", subsets: ["latin"] });
 
@@ -47,7 +49,7 @@ export default function HomePage() {
   const { socket, isConnected } =useSocket()
   const [valueError,setValueError]=useState(false)
   const [puntosA,setPuntosA]=useState(1)
-
+  const nodeRef = useRef(null);
   let usuarioId = 0 
   const router = useRouter()
   const searchParams=useSearchParams()
@@ -154,7 +156,7 @@ export default function HomePage() {
 
   return (
     <div className={clsx(styles.page, pixel.className)}>
-   
+
     {(loading)?(
       <>
         <h1 className={styles.loading}>Cargando...</h1>
@@ -162,7 +164,7 @@ export default function HomePage() {
     ):(
       <>
       
-    
+
           <header className={styles.header}>
           <button className={clsx(styles.btn, styles.small)} onClick={()=>{setLopen(true)}}>Logout</button>
           <button className={clsx(styles.btn, styles.small)} onClick={()=>{setEopen(true)}}>Estadistica</button>
@@ -177,8 +179,24 @@ export default function HomePage() {
             <button className={styles.btn} onClick={()=>{setPopen(true)}}>Ir al juego</button>
             <button className={styles.btn} onClick={()=>{router.push("/Ranking")}}>Ranking</button>
             <button className={styles.btn} onClick={()=>{setMopen(true)}}>Multijugador</button>
-
-
+            <div>
+              <Draggable nodeRef={nodeRef}>
+                <img ref={nodeRef} id={styles.drags} src="./spr/mandarina.png"></img>
+              </Draggable>
+              <Draggable nodeRef={nodeRef}>
+                <img ref={nodeRef} id={styles.drags} src="./spr/cosaron.png"></img>
+              </Draggable>
+            </div>
+            <div>
+              <Draggable nodeRef={nodeRef}>
+                <img ref={nodeRef} id={styles.drags} src="./spr/cafecito.png"></img>
+              </Draggable>
+              <Draggable nodeRef={nodeRef}>
+                <img ref={nodeRef} id={styles.drags} src="./spr/tecito.png"></img>
+              </Draggable>
+            </div>
+            <hr className={styles.acheerre}></hr>
+            <hr className={styles.acheerre}></hr>
         </section>
 
 
