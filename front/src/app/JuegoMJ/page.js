@@ -30,6 +30,10 @@ export default function JuegoMJPage() {
   const [heldText,setHeldText]=useState("Esperando a los otros jugadores..")
   const [errM,setErrM]=useState("")
 
+  const [pipi,setPipi]=useState(null)
+  const [item,setItem]=useState(null)
+  const [fondo,setFondo]=useState(null)
+
 
 
   const [popupText,setPopupText]=useState("")
@@ -45,6 +49,15 @@ export default function JuegoMJPage() {
           useFetch.getUsuarioPorId(usuarioId)
           .then((data)=>{
             setUsuario(data[0])
+            if(localStorage.getItem("Fondo")){
+              setFondo(JSON.parse(localStorage.getItem("Fondo")))
+            }
+            if(localStorage.getItem("Pipi")){
+              setPipi(JSON.parse(localStorage.getItem("Pipi")))
+            }
+            if(localStorage.getItem("Misc")){
+              setItem(JSON.parse(localStorage.getItem("Misc")))
+            }
           })
           .then(
             useFetch.getEstadisticaDeUsuario(usuarioId)

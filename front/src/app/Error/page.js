@@ -10,8 +10,20 @@ export default function ErrorPage() {
   const [eMsg,setEMsg]=useState(true)
   const router = useRouter()
   const searchParams=useSearchParams()
+  const [pipi,setPipi]=useState(null)
+  const [item,setItem]=useState(null)
+  const [fondo,setFondo]=useState(null)
 
   useEffect(()=>{
+    if(localStorage.getItem("Fondo")){
+        setFondo(JSON.parse(localStorage.getItem("Fondo")))
+      }
+      if(localStorage.getItem("Pipi")){
+        setPipi(JSON.parse(localStorage.getItem("Pipi")))
+      }
+      if(localStorage.getItem("Misc")){
+        setItem(JSON.parse(localStorage.getItem("Misc")))
+      }
     let err=searchParams.get("err")
     if(err==1){
         setEMsg("Host desconectado")

@@ -4,22 +4,33 @@ import * as useFetch from "@/hooks/useFetch.js"
 import { useRouter, useSearchParams } from "next/navigation"
 import Popup from 'reactjs-popup';
 import useSocket from "@/hooks/useSocket";
+import clsx from "clsx";
+import { Press_Start_2P } from "next/font/google";
+import styles from "./page.module.css";
+import React, { useRef } from 'react';
+import Draggable from 'react-draggable';
+
+const pixel = Press_Start_2P({ weight: "400", subsets: ["latin"] });
+
+const popupProps = {
+  contentStyle: { background: "none", border: "none", padding: 0, width: "auto" },
+  overlayStyle: { background: "rgba(0,0,0,0.65)" },
+};
 
 
 /*MASTERLIST DE COSAS QUE FALTAN:
 
+
 -PIPIS CON FUNCIONALIDAD
--PODER MOVER A PIPI
--VER DONDE PONER LOS ICONOS
--CSSS LOL LOL
+-CSS
 -MULTIJUGADOR CON SALA:
-  -Sala sin dealer para competir entre jugadores (solo un ganador)
   -Modo loco: los jugadores pueden elegir restarle o sumarle a otro (limitado)
 -IMPLEMENTAR REGLAS COMO SEGURO O RENDIRSE, SPLIT O DOBLE
 
+
+
 NO NECESARIOS:
--ENTRETENIMIENTO EN SALA DE ESPERA (DUDOSO)
--PODER MOVER LAS LETRAS DEL TITULO
+-IMPLEMENTAR REGLAS COMO SEGURO O RENDIRSE, SPLIT O DOBLE
 -PERSONALIZACION DEL MAZO
 -ANIMACIONES DE CARTAS
 -PODER SUBIR IMAGENES DE FONDO
@@ -27,8 +38,14 @@ NO NECESARIOS:
 
 
 /*Hacer ahora:
+-hacer sección de reglas/instrucciones
 -ver como mostrar datos de partida/cartas de oponentes/desconectados y hold
--implementar empate
+-ver si deshabilitar pipis en multijugador
+-testear pipis
+-ver qué hacer con items
+-mover a pipi
+-poner página con carga en el gatcha
+
 */
 
 export default function HomePage() {
@@ -44,41 +61,82 @@ export default function HomePage() {
 
   const [Erropen,setErropen]=useState(false)
   const [disabled,setDisabled]=useState(false)
-
+  const [pipi,setPipi]=useState(null)
+  const [item,setItem]=useState(null)
+  const [fondo,setFondo]=useState(null)
+  const [inv,setInv]=useState(null)
+  const [items,setItems]=useState(null)
   const [errM,setErrM]=useState("")
   const [apuesta,setApuesta]=useState(1)
-
+  const [shownItems,setShownItems]=useState(null)
 
   const [avRooms,setAvRooms]=useState(null)
-
   const { socket, isConnected } =useSocket()
-
-
-
   const [valueError,setValueError]=useState(false)
   const [puntosA,setPuntosA]=useState(1)
-
+  const nodeRef = useRef(null);
+  let f;
+ let m;
+ let p;
   let usuarioId = 0 
   const router = useRouter()
   const searchParams=useSearchParams()
+  
   useEffect(()=>{
-    
     usuarioId=localStorage.getItem("userid")
     console.log(usuarioId)
     if (!Number(usuarioId)){
      router.replace("./")}
+    useFetch.getInventario(usuarioId)
+        .then((data)=>{
+          setInv(data)
+        })
+    useFetch.getItems()
+    .then((data)=>{
+          setItems(data)
+    })
     useFetch.getUsuarioPorId(usuarioId)
     .then((data)=>{
       setUsuario(data[0])
+      if(localStorage.getItem("Fondo")){
+        setFondo(JSON.parse(localStorage.getItem("Fondo")))
+      }
+      if(localStorage.getItem("Pipi")){
+        setPipi(JSON.parse(localStorage.getItem("Pipi")))
+      }
+      if(localStorage.getItem("Misc")){
+        setItem(JSON.parse(localStorage.getItem("Misc")))
+      }
     })
   },[])
 
   useEffect(()=>{
-    if(usuario && Object.keys(usuario).length!=0){
+    let it=[]
+
+    if(usuario && Object.keys(usuario).length!=0 &&inv&&items){
+
+      items.filter((it)=>!it.name.includes("Pipi")&&!it.name.includes("Fondo")).map((item,i)=>{ 
+        if(estaEnInv(item.id)>-1){
+          it.push(item)
+        }else{
+          it.push({name:item.name,id:item.id,imgsrc:`spr/shadow${item.id}.png`})
+        }
+      }
+      )
+      console.log(it)
+      setShownItems(it)
+
+    }
+  },[usuario,inv,items])
+
+  useEffect(()=>{
+    
+    if(usuario && Object.keys(usuario).length!=0 &&inv&&items&&shownItems){
+
       setLoading(false)
       setDisabled(false)
     }
-  },[usuario])
+  },[usuario,inv,shownItems])
 
   useEffect(()=>{
     if(Eopen){
@@ -136,8 +194,28 @@ export default function HomePage() {
       })
     },[socket])
   
+
+ function estaEnInv(id){
+      let temp=-1
+        inv.map((item,i)=>{
+          if (item.itemid==id){
+            if(item.active){
+              temp= 1
+            }else{
+              temp= 0
+
+            }
+          }
+        })
+  
+      return temp
+    }
+
   function logout(){
     localStorage.setItem("userid",0)
+    localStorage.removeItem("Fondo")
+    localStorage.removeItem("Pipi")
+    localStorage.removeItem("Misc")
     router.replace("./")
   }
   
@@ -171,48 +249,60 @@ export default function HomePage() {
   
 
   return (
-    <>
-   
+    <div className={clsx(styles.page, pixel.className)}>
+
     {(loading)?(
       <>
-        <h1>Cargando...</h1>
+        <h1 className={styles.loading}>Cargando...</h1>
       </>
     ):(
       <>
       
-    
-          <header>
-          <button onClick={()=>{setLopen(true)}}>Logout</button>
-          <button onClick={()=>{setEopen(true)}}>Estadistica</button>
+
+          <header className={styles.header}>
+          <button className={clsx(styles.btn, styles.small)} onClick={()=>{setLopen(true)}}>Logout</button>
+          <button className={clsx(styles.btn, styles.small)} onClick={()=>{setEopen(true)}}>Estadistica</button>
         </header>
 
-        <div>
-          <h1> Blackjack </h1>
+
+        <div className={styles.titleWrap}>
+          <h1 className={styles.title}> Blackjack </h1>
         </div>
 
-        <section>
-            <button onClick={()=>{router.push("/Tienda")}}>Tienda</button>
-            <button onClick={()=>{setPopen(true)}}>Ir al juego</button>
-            <button onClick={()=>{router.push("/Ranking")}}>Ranking</button>
-            <button onClick={()=>{setMopen(true)}}>Multijugador</button>
+        <section className={styles.menu}>
+            <button className={styles.btn} onClick={()=>{router.push("/Tienda")}}>Tienda</button>
+            <button className={styles.btn} onClick={()=>{setPopen(true)}}>Ir al juego</button>
+            <button className={styles.btn} onClick={()=>{router.push("/Ranking")}}>Ranking</button>
+            <button className={styles.btn} onClick={()=>{setMopen(true)}}>Multijugador</button>
 
+            <div>
+              
+            {shownItems.map((it,i)=>(
+              <Draggable nodeRef={nodeRef}>
+              <img key={i} src={it.imgsrc} ref={nodeRef} className={styles.drags}></img>
+              </Draggable>
+            ))}
+         
+            </div>
 
+            <div>
+            <hr className={styles.acheerre}></hr>
+            <hr className={styles.acheerre}></hr>
+           </div>
+     
+         
         </section>
-
 
         {/*POPUPS*/}
         {/*Apuesta para comenzar juego*/}
-        <Popup open={Popen} onClose={()=>{setPopen(false)}} closeOnDocumentClick={false}>
+        <Popup open={Popen} onClose={()=>{setPopen(false)}} closeOnDocumentClick={false} {...popupProps}>
         {usuario&&
-          <div>
-            <h2>¿Cuántos puntos quiere apostar?</h2>
-            <p>Tus puntos: {usuario.points}</p>
-            <input onChange={(e)=>{setPuntosA(e.target.value)}} value={puntosA}></input>
-            {valueError&&<p>Valor inválido</p>}
-            {disabled?(
-              <button disabled>Comenzar</button>
-            ):(
-            <button onClick={()=>{
+          <div className={clsx(styles.popupBox, pixel.className)}>
+            <h2 className={styles.popupTitle}>¿Cuántos puntos quiere apostar?</h2>
+            <p className={styles.popupText}>Tus puntos: {usuario.points}</p>
+            <input className={styles.input} onChange={(e)=>{setPuntosA(e.target.value)}} value={puntosA}></input>
+            {valueError&&<p className={styles.error}>Valor inválido</p>}
+            <button className={styles.btn} onClick={()=>{
               if((puntosA>0 && puntosA<=usuario.points) || puntosA==1){
                 setDisabled(true)
                 setPopen(false);
@@ -229,91 +319,97 @@ export default function HomePage() {
 
 
        {/*Multijugador*/}
-        <Popup open={Mopen} onClose={()=>{setMopen(false);setErrM("")}} closeOnDocumentClick={false}>
+        <Popup open={Mopen} onClose={()=>{setMopen(false)}} closeOnDocumentClick={false} {...popupProps}>
           {usuario&&
-              <>
-              <h2>Salas multijugador</h2> 
-              {(avRooms)?(<>
-              {(avRooms.length>0)?(<>
-              {avRooms.map((room,i)=><div key={i}>
-              <p>Sala de {room.ownerName}</p>
-              <p>{room.usersCount} usuario(s)</p>
-              <p>Apuesta: ${room.apuesta}</p>
-              {/*<button onClick={()=>{socket.emit("roomExists",{roomId:room.roomId,userId:usuario.id})}}>Unirse</button>*/}
-              {(disabled)?(
-                <button disabled>Unirse</button>
-              ):(
-                <>
-                <p>{errM}</p>
-                <button onClick={()=>{if(pointCheck(room.apuesta)){setDisabled(true);router.push(`/JuegoMJ?room=${room.roomId}`)}}}>Unirse</button>
-              </>
-              )}
+              <div className={clsx(styles.popupBox, pixel.className)}>
+                <h2 className={styles.popupTitle}>Salas multijugador</h2> 
+                {(avRooms)?(<>
+                  {(avRooms.length>0)?(<div className={styles.roomList}>
+                    {avRooms.map((room,i)=><div className={styles.room} key={i}>
+                      <div className={styles.roomInfo}>
+                        <p>Sala de {room.ownerName}</p>
+                        <p>{room.usersCount} usuario(s)</p>
+                        <p>Apuesta: ${room.apuesta}</p>
+                      </div>
+                        {(disabled)?(
+                          <button disabled className={clsx(styles.btn, styles.small)}>Unirse</button>
+                        ):(
+                          <>
+                          <p>{errM}</p>
+                          <button className={clsx(styles.btn, styles.small)} onClick={()=>{if(pointCheck(room.apuesta)){setDisabled(true);router.push(`/JuegoMJ?room=${room.roomId}`)}}}>Unirse</button>
+                        </>
+                        )}
+                    </div>)}
+                  </div>):(<>
+                <p className={styles.popupText}>No hay salas disponibles</p>
+              </>)}
+              </>):(<>
+                <p className={styles.popupText}>cargando salas...</p>
+              </>)}
               
-
-              </div>)}
-              </>):(<>
-              <p>No hay salas disponibles</p>
-              </>)}
-              </>):(<>
-              <p>cargando salas...</p>
-              </>)}
-             {(disabled)?(<>
-            <button disabled>Crear sala</button>
-            <button disabled>Volver</button>
-             </>):(<>
-            <button onClick={()=>{setAopen(true);setMopen(false);setErrM("")}}>Crear sala</button>
-            <button onClick={()=>{setMopen(false)}}>Volver</button>
-             </>)} 
-           
+            <div className={styles.popupActions}>
+              
+               {(disabled)?(<>
+                <button disabled>Crear sala</button>
+                <button disabled>Volver</button>  
+               </>):(<>
+                <button className={styles.btn} onClick={()=>{setAopen(true);setMopen(false);setErrM("")}}>Crear sala</button>
+                <button className={styles.btn} onClick={()=>{setMopen(false)}}>Volver</button>
+               </>)} 
+            </div>  
               </>   
-          }
+          </div>}
        </Popup>
 
         <Popup open={Aopen} onClose={()=>{setAopen(false)}} closeOnDocumentClick={false}>
           {usuario&&
              <>
              <h2>Ingrese puntos a apostar:</h2>
-            <input type="number" value={apuesta} onChange={(e)=>{setApuesta(e.target.value)}}></input>
-            <p>{errM}</p>
-            <button onClick={()=>{if(pointCheck(apuesta)){setDisabled(true);socket.emit("createRoom",{user:usuario.username,socketId:socket.id,roomId:usuario.id,apuesta:apuesta});}}}>Crear</button>
-            <button onClick={()=>{setAopen(false)}}>Volver</button>
+              <input type="number" value={apuesta} onChange={(e)=>{setApuesta(e.target.value)}}></input>
+              <p>{errM}</p>
+              <button onClick={()=>{if(pointCheck(apuesta)){setDisabled(true);socket.emit("createRoom",{user:usuario.username,socketId:socket.id,roomId:usuario.id,apuesta:apuesta});}}}>Crear</button>
+              <button onClick={()=>{setAopen(false)}}>Volver</button>
               </>   
           }
        </Popup>
               
         {/*Estadística de usuario*/}
-       <Popup open={Eopen} onClose={()=>{setEopen(false)}} closeOnDocumentClick={false}>
+       <Popup open={Eopen} onClose={()=>{setEopen(false)}} closeOnDocumentClick={false} {...popupProps}>
           {usuario&&
-          <>
+          <div className={clsx(styles.popupBox, pixel.className)}>
             {(eloading)?(
-                <h2>Cargando estadistica....</h2>
+                <h2 className={styles.popupTitle}>Cargando estadistica....</h2>
             ):(
               <>
-                <p>Partidas ganadas: {estadistica.wins}</p>
-                <p>Partidas perdidas: {estadistica.losses}</p>
-                <p>Racha actual: {estadistica.streak}</p>
-                <p>Puntos perdidos: {estadistica.points_lost}</p>
-                <p>Puntos actuales: {usuario.points}</p>
-                <p>Cantidad de items: {estadistica.cant_items}</p>
-              <button onClick={()=>{setEopen(false)}}>Cerrar</button>
+                <div className={styles.stats}>
+                <p className={styles.stat}>Partidas ganadas: {estadistica.wins}</p>
+                <p className={styles.stat}>Partidas perdidas: {estadistica.losses}</p>
+                <p className={styles.stat}>Racha actual: {estadistica.streak}</p>
+                <p className={styles.stat}>Puntos perdidos: {estadistica.points_lost}</p>
+                <p className={styles.stat}>Puntos actuales: {usuario.points}</p>
+                <p className={styles.stat}>Cantidad de items: {estadistica.cant_items}</p>
+                </div>
+              <button className={styles.btn} onClick={()=>{setEopen(false)}}>Cerrar</button>
               </>   
             )}
-            </>
+            </div>
           }
        </Popup>
 
 
         {/*Logout*/}
-        <Popup open={Lopen} onClose={()=>{setLopen(false)}} closeOnDocumentClick={false}>
+        <Popup open={Lopen} onClose={()=>{setLopen(false)}} closeOnDocumentClick={false} {...popupProps}>
           {usuario&&
-              <>
-              <h2>¿Está seguro de que quiere cerrar sesión?</h2> 
-              <button onClick={()=>{setLopen(false)}}>Volver</button>
-              <button onClick={()=>{logout()}}>Cerrar sesión</button>
-              </>   
+              <div className={clsx(styles.popupBox, pixel.className)}>
+              <h2 className={styles.popupTitle}>¿Está seguro de que quiere cerrar sesión?</h2> 
+              <div className={styles.popupActions}>
+              <button className={styles.btn} onClick={()=>{setLopen(false)}}>Volver</button>
+              <button className={styles.btn} onClick={()=>{logout()}}>Cerrar sesión</button>
+              </div>
+              </div>   
           }
        </Popup>
     </>)}
-    </>
+    </div>
   );
 }

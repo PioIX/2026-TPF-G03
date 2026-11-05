@@ -5,13 +5,16 @@ import { useRouter } from "next/navigation"
 import Popup from 'reactjs-popup';
 
 export default function LoginPage() {
- const [logged,setLogged]=useState(false)
+
+  const [logged,setLogged]=useState(false)
+  const [disabled,setDisabled]=useState(false)
+  const [process,setProcess]=useState("")
 const [admin, setAdmin] = useState(false)
 
-const [disabled,setDisabled]=useState(false)
- const [process,setProcess]=useState("")
 
- const [loading,setLoading]=useState(true)
+
+
+  const [loading,setLoading]=useState(true)
   const [arrayUsuarios, setArrayUsuarios] = useState([])
   const [usuario, setUsuario] = useState("")
   const [contrasena, setContrasena] = useState("")
@@ -24,6 +27,7 @@ const [disabled,setDisabled]=useState(false)
  
 
   useEffect(() => {
+    setErrorMessage("")
     let t=localStorage.getItem("userid")
     console.log(t)
     if(t==-1){
@@ -112,7 +116,6 @@ const [disabled,setDisabled]=useState(false)
               setDisabled(false)
               setLogged(true)
               })
-          /*sessionStorage.setItem("User", JSON.stringify(usuarioLogueado))*/ //ver si hacemos con cookies o que
           })
         }
 
@@ -131,19 +134,16 @@ const [disabled,setDisabled]=useState(false)
       for (let i = 0; i < arrayUsuarios.length; i++){
         if (arrayUsuarios[i].username == usuario) {
             if (arrayUsuarios[i].password == contrasena) {
-              t=arrayUsuarios[i].id
-              console.log(t)
-              if(arrayUsuarios[i].is_admin){
-                localStorage.setItem("userid",-1)  
-              }else{
-
+              if (arrayUsuarios[i].is_admin == true) {
+                router.replace("./Admin")
+              } else {
+                t=arrayUsuarios[i].id
+                console.log(t)
                 localStorage.setItem("userid",t)
+                setProcess("")
+                setDisabled(false)
+                setLogged(true)
               }
-               /*sessionStorage.setItem("User", JSON.stringify(usuarioLogueado))*/ //ver si hacemos con cookies o que
-               setProcess("")
-              setDisabled(false)
-              setLogged(true)
-  
             }
           }
       }
@@ -168,7 +168,6 @@ const [disabled,setDisabled]=useState(false)
     ):(
     <>
      <h1>BlackJack</h1>
-      <h4>Llene los campos para registrarse o iniciar sesión</h4>
       <Popup open={logOpen} onClose={() => { setLogOpen(false) }} closeOnDocumentClick={false}>
         {arrayUsuarios &&
           <>

@@ -3,12 +3,15 @@
 import { useEffect, useState } from "react";
 import * as useFetch from "@/hooks/useFetch.js"
 import Popup from 'reactjs-popup';
+import clsx from "clsx"
+import styles from "./page.module.css"
 import { useRouter, useSearchParams } from "next/navigation"
 
 export default function AdminPage() {
   const [arrayUsuarios, setArrayUsuarios] = useState([])
   const [arrayItems, setArrayItems] = useState([])
   const [arrayIxU, setArrayIxU] = useState([])
+  
 
   const [idAdmin, setIdAdmin] = useState("")
   const [idAdminItem, setIdAdminItem] = useState("")
@@ -40,6 +43,7 @@ export default function AdminPage() {
   const [mensajeErrorBI, setMensajeErrorBI] = useState("")
   const [mensajeErrorMII, setMensajeErrorMII] = useState("")
   const [mensajeErrorMIP, setMensajeErrorMIP] = useState("")
+
   const router=useRouter()
   let i = 0
 
@@ -63,6 +67,12 @@ export default function AdminPage() {
         setArrayIxU(data)
       })
   }, [])
+
+
+  function logout(){
+    localStorage.setItem("userid",0)
+    router.replace("./")
+  }
 
   async function borrarUser() {
     let aux = await useFetch.getUsuarioPorId(idAdmin)
@@ -229,16 +239,16 @@ export default function AdminPage() {
 
   return (
     <>
-      <div>
-        <h1 id="admin_h1" className="admin_h">ADMINISTRACION</h1>
+      <div id={styles.admin_body}>
+        <h1 id={styles.admin_h1} className={styles.admin_h}>ADMINISTRACION</h1>
         <button onClick={()=>{logout()}}>Cerrar sesión</button>
-        <div className="admin_div">
-          <h2 className="admin_h">Usuarios </h2>
+        <div className={styles.admin_div}>
+          <h2 className={styles.admin_h}>Usuarios </h2>
 
           <button onClick={() => { setBUopen(true) }}>
             Eliminar
           </button>
-          <Popup open={BUopen} onClose={() => { setBUopen(false) }} closeOnDocumentClick={false}>
+          <Popup open={BUopen} onClose={() => { setBUopen(false) }} closeOnDocumentClick={false} className={styles.admin_popup}>
             {arrayUsuarios &&
               <>
                 <input placeholder="¿Que ID de usuario desea alterar?" value={idAdmin} onChange={(event)=>{setIdAdmin(event.target.value)}}></input> <button onClick={borrarUser}>Confirmar</button><br></br>
@@ -251,7 +261,7 @@ export default function AdminPage() {
           <button onClick={() => { setAUopen(true) }}>
             Designar como administrador
           </button>
-          <Popup open={AUopen} onClose={() => { setAUopen(false) }} closeOnDocumentClick={false}>
+          <Popup open={AUopen} onClose={() => { setAUopen(false) }} closeOnDocumentClick={false} className={styles.admin_popup}>
             {arrayUsuarios &&
               <>
                 <input placeholder="¿Que ID de usuario desea alterar?" value={idAdmin} onChange={(event)=>{setIdAdmin(event.target.value)}}></input> <button onClick={adminUser}>Confirmar</button><br></br>
@@ -264,7 +274,7 @@ export default function AdminPage() {
           <button onClick={() => { setAUNopen(true) }}>
             Descartar como administrador
           </button>
-          <Popup open={AUNopen} onClose={() => { setAUNopen(false) }} closeOnDocumentClick={false}>
+          <Popup open={AUNopen} onClose={() => { setAUNopen(false) }} closeOnDocumentClick={false} className={styles.admin_popup}>
           {arrayUsuarios &&
             <>
               <input placeholder="¿Que ID de usuario desea alterar?" value={idAdmin} onChange={(event)=>{setIdAdmin(event.target.value)}}></input> <button onClick={adminUserNon}>Confirmar</button><br></br>
@@ -277,7 +287,7 @@ export default function AdminPage() {
           <button onClick={() => { setMPopen(true) }}>
             Modificar puntaje
           </button>
-          <Popup open={MPopen} onClose={() => { setMPopen(false) }} closeOnDocumentClick={false}>
+          <Popup open={MPopen} onClose={() => { setMPopen(false) }} closeOnDocumentClick={false} className={styles.admin_popup}>
             {arrayUsuarios &&
               <>
                 <input placeholder="¿Que ID de usuario desea alterar?" value={idAdmin} onChange={(event)=>{setIdAdmin(event.target.value)}}></input> <br></br>
@@ -291,7 +301,7 @@ export default function AdminPage() {
           <button onClick={() => { setAIUopen(true) }}>
             Añadir items
           </button>
-          <Popup open={AIUopen} onClose={() => { setAIUopen(false) }} closeOnDocumentClick={false}>
+          <Popup open={AIUopen} onClose={() => { setAIUopen(false) }} closeOnDocumentClick={false} className={styles.admin_popup}>
           {arrayUsuarios &&
             <>
               <input placeholder="¿Que ID de usuario desea alterar?" value={idAdmin} onChange={(event)=>{setIdAdmin(event.target.value)}}></input><br></br>
@@ -303,13 +313,13 @@ export default function AdminPage() {
           <p>{mensajeErrorAIU}</p>
         </div>
 
-        <div className="admin_div">
-          <h2 className="admin_h">Items</h2>
+        <div className={styles.admin_div}>
+          <h2 className={styles.admin_h}>Items</h2>
 
           <button onClick={() => { setCIopen(true) }}>
             Crear
           </button>
-          <Popup open={CIopen} onClose={() => { setCIopen(false) }} closeOnDocumentClick={false}>
+          <Popup open={CIopen} onClose={() => { setCIopen(false) }} closeOnDocumentClick={false} className={styles.admin_popup}>
             {arrayUsuarios &&
               <>
                 <input placeholder="Ingrese su nombre de su item" value={respuestaName} onChange={(event)=>{setRespuestaName(event.target.value)}}></input><br></br>
@@ -324,7 +334,7 @@ export default function AdminPage() {
           <button onClick={() => { setBIopen(true) }}>
             Borrar
           </button>
-          <Popup open={BIopen} onClose={() => { setBIopen(false) }} closeOnDocumentClick={false}>
+          <Popup open={BIopen} onClose={() => { setBIopen(false) }} closeOnDocumentClick={false} className={styles.admin_popup}>
             {arrayUsuarios &&
               <>
                 <input placeholder="¿Que ID de usuario desea alterar?" value={idAdminItem} onChange={(event)=>{setIdAdminItem(event.target.value)}}></input> <button onClick={borrarItem}>Confirmar</button><br></br>
@@ -337,7 +347,7 @@ export default function AdminPage() {
           <button onClick={() => { setMIIopen(true) }}>
             Modificar imagen
           </button>
-          <Popup open={MIIopen} onClose={() => { setMIIopen(false) }} closeOnDocumentClick={false}>
+          <Popup open={MIIopen} onClose={() => { setMIIopen(false) }} closeOnDocumentClick={false} className={styles.admin_popup}>
             {arrayUsuarios &&
               <>
                 <input placeholder="¿Que ID de item desea dar al usuario?" value={idAdminItem} onChange={(event)=>{setIdAdminItem(event.target.value)}}></input><br></br>
@@ -351,7 +361,7 @@ export default function AdminPage() {
           <button onClick={() => { setMIPopen(true) }}>
             Modificar precio
           </button>
-          <Popup open={MIPopen} onClose={() => { setMIPopen(false) }} closeOnDocumentClick={false}>
+          <Popup open={MIPopen} onClose={() => { setMIPopen(false) }} closeOnDocumentClick={false} className={styles.admin_popup}>
             {arrayUsuarios &&
               <>
                 <input placeholder="¿Que ID de item desea dar al usuario?" value={idAdminItem} onChange={(event)=>{setIdAdminItem(event.target.value)}}></input><br></br>
@@ -363,13 +373,13 @@ export default function AdminPage() {
         <p>{mensajeErrorMIP}</p>
 
         </div>
-        <div className="admin_div">
-          <h2 className="admin_h">Cheats</h2>
+        <div className={styles.admin_div}>
+          <h2 className={styles.admin_h}>Cheats</h2>
 
           <button onClick={() => setXPopen(true)}>
             +500 puntos
           </button>
-          <Popup open={XPopen} onClose={() => { setXPopen(false) }} closeOnDocumentClick={false}>
+          <Popup open={XPopen} onClose={() => { setXPopen(false) }} closeOnDocumentClick={false} className={styles.admin_popup}>
             {arrayUsuarios &&
               <>
                 <input placeholder="¿Que ID de usuario desea alterar?" value={idAdmin} onChange={(event)=>{setIdAdmin(event.target.value)}}></input> <button onClick={cheatPuntos}>Confirmar</button><br></br>
@@ -382,7 +392,7 @@ export default function AdminPage() {
           <button onClick={() => setXIopen(true)}>
             Dar todos los items
           </button>
-          <Popup open={XIopen} onClose={() => { setXIopen(false) }} closeOnDocumentClick={false}>
+          <Popup open={XIopen} onClose={() => { setXIopen(false) }} closeOnDocumentClick={false} className={styles.admin_popup}>
             {arrayUsuarios &&
               <>
                 <input placeholder="¿Que ID de usuario desea alterar?" value={idAdmin} onChange={(event)=>{setIdAdmin(event.target.value)}}></input> <button onClick={cheatItems}>Confirmar</button><br></br>
@@ -393,10 +403,10 @@ export default function AdminPage() {
           <p>{mensajeErrorXI}</p>
         </div>
 
-        <div id="admin_table">
-          <div className="divTabla">
-            <h3>USUARIOS</h3>
-            <table id="ListaDeUsers">
+        <div id={styles.admin_table}>
+          <div className={styles.divTabla}>
+            <h3 className={styles.tabla_titulo}>USUARIOS</h3>
+            <table id={styles.ListaDeUsers}>
               <thead>
                 <tr>
                   <th>ID</th>
@@ -419,9 +429,9 @@ export default function AdminPage() {
             </table>
           </div>
 
-          <div className="divTabla">
-            <h3>ITEMS</h3>
-            <table id="ListaDeItems">
+          <div className={styles.divTabla}>
+            <h3 className={styles.tabla_titulo}>ITEMS</h3>
+            <table id={styles.ListaDeItems}>
               <thead>
                 <tr>
                   <th>ID</th>
@@ -442,9 +452,9 @@ export default function AdminPage() {
             </table>
           </div>
 
-          <div className="divTabla">
-            <h3>INVENTARIOS</h3>
-            <table id="ListaDeInventarios">
+          <div className={styles.divTabla}>
+            <h3 className={styles.tabla_titulo}>INVENTARIOS</h3>
+            <table id={styles.ListaDeInventarios} >
               <thead>
                 <tr>
                   <th>ID User</th>
@@ -464,6 +474,5 @@ export default function AdminPage() {
           </div>
         </div>
       </div>
-    </>
   );
 }
