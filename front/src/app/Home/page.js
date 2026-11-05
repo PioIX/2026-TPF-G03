@@ -38,13 +38,13 @@ NO NECESARIOS:
 
 
 /*Hacer ahora:
--hacer sección de reglas/instrucciones
+-hacer sección de reglas/instrucciones/settings
 -ver como mostrar datos de partida/cartas de oponentes/desconectados y hold
 -ver si deshabilitar pipis en multijugador
--testear pipis
--ver qué hacer con items
--mover a pipi
--poner página con carga en el gatcha
+-añadir pipis
+-añdir mas items
+-pipi visual
+-poner página con carga en el gatcha / visual
 
 */
 
@@ -275,22 +275,38 @@ export default function HomePage() {
             <button className={styles.btn} onClick={()=>{router.push("/Ranking")}}>Ranking</button>
             <button className={styles.btn} onClick={()=>{setMopen(true)}}>Multijugador</button>
 
-            <div>
-              
-            {shownItems.map((it,i)=>(
-              <Draggable nodeRef={nodeRef}>
-              <img key={i} src={it.imgsrc} ref={nodeRef} className={styles.drags}></img>
-              </Draggable>
-            ))}
-         
-            </div>
 
+            <div> 
+            {shownItems.map((it,i)=> i<2?(
+              <Draggable nodeRef={nodeRef} key={i}>
+              <img  src={it.imgsrc} ref={nodeRef} className={styles.drags}></img>
+              </Draggable>
+            ):(
+              null
+            )
+            )}
+         <hr className={styles.acheerre}></hr>
+            </div>
+          
             <div>
-            <hr className={styles.acheerre}></hr>
-            <hr className={styles.acheerre}></hr>
+        {shownItems.map((it,i)=> i>=2?(
+          (it.imgsrc.includes("shadow"))?(
+              <Draggable nodeRef={nodeRef} key={i} disabled>
+              <img  src={it.imgsrc} ref={nodeRef} className={styles.drags}></img>
+              </Draggable>
+
+          ):(
+            <Draggable nodeRef={nodeRef} key={i}>
+              <img  src={it.imgsrc} ref={nodeRef} className={styles.drags}></img>
+              </Draggable>
+          )
+            ):(
+              null
+            )
+            )}
+        <hr className={styles.acheerre}></hr>
            </div>
-     
-         
+
         </section>
 
         {/*POPUPS*/}
@@ -312,7 +328,7 @@ export default function HomePage() {
               }else{
                 setValueError(true)
               }}}>Comenzar</button>
-            )}
+      
                 </div>       
                 }
        </Popup>
@@ -321,25 +337,25 @@ export default function HomePage() {
        {/*Multijugador*/}
         <Popup open={Mopen} onClose={()=>{setMopen(false)}} closeOnDocumentClick={false} {...popupProps}>
           {usuario&&
-              <div className={clsx(styles.popupBox, pixel.className)}>
-                <h2 className={styles.popupTitle}>Salas multijugador</h2> 
-                {(avRooms)?(<>
-                  {(avRooms.length>0)?(<div className={styles.roomList}>
-                    {avRooms.map((room,i)=><div className={styles.room} key={i}>
-                      <div className={styles.roomInfo}>
-                        <p>Sala de {room.ownerName}</p>
-                        <p>{room.usersCount} usuario(s)</p>
-                        <p>Apuesta: ${room.apuesta}</p>
-                      </div>
-                        {(disabled)?(
-                          <button disabled className={clsx(styles.btn, styles.small)}>Unirse</button>
-                        ):(
-                          <>
+            <div className={clsx(styles.popupBox, pixel.className)}>
+              <h2 className={styles.popupTitle}>Salas multijugador</h2> 
+              {(avRooms)?(<>
+                {(avRooms.length>0)?(<div className={styles.roomList}>
+                  {avRooms.map((room,i)=><div className={styles.room} key={i}>
+                    <div className={styles.roomInfo}>
+                      <p>Sala de {room.ownerName}</p>
+                      <p>{room.usersCount} usuario(s)</p>
+                      <p>Apuesta: ${room.apuesta}</p>
+                    </div>
+                      {(disabled)?(
+                        <button disabled className={clsx(styles.btn, styles.small)}>Unirse</button>
+                      ):(
+                        <>
                           <p>{errM}</p>
                           <button className={clsx(styles.btn, styles.small)} onClick={()=>{if(pointCheck(room.apuesta)){setDisabled(true);router.push(`/JuegoMJ?room=${room.roomId}`)}}}>Unirse</button>
                         </>
-                        )}
-                    </div>)}
+                      )}
+                  </div>)}
                   </div>):(<>
                 <p className={styles.popupText}>No hay salas disponibles</p>
               </>)}
@@ -357,7 +373,6 @@ export default function HomePage() {
                 <button className={styles.btn} onClick={()=>{setMopen(false)}}>Volver</button>
                </>)} 
             </div>  
-              </>   
           </div>}
        </Popup>
 

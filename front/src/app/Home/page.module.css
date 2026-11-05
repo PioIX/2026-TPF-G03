@@ -1,12 +1,13 @@
 /*Hacer homepage (o en general) un poco más ancha, añadir colores*/
-#drags {
+.drags {
   width: 40px;
   height: auto;
+
 }
 
 .acheerre {
-  margin-top: 2rem;
-  width: 200px;
+  margin-top: 0px;
+  width: 100%;
   height:3px;
   background-color: #ffffff;
 }
@@ -18,11 +19,11 @@
   box-sizing: border-box;
   border-radius: 0;
 }
- 
+
 .page {
   --w: min(90vw, 38rem);
   --h: min(90vh, 38rem);
- 
+  
   position: relative;
   min-height: 100vh;
   padding: 1rem;
@@ -38,6 +39,9 @@
   background-position: center;
   background-repeat: no-repeat;
 }
+
+ 
+
  
 .page::before {
   content: "";
