@@ -1,5 +1,15 @@
 /*Hacer homepage (o en general) un poco más ancha, añadir colores*/
+#drags {
+  width: 40px;
+  height: auto;
+}
 
+.acheerre {
+  margin-top: 2rem;
+  width: 200px;
+  height:3px;
+  background-color: #ffffff;
+}
 
 .page,
 .page *,
@@ -66,7 +76,7 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
- 
+
 .menu {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

@@ -6,23 +6,33 @@ import {useMultiBlackJack} from "@/hooks/useMultiBlackJack"
 import ArrCartas from "@/components/ArrCartas";
 import Popup from 'reactjs-popup';
 import useSocket from "@/hooks/useSocket";
+import { connect } from "socket.io-client";
 
 
 export default function JuegoMJPage() {
-  const {sum,ucards,reset,giveusercard,wl,setWL} = useMultiBlackJack()
+  const {sum,ucards,reset,giveusercard,held,setHeld} = useMultiBlackJack()
   const router=useRouter()
   const { socket, isConnected } = useSocket();
   const searchParams = useSearchParams();
   const [usuario,setUsuario]=useState({})
   const [estadistica,setEstadistica]=useState({})
   const [loading,setLoading]=useState(true)
-  const [disabled,setDisabled]=useState(true)
   const [open,setOpen]=useState(false)
   const [inRoom,setInRoom]=useState(false)
-  const [members,setMembers]=useState([])
-  const [started,setStarted]=useState(false)
-  const [startDisabled,setStartDisabled]=useState(true)
 
+  const [members,setMembers]=useState([])
+  const [UserArr,setUserArr]=useState([])
+
+  const [started,setStarted]=useState(false)
+  const [ended,setEnded]=useState(false)
+
+  const [startDisabled,setStartDisabled]=useState(true)
+  const [heldText,setHeldText]=useState("Esperando a los otros jugadores..")
+  const [errM,setErrM]=useState("")
+
+  const [pipi,setPipi]=useState(null)
+  const [item,setItem]=useState(null)
+  const [fondo,setFondo]=useState(null)
 
 
 
@@ -32,19 +42,22 @@ export default function JuegoMJPage() {
 
   useEffect(()=>{
         usuarioId = localStorage.getItem("userid")
-        let ptemp=1
-        //CAMBIAR ESTO A PUNTOS DE LA SALA
-        setWL(0)
+        setPopupText("")
         setOpen(false)
-        if(ptemp){
-          setPuntosA(ptemp)
-        }else{
-          setPuntosA(1)
-        }
+        
         if(!usuario || !estadistica || Object.keys(usuario).length==0){
           useFetch.getUsuarioPorId(usuarioId)
           .then((data)=>{
             setUsuario(data[0])
+            if(localStorage.getItem("Fondo")){
+              setFondo(JSON.parse(localStorage.getItem("Fondo")))
+            }
+            if(localStorage.getItem("Pipi")){
+              setPipi(JSON.parse(localStorage.getItem("Pipi")))
+            }
+            if(localStorage.getItem("Misc")){
+              setItem(JSON.parse(localStorage.getItem("Misc")))
+            }
           })
           .then(
             useFetch.getEstadisticaDeUsuario(usuarioId)
@@ -62,7 +75,6 @@ export default function JuegoMJPage() {
     if (usuario && estadistica && loading){
       if(Object.keys(usuario).length!=0&&Object.keys(estadistica).length!=0){
         setLoading(false)
-        setDisabled(false)
       }
     }
   },[estadistica,usuario, loading])
@@ -70,8 +82,28 @@ export default function JuegoMJPage() {
     useEffect(()=>{
       if (members.length>1){
         setStartDisabled(false)
+      }else{
+        setStartDisabled(true)
       }
   },[members])
+
+
+ 
+
+    useEffect(()=>{
+      if (started){
+       giveusercard()
+      }
+  },[started])
+
+    useEffect(()=>{
+      if (held){
+            //envia los datos al back de socket y espera
+            socket.emit("updateHold",{username:usuario.username,roomId:searchParams.get("room"),cards:ucards,sum:sum})
+          //poner graficos de usuario distintos o poner que espere
+      }
+  },[held])
+
 
 
   useEffect(()=>{
@@ -81,41 +113,36 @@ export default function JuegoMJPage() {
       if(!inRoom && !loading){
         socket.nickname=usuario.username
         let room=searchParams.get("room")
-        socket.emit("joinRoom",{roomId:room, user:usuario.username})
+        socket.emit("joinRoom",{roomId:room, user:usuario.username,socketId:socket.id})
       }
      
        socket.on("joined",(data)=>{
-        console.log(data)
         if(data.user==usuario.username){
           setInRoom(true)
-        }
-        setMembers(data.users)
+          console.log("apuesta")
+          console.log(data.apuesta)
+          setPuntosA(data.apuesta)
+        } 
+        let t=data.users.map((m)=>({username:m,hold:false,connected:true}))
+        setMembers(t)
         
       })
-      //usuario no recibe el error
-      socket.on("error",({type,user})=>{
-        console.log(usuario)
-        if(user==usuario.username){
-
-          console.log("Error recieved")
-          router.replace(`/Error?err=${type}`)
-        }
+      socket.on("error",({type})=>{
+        router.replace(`/Error?err=${type}`)
       })
 
       socket.on("left",(data)=>{
-        console.log(data)
-        setMembers(data.users)
+        console.log("USER LEFT")
+         let t=data.users.map((m)=>({username:m,hold:false,connected:true}))
+        setMembers(t)
       })
-      socket.on("msg",(data)=>{
-        console.log(data)
-      })
+      
       socket.on("hostDisconnect",()=>{
-        console.log("hostDisconnect")
         router.replace("/Error?err=1")
       })
        socket.on("disconnecting",()=>{
           setInRoom(false)
-          console.log("desconectado")
+          
         })
       
       socket.on("disconnected",(data)=>{
@@ -125,9 +152,14 @@ export default function JuegoMJPage() {
           if(room.ownerName==data.user){
             socket.emit("hostDisconnect",roomId)
           }else if(started){
-            //setear el usuario desconectado en gris o algo lol
+            members.map((m,i)=>{
+              if(m.username==data.user){
+                let t = members
+                t[i].connected=false
+                setMembers(t)
+              }
+            })
           }
-          console.log("desconectado")
         
       })
     }
@@ -136,92 +168,154 @@ export default function JuegoMJPage() {
      socket.on("started",()=>{
         setStarted(true)
       })
-      socket.on("end",(data)=>{
+      socket.on("ended",({room,userArr,winner})=>{
+        setEnded(true)
+        setUserArr(userArr)
+        setHeldText("")
+        if(winner.length/2==userArr.length){
+          setPopupText("Empate")
+        }else{
+          if(winner.includes(usuario.username)){
+            win(Math.floor((puntosA*(userArr.length-(winner.length/2)))/(winner.length/2)))
+          }else if(!winner[0]){
+            setPopupText("No hubo ganador")
+          }else{
+            lose(puntosA)
+          }
 
-      })
-      socket.on("held",({user})=>{
-        if (user!=usuario.username){
-          //poner que este usuario ya hizo hold
         }
       })
-  },[socket,loading])
+      socket.on("held",({user})=>{
+         setMembers(prev => 
+         prev.map((m, i) => 
+         m.username ==user
+          ? { ...m, hold: true } 
+          : m 
+        )
+        );
+        
+      })
+      socket.on("restart",()=>{
+        console.log(usuario)
+        if(Object.keys(usuario).length>0){
+
+          if(pointCheck(puntosA)){
+            restartGame()
+          }else{
+            socket.emit("leave",{roomId:searchParams.get("room"),user:usuario.username})
+             router.replace("/Error?err=5")
+          }
+        }
+      })
+
+      return () => {
+      socket.off("ended");
+      };
+  },[socket,loading,inRoom])
 
 
-  //ver si conviene que el back le mande a cada uno su estado o que envie el ganador y ahí se decida
+
+
 useEffect(()=>{
-    if (wl==1){
-      setDisabled(true)
-      if(usersum==21){
-        win(parseInt(puntosA)*3)
-      }else{
-        win(puntosA)
-      }
-      }else if(wl==-1){
-        setDisabled(true)
-        lose(puntosA)
-      }
-      
-  },[wl])
+  if(popupText){
 
-
-useEffect(()=>{
-  if(wl!=0){
     setOpen(true)
   }
+
   },[popupText])
 
   function startGame(){
-   socket.emit("start",{room:searchParams.get("room")})
+    socket.emit("start",{roomId:searchParams.get("room")})
    
   }
   function hit(){
     let res = giveusercard()
-    console.log(res)
   }
 
   function stand(){
-    //envia los datos al back de socket y espera
-    socket.emit("hold",{username:usuario.username,roomId:searchParams.get("room"),cards:ucards,sum:sum})
-    //poner graficos de usuario distintos o poner que espere
+    setHeld(true)
+
   }
 
+function restartGame(){
+    reset()
+    setOpen(false)
+    setUserArr([])
+    setStarted(false)
+    setEnded(false)
+    setInRoom(false)
+    setPopupText("")
+
+  }
 
 
   function win(points){
-    setPopupText("Ganaste")
+    console.log("WIN")
     console.log(points)
+    console.log('usuario')
+    console.log(usuario)
     let newE={
-      userid:usuarioId,
-      wins:estadistica.wins+1,
+      userid:usuario.id,
+      wins:Number(estadistica.wins)+1,
       losses:estadistica.losses,
-      played:estadistica.played+1,
-      streak:estadistica.streak+1,
-      points_lost:estadistica.points_lost,
+      played:Number(estadistica.played)+1,
+      streak:Number(estadistica.streak)+1,
+      points_lost:Number(estadistica.points_lost),
       cant_items:estadistica.cant_items
     }
     useFetch.putEstadistica(newE)
-    useFetch.putPoints(usuario.points+parseInt(points),usuarioId)
-    usuario.points+=parseInt(points)
+    useFetch.putPoints(usuario.points+Number(points),usuario.id)
+    .then(()=>{
+      console.log("done")
+      let t = usuario
+      t.points+=Number(points)
+      setUsuario(t)
+      setPopupText("Ganaste")
+
+    })
+    
   }
 
   function lose(points){
-    setPopupText("Perdiste")
+    console.log("LOSE")
+    console.log(points)
+    console.log('usuario')
+    console.log(usuario)
     let newE={
-      userid:usuarioId,
+      userid:usuario.id,
       wins:estadistica.wins,
-      losses:estadistica.losses+1,
-      played:estadistica.played+1,
+      losses:Number(estadistica.losses)+1,
+      played:Number(estadistica.played)+1,
       streak:0,
-      points_lost:estadistica.points_lost+parseInt(points),
+      points_lost:estadistica.points_lost+Number(points),
       cant_items:estadistica.cant_items
     }
     useFetch.putEstadistica(newE)
-    useFetch.putPoints(usuario.points-parseInt(points),usuarioId)
-    usuario.points-=parseInt(points)
+    useFetch.putPoints(usuario.points-Number(points),usuario.id)
+    .then(()=>{
+      console.log("done")
+      let t = usuario
+      t.points-=Number(points)
+      setUsuario(t)
+      
+      setPopupText("Perdiste")
+    })
+    
 
   }
 
-
+  function pointCheck(points){
+    setErrM("")
+    points=Number(points)
+      if(usuario.points>=points){
+        return true
+      }else{
+        setErrM("Puntos insuficientes")
+        return false
+      
+    }
+  }
+  
 
   return (
     <>
@@ -242,16 +336,34 @@ useEffect(()=>{
 
     (started)?(
       <>
-    {/*  <header><button onClick={()=>{reset();router.back()}}>Volver</button></header>*/}
         <section>
+          {members.length>0&&
+          <>
+          {/*posiblemente marcar los usuarios desconectados en gris o algo*/}
+          <div style={{display:"flex"}}>
+          {members.map((m,i)=> m.username==usuario.username?<p key={i}></p>:
+            <div key={i}>
+            <p>{m.username}:</p>
+
+            {/*lo que sea que diga cuando otro usuario ya hizo hold*/}
+            {m.hold&&<p>Listo</p>}
+
+            <img src="cartas/AV.png"></img>
+          {/*placeholder para carta dada vuelta*/}
+            </div>
+            
+          )}
+              </div>
+          </>}
           <div>
             <p>Vos: {sum}</p>
           </div>
           <ArrCartas cards={ucards}></ArrCartas>
-          {/*Cartas de los otros usuarios dadas vuelta*/}
+         
         </section>
         <section>
-          {(disabled)?(<>
+          {(held )?(<>
+          <h2>{heldText}</h2>
           <button disabled>Hit</button>
           <button disabled>Stand</button>
           </>):(<>
@@ -264,11 +376,27 @@ useEffect(()=>{
             <div>
             <h2>{popupText}</h2>
             <ul>
-              <li>Vos: {usersum}</li>
+              
+              {UserArr.length>0&&
+              <>
+              {UserArr.map((u,i)=>
+              <li key={i}>{u[0]}: {u[1].sum}</li>
+              )}
+              </>}
               <li>Tu dinero: {usuario.points}</li>
             </ul>
           </div>       
           }
+          
+           {(searchParams.get("room")==usuario.id)?(
+            <>
+            <p>{errM}</p>
+            <button onClick={()=>{if(pointCheck(puntosA)){socket.emit("restart",{roomId:searchParams.get("room"),user:usuario.username,socketId:socket.id,apuesta:puntosA})}}}>Volver a jugar</button>
+           </>
+           ):(
+            <p>Esperando al administrador....</p>
+           )}
+           <button onClick={()=>{router.replace("/Home")}}>Home</button>
         </Popup>
         </>
       
@@ -278,7 +406,7 @@ useEffect(()=>{
       {members.length>0&&
       <>
       <h2>Miembros en la sala:</h2>
-      {members.map((m,i)=><p key={i}>{m}</p>)}
+      {members.map((m,i)=><p key={i}>{m.username}</p>)}
       </>}
       {(searchParams.get("room")==usuario.id)?(
         <>

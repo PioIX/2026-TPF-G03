@@ -10,13 +10,15 @@
     "dev:a": "cross-env NEXT_DIST_DIR=.next-a PORT=3000 next dev",
     "dev:b": "cross-env NEXT_DIST_DIR=.next-b PORT=3001 next dev",
     "dev:c": "cross-env NEXT_DIST_DIR=.next-c PORT=3002 next dev",
-    "dev:d": "cross-env NEXT_DIST_DIR=.next-d PORT=3003 next dev"
+    "dev:d": "cross-env NEXT_DIST_DIR=.next-d PORT=3003 next dev",
+    "dev:e": "cross-env NEXT_DIST_DIR=.next-e PORT=3004 next dev"
   },
   "dependencies": {
     "clsx": "^2.1.1",
     "next": "16.2.12",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "react-draggable": "^4.7.2",
     "reactjs-popup": "^2.0.6",
     "socket.io-client": "^4.8.4"
   },
