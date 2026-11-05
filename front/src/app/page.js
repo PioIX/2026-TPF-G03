@@ -3,7 +3,16 @@ import { useEffect, useState } from "react";
 import * as useFetch from "@/hooks/useFetch.js"
 import { useRouter } from "next/navigation"
 import Popup from 'reactjs-popup';
+import styles from "./page.module.css";
+import clsx from "clsx";
+import { Press_Start_2P } from "next/font/google";
 
+const pixel = Press_Start_2P({ weight: "400", subsets: ["latin"] });
+
+const popupProps = {
+contentStyle: { background: "none", border: "none", padding: 0, width: "auto" },
+overlayStyle: { background: "rgba(0,0,0,0.65)" },
+};
 export default function LoginPage() {
 
   const [logged,setLogged]=useState(false)
@@ -79,7 +88,6 @@ const [admin, setAdmin] = useState(false)
   },[process,disabled])
 
   function handleSignup() {
-    console.log("signup REACHED")
     if (usuario == ""  || contrasena == "") {
       setErrorMessage("Rellene todos los campos.")
       setProcess("")
@@ -104,7 +112,6 @@ const [admin, setAdmin] = useState(false)
             points: 10,
             is_admin: 0
           }
-          console.log(nuevoUsuario)
           useFetch.postUsuario(nuevoUsuario)
           .then((data)=>{
              localStorage.setItem("userid",data)
@@ -138,7 +145,6 @@ const [admin, setAdmin] = useState(false)
                 router.replace("./Admin")
               } else {
                 t=arrayUsuarios[i].id
-                console.log(t)
                 localStorage.setItem("userid",t)
                 setProcess("")
                 setDisabled(false)
@@ -162,45 +168,63 @@ const [admin, setAdmin] = useState(false)
 
   return (
     <>
+    <div className={clsx(styles.page, pixel.className)}>
+
     {(loading)?(
-      <h1>Cargando..</h1>
+      <h1 className={styles.loading}>Cargando..</h1>
   
     ):(
     <>
-     <h1>BlackJack</h1>
-      <Popup open={logOpen} onClose={() => { setLogOpen(false) }} closeOnDocumentClick={false}>
-        {arrayUsuarios &&
-          <>
-            <input placeholder='Nombre de usuario' value={usuario} onChange={(event)=>{setUsuario(event.target.value)}}></input><br></br>
-            <input placeholder='Contraseña' value={contrasena} onChange={(event)=>{setContrasena(event.target.value)}} type="password"></input><br></br>
-            <button onClick={handleLogin}>Confirmar</button> <button onClick={() => { setLogOpen(false);setDisabled(false);setProcess("")}}>Cerrar</button>
-            <p>{errorMessage}</p>
-          </>
-        }
-      </Popup>
-      <Popup open={regOpen} onClose={() => { setRegOpen(false) }} closeOnDocumentClick={false}>
-        {arrayUsuarios &&
-          <>
-            <input placeholder='Nombre de usuario' value={usuario} onChange={(event)=>{setUsuario(event.target.value)}}></input><br></br>
-            <input placeholder='Contraseña' value={contrasena} onChange={(event)=>{setContrasena(event.target.value)}} type="password"></input><br></br>
-            <button onClick={handleSignup}>Confirmar</button> <button onClick={() => { setRegOpen(false);setDisabled(false);setProcess("")}}>Cerrar</button>
-            <p>{errorMessage}</p>
-          </>
-        }
-      </Popup>
+     <div className={styles.titleWrap}>
+          <h1 className={styles.title}> Blackjack </h1>
+        </div>
+        <section className={styles.menu}>
 
-      {disabled?(<>
-       <button disabled>Iniciar sesión</button>
-      <button disabled>Registrarse</button>
-  
-      </>):(<>
-      <button onClick={()=>{setDisabled(true);setProcess("login");setLogOpen(true)}}>Iniciar sesión</button>
-      <button onClick={()=>{setDisabled(true);setProcess("registro");setRegOpen(true)}}>Registrarse</button>
-      </>)}
+{disabled?(<>
+ <button className={styles.btn} disabled>Iniciar sesión</button>
+<button  className={styles.btn} disabled>Registrarse</button>
+
+</>):(<>
+<button  className={styles.btn} onClick={()=>{setLogOpen(true)}}>Iniciar sesión</button>
+<button className={styles.btn} onClick={()=>{setRegOpen(true)}}>Registrarse</button>
+</>)}
+  </section>
+      <Popup open={logOpen} onClose={() => { setLogOpen(false);setErrorMessage("");setUsuario("");setContrasena("") }} closeOnDocumentClick={false}  {...popupProps}>
+        {arrayUsuarios &&
+          <>
+            <input className={styles.input} placeholder='Nombre de usuario' value={usuario} onChange={(event)=>{setUsuario(event.target.value)}}></input><br></br>
+            <input className={styles.input} placeholder='Contraseña' value={contrasena} onChange={(event)=>{setContrasena(event.target.value)}} type="password"></input><br></br>
+            {(disabled)?(
+               <button className={styles.btn} disabled>Confirmar</button>
+            ):(
+              <button className={styles.btn} onClick={()=>{setProcess("login");setDisabled(true);}}>Confirmar</button>
+            )}
+            
+            <button className={styles.btn} onClick={() => { setLogOpen(false);setDisabled(false);setProcess("")}}>Cerrar</button>
+            <p className={styles.popupText}>{errorMessage}</p>
+          </>
+        }
+      </Popup>
+      <Popup open={regOpen} onClose={() => { setRegOpen(false);setErrorMessage("");setUsuario("");setContrasena("") }} closeOnDocumentClick={false}  {...popupProps}>
+        {arrayUsuarios &&
+          <>
+            <input className={styles.input} placeholder='Nombre de usuario' value={usuario} onChange={(event)=>{setUsuario(event.target.value)}}></input><br></br>
+            <input className={styles.input} placeholder='Contraseña' value={contrasena} onChange={(event)=>{setContrasena(event.target.value)}} type="password"></input><br></br>
+            {(disabled)?(
+               <button disabled className={styles.btn}>Confirmar</button>
+            ):(
+              <button className={styles.btn} onClick={()=>{setProcess("login");setDisabled(true)}}>Confirmar</button>
+            )}
+            <button className={styles.btn} onClick={() => { setRegOpen(false);setDisabled(false);setProcess("");}}>Cerrar</button>
+            <p className={styles.popupText}>{errorMessage}</p>
+          </>
+        }
+      </Popup>
+      
          
     </>
   )}
-     
+     </div>
     </>
   )
 }

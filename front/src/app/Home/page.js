@@ -306,9 +306,28 @@ export default function HomePage() {
             )}
         <hr className={styles.acheerre}></hr>
            </div>
-
+ 
         </section>
+      {/*<section className={styles.test}>
 
+        
+      <div className={styles.test}> 
+            {shownItems.map((it,i)=>
+              (it.imgsrc.includes("shadow"))?(
+                <Draggable nodeRef={nodeRef} key={i} disabled>
+                <img  src={it.imgsrc} ref={nodeRef} className={styles.drags}></img>
+                </Draggable>
+  
+            ):(
+              <Draggable nodeRef={nodeRef} key={i}>
+                <img  src={it.imgsrc} ref={nodeRef} className={styles.drags}></img>
+                </Draggable>
+            )
+            )}
+           </div>
+        <hr className={styles.acheerre}></hr>
+
+      </section>*/}
         {/*POPUPS*/}
         {/*Apuesta para comenzar juego*/}
         <Popup open={Popen} onClose={()=>{setPopen(false)}} closeOnDocumentClick={false} {...popupProps}>
@@ -376,14 +395,19 @@ export default function HomePage() {
           </div>}
        </Popup>
 
-        <Popup open={Aopen} onClose={()=>{setAopen(false)}} closeOnDocumentClick={false}>
+        <Popup open={Aopen} onClose={()=>{setAopen(false)}} closeOnDocumentClick={false} {...popupProps}>
           {usuario&&
              <>
+             <div className={clsx(styles.popupBox, pixel.className)}>
              <h2>Ingrese puntos a apostar:</h2>
-              <input type="number" value={apuesta} onChange={(e)=>{setApuesta(e.target.value)}}></input>
+              <input type="number" value={apuesta} onChange={(e)=>{setApuesta(e.target.value)}} className={styles.input}></input>
               <p>{errM}</p>
-              <button onClick={()=>{if(pointCheck(apuesta)){setDisabled(true);socket.emit("createRoom",{user:usuario.username,socketId:socket.id,roomId:usuario.id,apuesta:apuesta});}}}>Crear</button>
-              <button onClick={()=>{setAopen(false)}}>Volver</button>
+              <div className={styles.popupActions}>
+
+              <button className={styles.btn} onClick={()=>{if(pointCheck(apuesta)){setDisabled(true);socket.emit("createRoom",{user:usuario.username,socketId:socket.id,roomId:usuario.id,apuesta:apuesta});}}}>Crear</button>
+              <button className={styles.btn} onClick={()=>{setAopen(false)}}>Volver</button>
+              </div>
+              </div>
               </>   
           }
        </Popup>
