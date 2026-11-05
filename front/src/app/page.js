@@ -5,9 +5,14 @@ import { useRouter } from "next/navigation"
 import Popup from 'reactjs-popup';
 
 export default function LoginPage() {
+
   const [logged,setLogged]=useState(false)
   const [disabled,setDisabled]=useState(false)
   const [process,setProcess]=useState("")
+const [admin, setAdmin] = useState(false)
+
+
+
 
   const [loading,setLoading]=useState(true)
   const [arrayUsuarios, setArrayUsuarios] = useState([])
@@ -22,25 +27,41 @@ export default function LoginPage() {
  
 
   useEffect(() => {
+    setErrorMessage("")
     let t=localStorage.getItem("userid")
     console.log(t)
-    if (Number(t)){
-      setLogged(true)
+    if(t==-1){
+      setAdmin(true)
     }else{
-    useFetch.getUsuarios()
-      .then((data) => {
-        setArrayUsuarios(data)
-      })
+      if (Number(t)){
+        setLogged(true)
+      }else{
+      useFetch.getUsuarios()
+        .then((data) => {
+          setArrayUsuarios(data)
+        })
+      }
     }
   }, [])
   
     useEffect(()=>{
     if(logged){
-      router.replace("./Home")
+      let t=localStorage.getItem("userid")
+      console.log(t)
+      if(t==-1){
+        setAdmin(true)
+      }else{
+
+        router.replace("./Home")
+      }
     }
   },[logged])
   
-  
+  useEffect(()=>{
+    if(admin){
+      router.replace("./Admin")
+    }
+  },[admin])
    useEffect(()=>{
     if(loading && arrayUsuarios.length!=0){
       setLoading(false)
@@ -147,7 +168,6 @@ export default function LoginPage() {
     ):(
     <>
      <h1>BlackJack</h1>
-      <h4>Llene los campos para registrarse o iniciar sesión</h4>
       <Popup open={logOpen} onClose={() => { setLogOpen(false) }} closeOnDocumentClick={false}>
         {arrayUsuarios &&
           <>

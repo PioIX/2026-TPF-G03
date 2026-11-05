@@ -28,7 +28,7 @@ const server = app.listen(PORT, () => {
 
 const io = new Server(server, {
   cors: {
-	origin: ["http://localhost:3000", "http://localhost:3001","http://localhost:3002","http://localhost:3003"],
+	origin: ["http://localhost:3000", "http://localhost:3001","http://localhost:3002","http://localhost:3003","http://localhost:3004"],
 	methods: ["GET", "POST", "PUT", "DELETE"],
 	credentials: true,
 	//path: "/api/socketio",
@@ -43,46 +43,52 @@ io.use((socket, next) => {
 
 
 io.on("connection", (socket) => {
-	console.log('connection')
   const req = socket.request;
 
+	
+  socket.on("pingAll", (data) => {
+	console.log("PING ALL:", data);
+	io.emit("pingAll", { event: "Ping to all", message: data });
+  });
 
-  //falta terminar created room 
-  //verificar a quien le manda mejor
-	socket.on("createRoom",({roomId,user})=>{
+	socket.on("createRoom",({roomId,user,socketId,apuesta})=>{
+		roomId=parseInt(roomId)
 	  if (!roomData.has(roomId)) {
+		
 		  roomData.set(roomId, {
 			createdAt: new Date(),
 			users: new Map(),
 			started: false,
 			ended: false,
-			ownerName:user
+			ownerName:user,
+			apuesta:apuesta
 			//datos de la sala que se crean al principio
 		  });
-			roomInfo.users.set(user,{
+			roomData.get(roomId).users.set(user,{
 					sum:0,
 					cards:[],
 					held:false,
 					connected:true
 					//datos de cada usuario que inicia
 				});
-			io.to(roomId).emit("created", {
-					room:roomId,
-					usersCount: roomInfo.users.size,
-					users: Array.from(roomInfo.users.keys())
+			io.to(socketId).emit("created", {
+					roomId:roomId,
 				});
 			io.emit("roomChange")	
 		}else{
-			io.emit("error",{type:3})
+			io.to(socketId).emit("error",{type:3})
 		}
 
 	})
 
 
-  socket.on("joinRoom", ({roomId,user}) => {
+  socket.on("joinRoom", ({roomId,user,socketId}) => {
+	roomId=parseInt(roomId)
+
 		if (roomData.has(roomId)){
 			const roomInfo = roomData.get(roomId);
 			if (roomInfo.users.size<maxPlayers&&!roomInfo.started){
+
 				socket.data.username=user
 				socket.join(roomId);
 				if(!roomInfo.users.has(user)){
@@ -106,20 +112,44 @@ io.on("connection", (socket) => {
 				io.to(roomId).emit("joined", {
 					room:roomId,
 					usersCount: roomInfo.users.size,
-					users: Array.from(roomInfo.users.keys())
+					users: Array.from(roomInfo.users.keys()),
+					apuesta:roomInfo.apuesta
 				});
 				io.emit("roomChange")
 			}else{
-				io.emit("error",{type:4})
+				io.to(socketId).emit("error",{type:4})
 			}
 		}else{
-			io.emit("error",{type:2,user:user})
+			io.to(socketId).emit("error",{type:2})
 		}
 	
   });
 
 
+ socket.on("restart", ({roomId,user,socketId,apuesta}) => {
+	roomId=parseInt(roomId)
+	let cr
+		if (roomData.has(roomId)){
+			cr=roomData.get(roomId).createdAt
+		}else{
+			cr=new Date()
+		}
+		roomData.set(roomId, {
+		createdAt: cr,
+		users: new Map(),
+		started: false,
+		ended: false,
+		ownerName:user,
+		apuesta:apuesta
+	  	});
+		io.to(roomId).emit("restart")
+  });
+
+
+
+
   socket.on("leave", ({user,roomId}) => {
+	roomId=parseInt(roomId)
 	const roomInfo = roomData.get(roomId);
 	if(roomInfo.users.has(user)){
 		roomInfo.users.delete(user);
@@ -132,35 +162,23 @@ io.on("connection", (socket) => {
 		io.emit("roomChange")
   });
 
-  socket.on("pingAll", (data) => {
-	console.log("PING ALL:", data);
-	io.emit("pingAll", { event: "Ping to all", message: data });
-  });
-
 
   socket.on("listRooms", () => {
 
 	const rooms2=[]
 	for (const [roomId,roomInf] of roomData.entries()){
-      rooms2.push({roomId:roomId,...roomInf,users:[...roomInf.users.keys()],usersCount:roomInf.users.size})
+		if(!roomInf.started&&roomInf.users.size<maxPlayers){
+
+			rooms2.push({roomId:roomId,...roomInf,users:[...roomInf.users.keys()],usersCount:roomInf.users.size})
+		}
     }
 
-	const rooms=Array.from(roomData,([roomId,roomInf]) => ({
-		//roomid undefined idk
-		roomId,        
-		...roomInf,
-		users:[...roomInf.users.keys()],
-		usersCount:roomInf.users.size
-	  }))
-	  .filter((room) => {
-			return !room.started && room.users.size<maxPlayers;
-		})
-	
-	console.log(rooms2)
 	io.emit("allRooms", {message: rooms2});
   });
 
   socket.on("hostDisconnect", (roomId) => {
+	roomId=parseInt(roomId)
+		console.log(roomId)
 	if (roomData.has(roomId)){
 		roomData.delete(roomId)
 		io.emit("roomChange")
@@ -174,9 +192,9 @@ io.on("connection", (socket) => {
 
 
   //puede que haya quedado obsoleto
-  socket.on("roomExists", ({roomId,userId}) => {
+ /* socket.on("roomExists", ({roomId,userId}) => {
 	io.emit("verify",{exists:roomData.has(roomId),roomId:roomId,userId:userId}) 
-  });
+  });*/
 
   socket.on("disconnecting", () => {
 	const user=socket.data.username
@@ -185,12 +203,9 @@ io.on("connection", (socket) => {
 	for (const roomId of socket.rooms) {
 		if (roomData.has(roomId)) {
 			if(roomData.get(roomId).started){
-				roomData.get(roomId).users.set(user,{
-				  sum:sum,
-				  cards:cards,
-				  held:true,
-				  connected:false
-				})
+				let temp=roomData.get(roomId).users.get(user)
+				temp.connected=false
+				roomData.get(roomId).users.set(user,temp)
 			}else{
 				roomData.get(roomId).users.delete(user)
 				io.to(roomId).emit("left", {
@@ -213,6 +228,7 @@ io.on("connection", (socket) => {
 	
 	/*Juego*/
 	  socket.on("updateHold", ({cards,sum,username,roomId}) => {
+		roomId=parseInt(roomId)
 		roomData.get(roomId).users.set(username,{
 			sum:sum,
 			cards:cards,
@@ -223,14 +239,26 @@ io.on("connection", (socket) => {
 		});
 		io.emit("held", {message: "Cartas y suma del usuario actualizadas",user:username});
 		let us=Array.from(roomData.get(roomId).users.values())
-		let na=us.filter(u=>u.held)
+		let na=us.filter(u=>u.held||!u.connected)
 		
 		if(na.length==us.length){
-			//posiblemente verifica quién ganó y lo manda (mejor)
-	
+			let winner=["",{sum:0}]
+			const userArr=Array.from(roomData.get(roomId).users)
+			for(const [user,data] of userArr){
+				if(data.sum>winner[1].sum&&data.sum<=21){
+				
+					winner=[user,data]
+					
+				}else if(data.sum==winner[1].sum){
+					winner.push(user,data)
+				
+				}
+			}
+			console.log(winner)
 			io.to(roomId).emit("ended", {
 			  room: roomId,
-			  userArr:Array.from(roomData.get(roomId).users)
+			  userArr:userArr,
+			  winner:winner
 		  
 		});
 		}
@@ -238,7 +266,18 @@ io.on("connection", (socket) => {
 	
 	
 		socket.on("start", ({roomId}) => {
-			io.to(roomId).emit("started")
+			console.log("start recieved")
+			roomId=parseInt(roomId)
+			if(roomData.has(roomId)){
+				let temp=roomData.get(roomId)
+				temp.started=true
+				roomData.set(roomId,temp)
+			   io.to(roomId).emit("started")
+			   io.emit("roomChange")
+			}else{
+				io.to(roomId).emit("error",{type:2})
+		  	}
+			
 	  });
 
 
@@ -599,6 +638,7 @@ try {
 			await MySQL.realizarQuery(`UPDATE Usuarios SET 
 			password = "${req.body.password}" WHERE id = ${req.body.id};`)
 		}else if(points || points==0){
+			console.log(points)
 			await MySQL.realizarQuery(`UPDATE Usuarios SET 
 			points = ${req.body.points} WHERE id = ${req.body.id};`)
 		}else if(is_admin!=undefined){

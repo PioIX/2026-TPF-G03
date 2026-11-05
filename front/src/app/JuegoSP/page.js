@@ -19,8 +19,13 @@ export default function JuegoSPPage() {
   const [disabled,setDisabled]=useState(true)
   const [open,setOpen]=useState(false)
 
+  const [T,setT]=useState("")
   const [popupText,setPopupText]=useState("")
   const [puntosA,setPuntosA]=useState(0)
+
+  const [pipi,setPipi]=useState(null)
+  const [item,setItem]=useState(null)
+  const [fondo,setFondo]=useState(null)
   let usuarioId=0
 
   useEffect(()=>{
@@ -37,6 +42,15 @@ export default function JuegoSPPage() {
           useFetch.getUsuarioPorId(usuarioId)
           .then((data)=>{
             setUsuario(data[0])
+            if(localStorage.getItem("Fondo")){
+              setFondo(JSON.parse(localStorage.getItem("Fondo")))
+            }
+            if(localStorage.getItem("Pipi")){
+              setPipi(JSON.parse(localStorage.getItem("Pipi")))
+            }
+            if(localStorage.getItem("Misc")){
+              setItem(JSON.parse(localStorage.getItem("Misc")))
+            }
           })
           .then(
             useFetch.getEstadisticaDeUsuario(usuarioId)
@@ -70,7 +84,12 @@ useEffect(()=>{
       }else{
         win(puntosA)
       }
-      }else if(wl==-1){
+    }else if(wl==-1){
+        console.log("dealer")
+        console.log(dealsum)
+        console.log("user")
+        console.log(usersum)
+        console.log("Wl -1")
         setDisabled(true)
         lose(puntosA)
       }
@@ -102,10 +121,11 @@ useEffect(()=>{
     }
     const timer = setTimeout(() => {
       if(wl==0 && dealsum<=usersum && dealsum<21){
+        console.log("condiciones cumplidas")
         let res=givedealcard()
         console.log(res)
-      } else if(dealsum>usersum){
-       setWL(-1)
+      } else if(dealsum>usersum && dealsum<=21){
+        setWL(-1)
       }
       
     }, 1500);
@@ -115,10 +135,50 @@ useEffect(()=>{
 
 
   function win(points){
+   console.log("win running")
+    if(pipi){
+      if(pipi.name=="Pipi"){
+        //Pipi normal, no hace nada creo
+      }else if(pipi.name=="Evil Pipi"){
+        let c = Math.floor(Math.random() * (4 - 1 + 1) + 1)
+        if(c==1){
+          points=points*3
+          setT("Pipi vomitó! Puntos triplicados")
+        }else{
+          let r= Math.floor(Math.random() * (5 - 2)+2)
+          console.log(r)
+          points-=r
+          setT(`Pipi se comió ${r} punto/s`)
+        }
+
+      }else if(pipi.name=="Pipi loco"){
+       let r= Math.floor(Math.random() * (10 - -6) + -6)
+       console.log(r)
+       points+=r
+       if(r>=0){
+         setT(`Pipi sumó ${r} puntos`)
+       }else{
+        setT(`Pipi restó ${r*-1} puntos`)
+       }
+
+      }else if(pipi.name=="Pipi responsable"){
+        points=Math.round(points*1.25)
+        setT("Pipi multiplicó por 1.25")
+
+      }else if(pipi.name=="Pipi clasista"){
+        if(usuario.points>50){
+          points=Math.round(points*1.5)
+          setT("Pipi multiplicó por 1.5")
+        }else{
+          setT("Sos muy pobre, pipi no hizo nada")
+        }
+      }
+    }
+    console.log(usuario)
     setPopupText("Ganaste")
     console.log(points)
     let newE={
-      userid:usuarioId,
+      userid:usuario.id,
       wins:estadistica.wins+1,
       losses:estadistica.losses,
       played:estadistica.played+1,
@@ -127,14 +187,16 @@ useEffect(()=>{
       cant_items:estadistica.cant_items
     }
     useFetch.putEstadistica(newE)
-    useFetch.putPoints(usuario.points+parseInt(points),usuarioId)
+    useFetch.putPoints(usuario.points+parseInt(points),usuario.id)
     usuario.points+=parseInt(points)
   }
 
   function lose(points){
+    console.log("lose running")
     setPopupText("Perdiste")
+    console.log(usuario)
     let newE={
-      userid:usuarioId,
+      userid:usuario.id,
       wins:estadistica.wins,
       losses:estadistica.losses+1,
       played:estadistica.played+1,
@@ -143,7 +205,7 @@ useEffect(()=>{
       cant_items:estadistica.cant_items
     }
     useFetch.putEstadistica(newE)
-    useFetch.putPoints(usuario.points-parseInt(points),usuarioId)
+    useFetch.putPoints(usuario.points-parseInt(points),usuario.id)
     usuario.points-=parseInt(points)
 
   }
@@ -190,6 +252,9 @@ useEffect(()=>{
           {(usuario)?(
             <div>
             <h2>{popupText}</h2>
+            {T&&
+            <p>{T}</p>
+            }
             <ul>
               <li>Dealer: {dealsum}</li>
               <li>Vos: {usersum}</li>
@@ -205,6 +270,7 @@ useEffect(()=>{
                 setValueError(false)
                 setReplay(false)
                 setPopupText("")
+                setT("")
                 sessionStorage.setItem("puntosApostados",puntosA)
                 reset()
                 setLoading(true)

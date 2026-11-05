@@ -20,8 +20,13 @@ const popupProps = {
 
 /*MASTERLIST DE COSAS QUE FALTAN:
 
+
 -PIPIS CON FUNCIONALIDAD
 -CSS
+-MULTIJUGADOR CON SALA:
+  -Modo loco: los jugadores pueden elegir restarle o sumarle a otro (limitado)
+-IMPLEMENTAR REGLAS COMO SEGURO O RENDIRSE, SPLIT O DOBLE
+
 
 
 NO NECESARIOS:
@@ -29,6 +34,18 @@ NO NECESARIOS:
 -PERSONALIZACION DEL MAZO
 -ANIMACIONES DE CARTAS
 -PODER SUBIR IMAGENES DE FONDO
+*/
+
+
+/*Hacer ahora:
+-hacer sección de reglas/instrucciones
+-ver como mostrar datos de partida/cartas de oponentes/desconectados y hold
+-ver si deshabilitar pipis en multijugador
+-testear pipis
+-ver qué hacer con items
+-mover a pipi
+-poner página con carga en el gatcha
+
 */
 
 export default function HomePage() {
@@ -40,37 +57,86 @@ export default function HomePage() {
   const [Eopen,setEopen]=useState(false)
   const [Lopen,setLopen]=useState(false)
   const [Mopen,setMopen]=useState(false)
+  const [Aopen,setAopen]=useState(false)
+
   const [Erropen,setErropen]=useState(false)
+  const [disabled,setDisabled]=useState(false)
+  const [pipi,setPipi]=useState(null)
+  const [item,setItem]=useState(null)
+  const [fondo,setFondo]=useState(null)
+  const [inv,setInv]=useState(null)
+  const [items,setItems]=useState(null)
   const [errM,setErrM]=useState("")
+  const [apuesta,setApuesta]=useState(1)
+  const [shownItems,setShownItems]=useState(null)
+
   const [avRooms,setAvRooms]=useState(null)
   const { socket, isConnected } =useSocket()
   const [valueError,setValueError]=useState(false)
   const [puntosA,setPuntosA]=useState(1)
   const nodeRef = useRef(null);
+  let f;
+ let m;
+ let p;
   let usuarioId = 0 
   const router = useRouter()
   const searchParams=useSearchParams()
   
   useEffect(()=>{
-    let err=searchParams.get("err")
-    if(err==1){
-      setErrM("Host desconectado")
-    }
     usuarioId=localStorage.getItem("userid")
     console.log(usuarioId)
     if (!Number(usuarioId)){
      router.replace("./")}
+    useFetch.getInventario(usuarioId)
+        .then((data)=>{
+          setInv(data)
+        })
+    useFetch.getItems()
+    .then((data)=>{
+          setItems(data)
+    })
     useFetch.getUsuarioPorId(usuarioId)
     .then((data)=>{
       setUsuario(data[0])
+      if(localStorage.getItem("Fondo")){
+        setFondo(JSON.parse(localStorage.getItem("Fondo")))
+      }
+      if(localStorage.getItem("Pipi")){
+        setPipi(JSON.parse(localStorage.getItem("Pipi")))
+      }
+      if(localStorage.getItem("Misc")){
+        setItem(JSON.parse(localStorage.getItem("Misc")))
+      }
     })
   },[])
 
   useEffect(()=>{
-    if(usuario && Object.keys(usuario).length!=0){
-      setLoading(false)
+    let it=[]
+
+    if(usuario && Object.keys(usuario).length!=0 &&inv&&items){
+
+      items.filter((it)=>!it.name.includes("Pipi")&&!it.name.includes("Fondo")).map((item,i)=>{ 
+        if(estaEnInv(item.id)>-1){
+          it.push(item)
+        }else{
+          it.push({name:item.name,id:item.id,imgsrc:`spr/shadow${item.id}.png`})
+        }
+      }
+      )
+      console.log(it)
+      setShownItems(it)
+
     }
-  },[usuario])
+  },[usuario,inv,items])
+
+  useEffect(()=>{
+    
+    if(usuario && Object.keys(usuario).length!=0 &&inv&&items&&shownItems){
+
+      setLoading(false)
+      setDisabled(false)
+    }
+  },[usuario,inv,shownItems])
 
   useEffect(()=>{
     if(Eopen){
@@ -79,11 +145,7 @@ export default function HomePage() {
   },[Eopen])
 
 
-  useEffect(()=>{
-    if(errM){
-      setErropen(true)
-    }
-  },[errM])
+
   
   useEffect(()=>{
     if(estadistica && Object.keys(estadistica).length!=0){
@@ -102,13 +164,18 @@ export default function HomePage() {
       if(!socket){
         return
       }
-      console.log(socket.id)
+      
       socket.on("allRooms",(data)=>{
         let rooms=data.message
         console.log(rooms)
         setAvRooms(rooms)
       })
-      
+      socket.on("error",({type})=>{
+       router.replace(`/Error?err=${type}`)
+      })
+      socket.on("connect",()=>{
+        console.log(socket.id)
+      })
       socket.on("roomChange",()=>{
         socket.emit("listRooms")
       })
@@ -122,17 +189,33 @@ export default function HomePage() {
           }
         }
       })
-      socket.on("created",({userId})=>{
-        if(userId==localStorage.getItem("userId")){
-
-          router.push(`/JuegoMJ?room=${userId}`)
-
-        }
+      socket.on("created",({roomId})=>{
+        router.replace(`/JuegoMJ?room=${roomId}`)
       })
     },[socket])
   
+
+ function estaEnInv(id){
+      let temp=-1
+        inv.map((item,i)=>{
+          if (item.itemid==id){
+            if(item.active){
+              temp= 1
+            }else{
+              temp= 0
+
+            }
+          }
+        })
+  
+      return temp
+    }
+
   function logout(){
     localStorage.setItem("userid",0)
+    localStorage.removeItem("Fondo")
+    localStorage.removeItem("Pipi")
+    localStorage.removeItem("Misc")
     router.replace("./")
   }
   
@@ -149,6 +232,20 @@ export default function HomePage() {
     )
   }
 
+    function pointCheck(points){
+    setErrM("")
+    if(points<1){
+      setErrM("Cantidad inválida")
+    }else{
+
+      if(usuario.points>=points){
+        return true
+      }else{
+        setErrM("Puntos insuficientes")
+        return false
+      }
+    }
+  }
   
 
   return (
@@ -167,6 +264,7 @@ export default function HomePage() {
           <button className={clsx(styles.btn, styles.small)} onClick={()=>{setEopen(true)}}>Estadistica</button>
         </header>
 
+
         <div className={styles.titleWrap}>
           <h1 className={styles.title}> Blackjack </h1>
         </div>
@@ -176,26 +274,24 @@ export default function HomePage() {
             <button className={styles.btn} onClick={()=>{setPopen(true)}}>Ir al juego</button>
             <button className={styles.btn} onClick={()=>{router.push("/Ranking")}}>Ranking</button>
             <button className={styles.btn} onClick={()=>{setMopen(true)}}>Multijugador</button>
-            <div>
-              <Draggable nodeRef={nodeRef}>
-                <img ref={nodeRef} id={styles.drags} src="./spr/mandarina.png"></img>
-              </Draggable>
-              <Draggable nodeRef={nodeRef}>
-                <img ref={nodeRef} id={styles.drags} src="./spr/cosaron.png"></img>
-              </Draggable>
-            </div>
-            <div>
-              <Draggable nodeRef={nodeRef}>
-                <img ref={nodeRef} id={styles.drags} src="./spr/cafecito.png"></img>
-              </Draggable>
-              <Draggable nodeRef={nodeRef}>
-                <img ref={nodeRef} id={styles.drags} src="./spr/tecito.png"></img>
-              </Draggable>
-            </div>
-            <hr className={styles.acheerre}></hr>
-            <hr className={styles.acheerre}></hr>
-        </section>
 
+            <div>
+              
+            {shownItems.map((it,i)=>(
+              <Draggable nodeRef={nodeRef}>
+              <img key={i} src={it.imgsrc} ref={nodeRef} className={styles.drags}></img>
+              </Draggable>
+            ))}
+         
+            </div>
+
+            <div>
+            <hr className={styles.acheerre}></hr>
+            <hr className={styles.acheerre}></hr>
+           </div>
+     
+         
+        </section>
 
         {/*POPUPS*/}
         {/*Apuesta para comenzar juego*/}
@@ -208,6 +304,7 @@ export default function HomePage() {
             {valueError&&<p className={styles.error}>Valor inválido</p>}
             <button className={styles.btn} onClick={()=>{
               if((puntosA>0 && puntosA<=usuario.points) || puntosA==1){
+                setDisabled(true)
                 setPopen(false);
                 setValueError(false)
                 sessionStorage.setItem("puntosApostados",puntosA)
@@ -215,6 +312,7 @@ export default function HomePage() {
               }else{
                 setValueError(true)
               }}}>Comenzar</button>
+            )}
                 </div>       
                 }
        </Popup>
@@ -224,28 +322,54 @@ export default function HomePage() {
         <Popup open={Mopen} onClose={()=>{setMopen(false)}} closeOnDocumentClick={false} {...popupProps}>
           {usuario&&
               <div className={clsx(styles.popupBox, pixel.className)}>
-              <h2 className={styles.popupTitle}>Salas multijugador</h2> 
-              {(avRooms)?(<>
-              {(avRooms.length>0)?(<div className={styles.roomList}>
-              {avRooms.map((room,i)=><div className={styles.room} key={i}>
-              <div className={styles.roomInfo}>
-              <p>Sala de {room.ownerName}</p>
-              <p>{room.usersCount} usuario(s)</p>
-              </div>
-              <button className={clsx(styles.btn, styles.small)} onClick={()=>{socket.emit("roomExists",{roomId:room.roomId,userId:usuario.id})}}>Unirse</button>
-              </div>)}
-              </div>):(<>
-              <p className={styles.popupText}>No hay salas disponibles</p>
+                <h2 className={styles.popupTitle}>Salas multijugador</h2> 
+                {(avRooms)?(<>
+                  {(avRooms.length>0)?(<div className={styles.roomList}>
+                    {avRooms.map((room,i)=><div className={styles.room} key={i}>
+                      <div className={styles.roomInfo}>
+                        <p>Sala de {room.ownerName}</p>
+                        <p>{room.usersCount} usuario(s)</p>
+                        <p>Apuesta: ${room.apuesta}</p>
+                      </div>
+                        {(disabled)?(
+                          <button disabled className={clsx(styles.btn, styles.small)}>Unirse</button>
+                        ):(
+                          <>
+                          <p>{errM}</p>
+                          <button className={clsx(styles.btn, styles.small)} onClick={()=>{if(pointCheck(room.apuesta)){setDisabled(true);router.push(`/JuegoMJ?room=${room.roomId}`)}}}>Unirse</button>
+                        </>
+                        )}
+                    </div>)}
+                  </div>):(<>
+                <p className={styles.popupText}>No hay salas disponibles</p>
               </>)}
               </>):(<>
-              <p className={styles.popupText}>cargando salas...</p>
+                <p className={styles.popupText}>cargando salas...</p>
               </>)}
               
             <div className={styles.popupActions}>
-            <button className={styles.btn} onClick={()=>{socket.emit("createRoom",{userId:usuario.id})}}>Crear sala</button>
-            <button className={styles.btn} onClick={()=>{setMopen(false)}}>Volver</button>
-            </div>
-              </div>   
+              
+               {(disabled)?(<>
+                <button disabled>Crear sala</button>
+                <button disabled>Volver</button>  
+               </>):(<>
+                <button className={styles.btn} onClick={()=>{setAopen(true);setMopen(false);setErrM("")}}>Crear sala</button>
+                <button className={styles.btn} onClick={()=>{setMopen(false)}}>Volver</button>
+               </>)} 
+            </div>  
+              </>   
+          </div>}
+       </Popup>
+
+        <Popup open={Aopen} onClose={()=>{setAopen(false)}} closeOnDocumentClick={false}>
+          {usuario&&
+             <>
+             <h2>Ingrese puntos a apostar:</h2>
+              <input type="number" value={apuesta} onChange={(e)=>{setApuesta(e.target.value)}}></input>
+              <p>{errM}</p>
+              <button onClick={()=>{if(pointCheck(apuesta)){setDisabled(true);socket.emit("createRoom",{user:usuario.username,socketId:socket.id,roomId:usuario.id,apuesta:apuesta});}}}>Crear</button>
+              <button onClick={()=>{setAopen(false)}}>Volver</button>
+              </>   
           }
        </Popup>
               
