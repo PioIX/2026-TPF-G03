@@ -305,16 +305,11 @@ export default function TiendaPage() {
 
   return (
     <>
+    <div>
     {loading?(<>
     <h1>Cargando tienda...</h1>
     
     </>):(<>
-    {fondo&&
-          <h2>Fondo equipado:{fondo.name}</h2>}
-        {pipi&&
-          <h2>Pipi equipado:{pipi.name}</h2>}
-        {item&&
-          <h2>Item equipado:{item.name}</h2>}
     <h1>Tienda</h1>
     <p>Tus puntos: {usuario.points}</p>
     <div style={{height:"400px",overflowY:"scroll"}}>
@@ -352,6 +347,7 @@ export default function TiendaPage() {
              </Popup>
 
     </>)}
+    </div>
     </>
   );
 }

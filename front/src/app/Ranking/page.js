@@ -35,6 +35,7 @@ export default function RankingPage() {
     },[datos])
   return (
     <>
+    <div>
     {(loading)?(
       <h1>Cargando ranking..</h1>
     ):(
@@ -64,6 +65,7 @@ export default function RankingPage() {
       <button onClick={()=>{router.back()}}>Volver</button>
       </>
     )}
+    </div>
     </>
   );
 }

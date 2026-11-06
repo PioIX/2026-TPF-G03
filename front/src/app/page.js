@@ -167,7 +167,6 @@ const [admin, setAdmin] = useState(false)
 
 
   return (
-    <>
     <div className={clsx(styles.page, pixel.className)}>
 
     {(loading)?(
@@ -192,8 +191,15 @@ const [admin, setAdmin] = useState(false)
       <Popup open={logOpen} onClose={() => { setLogOpen(false);setErrorMessage("");setUsuario("");setContrasena("") }} closeOnDocumentClick={false}  {...popupProps}>
         {arrayUsuarios &&
           <>
+           <div className={clsx(styles.popupBox, pixel.className)}>
+                        <h1>Ingrese sus datos</h1>
+
             <input className={styles.input} placeholder='Nombre de usuario' value={usuario} onChange={(event)=>{setUsuario(event.target.value)}}></input><br></br>
             <input className={styles.input} placeholder='Contraseña' value={contrasena} onChange={(event)=>{setContrasena(event.target.value)}} type="password"></input><br></br>
+           
+           
+              <p className={styles.popupText}>{errorMessage}</p>
+            <div className={styles.popupActions}>
             {(disabled)?(
                <button className={styles.btn} disabled>Confirmar</button>
             ):(
@@ -201,22 +207,30 @@ const [admin, setAdmin] = useState(false)
             )}
             
             <button className={styles.btn} onClick={() => { setLogOpen(false);setDisabled(false);setProcess("")}}>Cerrar</button>
-            <p className={styles.popupText}>{errorMessage}</p>
+            </div>
+            
+            </div>
           </>
         }
       </Popup>
       <Popup open={regOpen} onClose={() => { setRegOpen(false);setErrorMessage("");setUsuario("");setContrasena("") }} closeOnDocumentClick={false}  {...popupProps}>
         {arrayUsuarios &&
           <>
+           <div className={clsx(styles.popupBox, pixel.className)}>
+            <h1>Ingrese sus datos</h1>
             <input className={styles.input} placeholder='Nombre de usuario' value={usuario} onChange={(event)=>{setUsuario(event.target.value)}}></input><br></br>
             <input className={styles.input} placeholder='Contraseña' value={contrasena} onChange={(event)=>{setContrasena(event.target.value)}} type="password"></input><br></br>
+              <p className={styles.popupText}>{errorMessage}</p>
+           
+            <div className={styles.popupActions}>
             {(disabled)?(
                <button disabled className={styles.btn}>Confirmar</button>
             ):(
               <button className={styles.btn} onClick={()=>{setProcess("login");setDisabled(true)}}>Confirmar</button>
             )}
             <button className={styles.btn} onClick={() => { setRegOpen(false);setDisabled(false);setProcess("");}}>Cerrar</button>
-            <p className={styles.popupText}>{errorMessage}</p>
+            </div>
+            </div>
           </>
         }
       </Popup>
@@ -225,6 +239,5 @@ const [admin, setAdmin] = useState(false)
     </>
   )}
      </div>
-    </>
   )
 }

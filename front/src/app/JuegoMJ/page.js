@@ -319,6 +319,7 @@ function restartGame(){
 
   return (
     <>
+    <div>
     {(loading || !socket)?(
       <>
       <header><button disabled>Volver</button></header>
@@ -428,7 +429,7 @@ function restartGame(){
       
     ) 
     }
-        
+        </div>
     </>
   );
 }

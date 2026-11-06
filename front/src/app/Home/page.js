@@ -40,11 +40,12 @@ NO NECESARIOS:
 /*Hacer ahora:
 -hacer sección de reglas/instrucciones/settings
 -ver como mostrar datos de partida/cartas de oponentes/desconectados y hold
--ver si deshabilitar pipis en multijugador
--añadir pipis
--añdir mas items
+-añadir pipis/balancear pipis
 -pipi visual
+-añdir mas items
 -poner página con carga en el gatcha / visual
+-CLAVE:
+  -en login fijarse cosas equipadas del usuario y ya ponerlas en localstorage
 
 */
 
@@ -249,14 +250,14 @@ export default function HomePage() {
   
 
   return (
-    <div className={clsx(styles.page, pixel.className)}>
-
+    <>
+    <div className={clsx(styles.page, pixel.className)} style={{backgroundImage: fondo ? `url(${fondo.imgsrc})` :null,backgroundColor: !fondo ?  "#2a2a2a":null}}>
     {(loading)?(
-      <>
+      
         <h1 className={styles.loading}>Cargando...</h1>
-      </>
     ):(
       <>
+      
       
 
           <header className={styles.header}>
@@ -264,8 +265,8 @@ export default function HomePage() {
           <button className={clsx(styles.btn, styles.small)} onClick={()=>{setEopen(true)}}>Estadistica</button>
         </header>
 
-
         <div className={styles.titleWrap}>
+          
           <h1 className={styles.title}> Blackjack </h1>
         </div>
 
@@ -278,9 +279,16 @@ export default function HomePage() {
 
             <div> 
             {shownItems.map((it,i)=> i<2?(
-              <Draggable nodeRef={nodeRef} key={i}>
+               (it.imgsrc.includes("shadow"))?(
+              <Draggable nodeRef={nodeRef} key={i} disabled>
               <img  src={it.imgsrc} ref={nodeRef} className={styles.drags}></img>
               </Draggable>
+
+          ):(
+            <Draggable nodeRef={nodeRef} key={i}>
+              <img  src={it.imgsrc} ref={nodeRef} className={styles.drags}></img>
+              </Draggable>
+          )
             ):(
               null
             )
@@ -421,6 +429,7 @@ export default function HomePage() {
             ):(
               <>
                 <div className={styles.stats}>
+                  <h1>{usuario.username}</h1>
                 <p className={styles.stat}>Partidas ganadas: {estadistica.wins}</p>
                 <p className={styles.stat}>Partidas perdidas: {estadistica.losses}</p>
                 <p className={styles.stat}>Racha actual: {estadistica.streak}</p>
@@ -448,7 +457,9 @@ export default function HomePage() {
               </div>   
           }
        </Popup>
-    </>)}
-    </div>
+       </>
+      )}
+      </div>
+    </>
   );
 }

@@ -214,6 +214,7 @@ useEffect(()=>{
 
   return (
     <>
+    <div>
     {(loading)?(
       <>
       <header><button disabled>Volver</button></header>
@@ -297,6 +298,7 @@ useEffect(()=>{
      
       
     )}
+    </div>
     </>
   );
 }

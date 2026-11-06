@@ -46,14 +46,14 @@ export default function ErrorPage() {
   return (
     <>
     
-      <>
+      <div>
           <Popup open={open} onClose={()=>{setOpen(false)}} closeOnDocumentClick={false}>
                       <>
                         <h1>{eMsg}</h1>
                       <button onClick={()=>{setOpen(false);router.replace("/Home")}}>Home</button>
                       </>   
                </Popup>
-      </>
+      </div>
     </>
   );
 }
