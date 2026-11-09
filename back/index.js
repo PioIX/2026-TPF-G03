@@ -386,6 +386,26 @@ app.get('/ItemsporUsuario', async function(req, res){
 	}
 });
 
+app.get('/Equipados', async function(req, res){
+	try {
+		console.log(req.query)
+		userid=req.query.userid
+		
+		if (userid){
+			respuesta = await MySQL.realizarQuery(`SELECT * FROM ItemsporUsuario WHERE userid = ${userid} AND active = 1;`)
+		}
+		res.status(200).send({
+			message: respuesta
+		});
+		console.log('Activados enviados')
+	} catch (error) {
+		console.log('Error:', error.message)
+		res.status(500).send({
+			message: "Error al obtener el itemporusuario"
+		});
+	}
+});
+
 
 app.get('/Estadistica', async function(req, res){
 	try {

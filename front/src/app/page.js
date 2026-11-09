@@ -60,8 +60,24 @@ const [admin, setAdmin] = useState(false)
       if(t==-1){
         setAdmin(true)
       }else{
-
-        router.replace("./Home")
+        //check de items que tiene equipados
+        useFetch.getEquipados(t)
+        .then((data)=>{
+          data.map((it,i)=>{
+            useFetch.getItemPorId(it.itemid)
+            .then((item)=>{
+              if (item[0].name.includes("Fondo")){
+                localStorage.setItem("Fondo",JSON.stringify(item[0]))
+              }else if(item[0].name.includes("Pipi")){
+                localStorage.setItem("Pipi",JSON.stringify(item[0]))
+  
+              }//equipar item que creo que no se va a usar
+              if(i==data.length-1){
+                router.replace("./Home")
+              }
+            })
+          })
+        })
       }
     }
   },[logged])
@@ -115,7 +131,6 @@ const [admin, setAdmin] = useState(false)
           useFetch.postUsuario(nuevoUsuario)
           .then((data)=>{
              localStorage.setItem("userid",data)
-             console.log(data)
           //fetch de post devuelve el id del dato insertado
               useFetch.postEstadistica(data)
             .then((data)=>{

@@ -6,7 +6,6 @@ export function getUsuarios(){
         return fetch(`http://localhost:4000/Usuarios`)
         .then(response => response.json())
         .then(data => {
-            console.log(data); 
             return data.message
     });
 }
@@ -42,7 +41,6 @@ export function getItems(){
         return fetch(`http://localhost:4000/Items`)
         .then(response => response.json())
         .then(data => {
-            console.log(data); 
             return data.message
     });
 }
@@ -51,7 +49,6 @@ export function getItemPorId(id){
         return fetch(`http://localhost:4000/Items?id=${id}`)
         .then(response => response.json())
         .then(data => {
-            console.log(data); 
             return data.message
     });
 }
@@ -69,10 +66,19 @@ export function getInventario(userid){
         return fetch(`http://localhost:4000/ItemsporUsuario?userid=${userid}`)
         .then(response => response.json())
         .then(data => {
-            console.log(data); 
             return data.message
     });
 }
+
+export function getEquipados(userid){
+        return fetch(`http://localhost:4000/Equipados?userid=${userid}`)
+        .then(response => response.json())
+        .then(data => {
+            return data.message
+    });
+}
+
+
 
 export function getItemsPorUsuario(){
         return fetch(`http://localhost:4000/ItemsporUsuario`)

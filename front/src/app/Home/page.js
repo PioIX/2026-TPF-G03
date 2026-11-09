@@ -44,8 +44,6 @@ NO NECESARIOS:
 -pipi visual
 -añdir mas items
 -poner página con carga en el gatcha / visual
--CLAVE:
-  -en login fijarse cosas equipadas del usuario y ya ponerlas en localstorage
 
 */
 
@@ -85,6 +83,15 @@ export default function HomePage() {
   
   useEffect(()=>{
     usuarioId=localStorage.getItem("userid")
+    if(localStorage.getItem("Fondo")){
+        setFondo(JSON.parse(localStorage.getItem("Fondo")))
+      }
+      if(localStorage.getItem("Pipi")){
+        setPipi(JSON.parse(localStorage.getItem("Pipi")))
+      }
+      if(localStorage.getItem("Misc")){
+        setItem(JSON.parse(localStorage.getItem("Misc")))
+      }
     console.log(usuarioId)
     if (!Number(usuarioId)){
      router.replace("./")}
@@ -99,15 +106,6 @@ export default function HomePage() {
     useFetch.getUsuarioPorId(usuarioId)
     .then((data)=>{
       setUsuario(data[0])
-      if(localStorage.getItem("Fondo")){
-        setFondo(JSON.parse(localStorage.getItem("Fondo")))
-      }
-      if(localStorage.getItem("Pipi")){
-        setPipi(JSON.parse(localStorage.getItem("Pipi")))
-      }
-      if(localStorage.getItem("Misc")){
-        setItem(JSON.parse(localStorage.getItem("Misc")))
-      }
     })
   },[])
 
@@ -124,7 +122,6 @@ export default function HomePage() {
         }
       }
       )
-      console.log(it)
       setShownItems(it)
 
     }

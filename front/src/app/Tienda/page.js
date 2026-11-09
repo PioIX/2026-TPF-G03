@@ -250,28 +250,30 @@ export default function TiendaPage() {
 
   function pickItem(price){
     let im
-    let rand = Math.floor(Math.random()*20)
-    if(rand==1){
+    let rand = Math.floor(Math.random()*100)
+    console.log("random")
+    console.log(rand)
+    if(rand<=5){
       im = 5 //mandarina
       console.log("5")
       setRarity("Legendario")
-      //item raro, 1 en 20 chance
-    }else if(rand<=6){
+      //item raro, 5 en 100 chance
+    }else if(rand<=15){
       console.log("2")
       setRarity("Épico")
       im=2 //corazón
-      //item no tan raro, 5 en 20 chance
-    }else if (rand<=12){
+      //item no tan raro, 10 en 100 chance
+    }else if (rand<=50){
       console.log("1")
        setRarity("Raro")
       im=1 //café
-      //6 en 20
+      //35 en 100
     }else{
       console.log("4")
       setRarity("Comùn")
 
       im=4 //té
-      //8 en 20
+      //50 en 100
     }
    useFetch.getItemPorId(im)
     .then((data)=>{
