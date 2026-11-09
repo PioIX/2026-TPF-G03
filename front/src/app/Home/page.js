@@ -57,6 +57,8 @@ export default function HomePage() {
   const [Lopen,setLopen]=useState(false)
   const [Mopen,setMopen]=useState(false)
   const [Aopen,setAopen]=useState(false)
+  const [Iopen,setIopen]=useState(false)
+
 
   const [Erropen,setErropen]=useState(false)
   const [disabled,setDisabled]=useState(false)
@@ -259,7 +261,11 @@ export default function HomePage() {
 
           <header className={styles.header}>
           <button className={clsx(styles.btn, styles.small)} onClick={()=>{setLopen(true)}}>Logout</button>
+          <div>
           <button className={clsx(styles.btn, styles.small)} onClick={()=>{setEopen(true)}}>Estadistica</button>
+          <button className={clsx(styles.btn, styles.small)} onClick={()=>{setIopen(true)}}>Info</button>
+
+          </div>
         </header>
 
         <div className={styles.titleWrap}>
@@ -450,6 +456,45 @@ export default function HomePage() {
               <div className={styles.popupActions}>
               <button className={styles.btn} onClick={()=>{setLopen(false)}}>Volver</button>
               <button className={styles.btn} onClick={()=>{logout()}}>Cerrar sesión</button>
+              </div>
+              </div>   
+          }
+       </Popup>
+
+
+        {/*Info*/}
+        <Popup open={Iopen} onClose={()=>{setIopen(false)}} closeOnDocumentClick={false} {...popupProps}>
+          {usuario&&
+              <div className={clsx(styles.popupBox, pixel.className)}>
+                <div style={{overflowY:"scroll",paddingLeft:"100px",paddingRight:"100px",scrollbarWidth:"1px"}}>
+                  <h2 className={styles.popupTitle}>Reglas del juego:</h2> 
+                  <div style={{textAlign:"justify",marginBottom:"50px"}}>
+                  <p>El objetivo del Blackjack es sumar 21 puntos (o lo más cerca posible) sin pasarte. En el modo de un solo jugador, se compite contra un dealer artificial.</p>
+                  <p>Antes de comenzar el juego se debe elegir una apuesta menor o igual a la cantidad de puntos que tiene. En el caso de tener 0 o menos puntos, siempre se va a poder apostar 1.</p>
+                  <p>Durante el juego, se puede hacer "hit" para sumar una carta al mazo, o "stand" para indicar que desea quedarse con ese valor y esperar al turno del dealer.</p>
+                  <p>Valor de las cartas:</p>
+                  <ul>
+                    <li>Cartas del 2 al 10: valen su valor numérico exacto.</li>
+                    <li>Figuras (J, Q, K): valen 10 puntos cada una.</li>
+                    <li>As (A): puede valer 1 u 11 puntos, según lo que mejor le convenga a tu mano.</li>
+                  </ul>
+                  </div>
+                  <h2 className={styles.popupTitle}>Multijugador:</h2> 
+                  <div style={{textAlign:"justify",marginBottom:"50px"}}>
+                  <p>Para jugar, se debe crear una sala en el menú y esperar a que al menos un usuario entre. La capacidad máxima de las salas es de 4.</p>
+                  <p>El modo de juego multijugador funciona con las mismas reglas, pero en vez de jugar en contra de un dealer, se juega en contra de otros usuarios.</p>
+                  <p>Cada uno debe hace "hit" hasta que tenga el número que desee, hacer "stand", y esperar a que todos los usuarios hagan lo mismo.</p>
+                  <p>Una vez finalizado, se va a revelar el ganador de la ronda y la suma de cada jugador.</p>
+                  </div>
+                  <h2 className={styles.popupTitle}>Tienda:</h2> 
+                  <div style={{textAlign:"justify",marginBottom:"50px"}}>
+                  <p>En la tienda se pueden comprar distintos items para personalizar el juego.</p>
+                  <p>Se pueden comprar fondos para la pantalla, cofres de items coleccionables (que aparecen en la pantalla principal), o Pipis que afectan las ganancias en el modo de un jugador.</p>
+
+                  </div>
+                </div>
+              <div className={styles.popupActions}>
+               <button className={styles.btn} onClick={()=>{setIopen(false)}}>Cerrar</button>
               </div>
               </div>   
           }
