@@ -21,7 +21,6 @@ const popupProps = {
 /*MASTERLIST DE COSAS QUE FALTAN:
 
 
--PIPIS CON FUNCIONALIDAD
 -CSS
 -MULTIJUGADOR CON SALA:
   -Modo loco: los jugadores pueden elegir restarle o sumarle a otro (limitado)
@@ -38,12 +37,12 @@ NO NECESARIOS:
 
 
 /*Hacer ahora:
--hacer sección de reglas/instrucciones/settings
 -ver como mostrar datos de partida/cartas de oponentes/desconectados y hold
 -añadir pipis/balancear pipis
 -pipi visual
 -añdir mas items
 -poner página con carga en el gatcha / visual
+-da error entrando a admin
 
 */
 
@@ -281,7 +280,7 @@ export default function HomePage() {
 
 
             <div> 
-            {shownItems.map((it,i)=> i<2?(
+            {shownItems.map((it,i)=> i<(shownItems.length)/2?(
                (it.imgsrc.includes("shadow"))?(
               <Draggable nodeRef={nodeRef} key={i} disabled>
               <img  src={it.imgsrc} ref={nodeRef} className={styles.drags}></img>
@@ -300,7 +299,7 @@ export default function HomePage() {
             </div>
           
             <div>
-        {shownItems.map((it,i)=> i>=2?(
+        {shownItems.map((it,i)=> i>=(shownItems.length)/2?(
           (it.imgsrc.includes("shadow"))?(
               <Draggable nodeRef={nodeRef} key={i} disabled>
               <img  src={it.imgsrc} ref={nodeRef} className={styles.drags}></img>

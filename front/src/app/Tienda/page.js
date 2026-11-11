@@ -23,6 +23,8 @@ export default function TiendaPage() {
     const [pipis,setPipis]=useState([])
 
     const [misc,setMisc]=useState([])
+    const [animCount,setAnimCount]=useState(1)
+
 
     const [usuario,setUsuario]=useState({})
     const [inv,setInv]=useState(null)
@@ -40,6 +42,7 @@ export default function TiendaPage() {
     let t=-2
     let usuarioId = 0
     const router = useRouter()
+    let chestPrice=20
   
     useEffect(()=>{
       usuarioId=localStorage.getItem("userid")
@@ -127,6 +130,21 @@ export default function TiendaPage() {
           setPipis(p)
       }
     },[items,inv])
+
+
+     useEffect(()=>{
+      if(animCount){
+        if(animCount==3){
+          pickItem()
+        }else{
+          const timer = setTimeout(() => {
+            console.log("next")
+            setAnimCount((prev)=>prev+1)
+          }, 1000);
+          return () => clearTimeout(timer);
+        }
+      }
+    },[animCount])
 
     function estaEnInv(id){
       let temp=-1
@@ -251,28 +269,43 @@ export default function TiendaPage() {
   function pickItem(price){
     let im
     let rand = Math.floor(Math.random()*100)
+    let r2=Math.floor(Math.random()*100)
+
     console.log("random")
     console.log(rand)
     if(rand<=5){
-      im = 5 //mandarina
       console.log("5")
+      im=23 //Rata
       setRarity("Legendario")
       //item raro, 5 en 100 chance
     }else if(rand<=15){
       console.log("2")
       setRarity("Épico")
-      im=2 //corazón
+      if(r2<=50){
+        im=24 //CD
+        }else{
+        im=25 //Huevo sospechoso
+      }
       //item no tan raro, 10 en 100 chance
     }else if (rand<=50){
       console.log("1")
        setRarity("Raro")
-      im=1 //café
+        if(r2<=50){
+        im=2 //corazón
+        }else{
+        im = 5 //mandarina
+
+      }
       //35 en 100
     }else{
       console.log("4")
       setRarity("Comùn")
+      if(r2<=50){
+        im=4 //té
+      }else{
+        im=1 //café
 
-      im=4 //té
+      }
       //50 en 100
     }
    useFetch.getItemPorId(im)
@@ -305,6 +338,14 @@ export default function TiendaPage() {
 
   }
 
+
+  
+  function loadAnim(){
+   if(Copen){
+    setAnimCount(1)
+   }
+  }
+
   return (
     <>
     <div>
@@ -322,7 +363,7 @@ export default function TiendaPage() {
      <StoreList equip={equip} unequip={unequip} buy={buy} items={pipis} estaEnInv={estaEnInv} names={true} inf={true}></StoreList>
 { /*<StoreList equip={equip} unequip={unequip} buy={buy} items={misc} estaEnInv={estaEnInv} names={false} inf={false}></StoreList>*/}
      <h2>Items</h2>
-     <button onClick={()=>{if(usuario.points<20){setOpen(true)}else{pickItem(20)}}}>Comprar cofre de items ($20)</button>
+     <button onClick={()=>{if(usuario.points<chestPrice){setOpen(true)}else{setCOpen(true);loadAnim()}}}>Comprar cofre de items (${chestPrice})</button>
     </div>
       <button onClick={()=>{router.back()}}>Volver</button>
 
@@ -338,13 +379,20 @@ export default function TiendaPage() {
 
 
              <Popup open={Copen} onClose={()=>{setCOpen(false)}} closeOnDocumentClick={true}>
-              {gottenItem&&rarity&&
+              {gottenItem&&rarity?
                 <div>
                   <h2>Recibiste un/a {gottenItem.name}</h2>
                   <img src={gottenItem.src}></img>
                   <p>{rarity}</p>
                   <button onClick={()=>{setCOpen(false);setGottenItem(null),setRarity("")}}>Cerrar</button>
-                </div>       
+                </div>
+                :
+                <div>
+                  {/*animación de carga lol*/}
+                  {animCount&&
+                  <img src={`spr/buzon${animCount}`}></img>
+                  }
+                </div>   
                       }
              </Popup>
 
