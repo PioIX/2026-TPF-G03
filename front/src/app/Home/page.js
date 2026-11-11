@@ -4,12 +4,12 @@ import * as useFetch from "@/hooks/useFetch.js"
 import { useRouter, useSearchParams } from "next/navigation"
 import Popup from 'reactjs-popup';
 import useSocket from "@/hooks/useSocket";
-import clsx from "clsx";
-import { Press_Start_2P } from "next/font/google";
-import styles from "./page.module.css";
 import React, { useRef } from 'react';
 import Draggable from 'react-draggable';
 
+import clsx from "clsx";
+import { Press_Start_2P } from "next/font/google";
+import styles from "./page.module.css";
 const pixel = Press_Start_2P({ weight: "400", subsets: ["latin"] });
 
 const popupProps = {
@@ -37,13 +37,10 @@ NO NECESARIOS:
 
 
 /*Hacer ahora:
+-no hace falta recargar cuando se compra un cofre de items
 -ver como mostrar datos de partida/cartas de oponentes/desconectados y hold
--añadir pipis/balancear pipis
--pipi visual
--añdir mas items
--poner página con carga en el gatcha / visual
--da error entrando a admin
-
+-balancear pipis y cofre
+-ultimo item
 */
 
 export default function HomePage() {
@@ -465,7 +462,7 @@ export default function HomePage() {
         <Popup open={Iopen} onClose={()=>{setIopen(false)}} closeOnDocumentClick={false} {...popupProps}>
           {usuario&&
               <div className={clsx(styles.popupBox, pixel.className)}>
-                <div style={{overflowY:"scroll",paddingLeft:"100px",paddingRight:"100px",scrollbarWidth:"1px"}}>
+                <div style={{overflowY:"scroll",paddingLeft:"200px",paddingRight:"200px",scrollbarWidth:"thin",scrollbarColor:"white black"}}>
                   <h2 className={styles.popupTitle}>Reglas del juego:</h2> 
                   <div style={{textAlign:"justify",marginBottom:"50px"}}>
                   <p>El objetivo del Blackjack es sumar 21 puntos (o lo más cerca posible) sin pasarte. En el modo de un solo jugador, se compite contra un dealer artificial.</p>

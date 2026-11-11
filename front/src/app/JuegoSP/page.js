@@ -6,6 +6,10 @@ import {useBlackJackLogic} from "@/hooks/useBlackjack"
 import ArrCartas from "@/components/ArrCartas";
 import Popup from 'reactjs-popup';
 
+const popupProps = {
+  contentStyle: { background: "none", border: "none", padding: 0, width: "auto" },
+  overlayStyle: { background: "rgba(0,0,0,0.65)" },
+};
 
 export default function JuegoSPPage() {
   const {usersum,dealsum,isuserturn,usercards,dealcards,reset,givedealcard,giveusercard,wl,setWL,setIsUserTurn} = useBlackJackLogic()

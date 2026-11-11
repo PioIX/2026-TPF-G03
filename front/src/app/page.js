@@ -157,6 +157,7 @@ const [admin, setAdmin] = useState(false)
         if (arrayUsuarios[i].username == usuario) {
             if (arrayUsuarios[i].password == contrasena) {
               if (arrayUsuarios[i].is_admin == true) {
+                t=arrayUsuarios[i].id
                 router.replace("./Admin")
               } else {
                 t=arrayUsuarios[i].id

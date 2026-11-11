@@ -7,6 +7,10 @@ import ArrCartas from "@/components/ArrCartas";
 import Popup from 'reactjs-popup';
 import useSocket from "@/hooks/useSocket";
 import { connect } from "socket.io-client";
+const popupProps = {
+  contentStyle: { background: "none", border: "none", padding: 0, width: "auto" },
+  overlayStyle: { background: "rgba(0,0,0,0.65)" },
+};
 
 
 export default function JuegoMJPage() {

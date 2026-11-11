@@ -3,7 +3,14 @@ import { useEffect, useState } from "react";
 import * as useFetch from "@/hooks/useFetch.js"
 import { useRouter, useSearchParams } from "next/navigation"
 import Popup from 'reactjs-popup';
-
+const popupProps = {
+  contentStyle: { background: "none", border: "none", padding: 0, width: "auto" },
+  overlayStyle: { background: "rgba(0,0,0,0.65)" },
+};
+import clsx from "clsx";
+import { Press_Start_2P } from "next/font/google";
+import styles from "./page.module.css";
+const pixel = Press_Start_2P({ weight: "400", subsets: ["latin"] });
 
 export default function ErrorPage() {
   const [open,setOpen]=useState(false)
@@ -46,12 +53,14 @@ export default function ErrorPage() {
   return (
     <>
     
-      <div>
-          <Popup open={open} onClose={()=>{setOpen(false)}} closeOnDocumentClick={false}>
+      <div className={clsx(styles.page, pixel.className)} style={{backgroundImage: fondo ? `url(${fondo.imgsrc})` :null,backgroundColor: !fondo ?  "#2a2a2a":null}}>
+          <Popup open={open} onClose={()=>{setOpen(false)}} closeOnDocumentClick={false} {...popupProps}>
+                     <div className={clsx(styles.popupBox, pixel.className)}>
                       <>
-                        <h1>{eMsg}</h1>
-                      <button onClick={()=>{setOpen(false);router.replace("/Home")}}>Home</button>
+                        <h1 className={styles.popupTitle}>{eMsg}</h1>
+                      <button className={styles.btn} onClick={()=>{setOpen(false);router.replace("/Home")}}>Home</button>
                       </>   
+                      </div>
                </Popup>
       </div>
     </>

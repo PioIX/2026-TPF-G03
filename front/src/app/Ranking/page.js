@@ -2,6 +2,10 @@
 import { useEffect, useState } from "react";
 import * as useFetch from "@/hooks/useFetch.js"
 import { useRouter } from "next/navigation"
+import clsx from "clsx";
+import { Press_Start_2P } from "next/font/google";
+import styles from "./page.module.css";
+const pixel = Press_Start_2P({ weight: "400", subsets: ["latin"] });
 
 export default function RankingPage() {
   const [datos,setDatos]=useState([])
@@ -35,9 +39,9 @@ export default function RankingPage() {
     },[datos])
   return (
     <>
-    <div>
+    <div className={clsx(styles.page, pixel.className)} style={{backgroundImage: fondo ? `url(${fondo.imgsrc})` :null,backgroundColor: !fondo ?  "#2a2a2a":null}}>
     {(loading)?(
-      <h1>Cargando ranking..</h1>
+      <h1 className={styles.loading}>Cargando ranking..</h1>
     ):(
       <>
       <div style={{height: "400px",overflowY:"scroll"}}>
