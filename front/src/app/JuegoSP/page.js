@@ -9,7 +9,6 @@ import clsx from "clsx";
 import { Press_Start_2P } from "next/font/google";
 import styles from "./page.module.css";
 const pixel = Press_Start_2P({ weight: "400", subsets: ["latin"] });
-
 const popupProps = {
   contentStyle: { background: "none", border: "none", padding: 0, width: "auto" },
   overlayStyle: { background: "rgba(0,0,0,0.65)" },
@@ -28,6 +27,8 @@ export default function JuegoSPPage() {
   const [open,setOpen]=useState(false)
 
   const [T,setT]=useState("")
+  const [T2,setT2]=useState("")
+
   const [popupText,setPopupText]=useState("")
   const [puntosA,setPuntosA]=useState(0)
 
@@ -88,6 +89,7 @@ useEffect(()=>{
     if (wl==1){
       setDisabled(true)
       if(usersum==21){
+        setT2("BlackJack! Ganancias triplicadas")
         win(parseInt(puntosA)*3)
       }else{
         win(puntosA)
@@ -140,7 +142,10 @@ useEffect(()=>{
     return () => clearTimeout(timer);
   }
 
-
+  
+  function rand(min, max) {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+  }
 
   function win(points){
    console.log("win running")
@@ -148,19 +153,19 @@ useEffect(()=>{
       if(pipi.name=="Pipi"){
         //Pipi normal, no hace nada creo
       }else if(pipi.name=="Evil Pipi"){
-        let c = Math.floor(Math.random() * (4 - 1 + 1) + 1)
+        let c = rand(1,4)
         if(c==1){
           points=points*3
           setT("Pipi vomitó! Puntos triplicados")
         }else{
-          let r= Math.floor(Math.random() * (5 - 2)+2)
+          let r= rand(1,points/2)
           console.log(r)
           points-=r
           setT(`Pipi se comió ${r} punto/s`)
         }
 
       }else if(pipi.name=="Pipi loco"){
-       let r= Math.floor(Math.random() * (10 - -6) + -6)
+       let r= rand(points*-1,points)
        console.log(r)
        points+=r
        if(r>=0){
@@ -180,6 +185,9 @@ useEffect(()=>{
         }else{
           setT("Sos muy pobre, pipi no hizo nada")
         }
+      }
+      if (points<0){
+        points=0
       }
     }
     console.log(usuario)
@@ -203,18 +211,23 @@ useEffect(()=>{
     console.log("lose running")
     setPopupText("Perdiste")
     console.log(usuario)
-    let newE={
-      userid:usuario.id,
-      wins:estadistica.wins,
-      losses:estadistica.losses+1,
-      played:estadistica.played+1,
-      streak:0,
-      points_lost:estadistica.points_lost+parseInt(points),
-      cant_items:estadistica.cant_items
+    if(usuario.points<=0){
+      setT2("La casa tiene pena, no te saca más puntos")
+      points=0
     }
-    useFetch.putEstadistica(newE)
-    useFetch.putPoints(usuario.points-parseInt(points),usuario.id)
-    usuario.points-=parseInt(points)
+      let newE={
+        userid:usuario.id,
+        wins:estadistica.wins,
+        losses:estadistica.losses+1,
+        played:estadistica.played+1,
+        streak:0,
+        points_lost:estadistica.points_lost+parseInt(points),
+        cant_items:estadistica.cant_items
+      }
+      useFetch.putEstadistica(newE)
+      useFetch.putPoints(usuario.points-parseInt(points),usuario.id)
+      usuario.points-=parseInt(points)
+    
 
   }
 
@@ -263,6 +276,9 @@ useEffect(()=>{
           {(usuario)?(
             <div className={clsx(styles.popupBox, pixel.className)}>
             <h2 className={styles.popupTitle}>{popupText}</h2>
+            {T2&&
+            <p className={styles.popupText}>{T2}</p>
+            }
             {T&&
             <p className={styles.popupText}>{T}</p>
             }
@@ -282,6 +298,8 @@ useEffect(()=>{
                 setReplay(false)
                 setPopupText("")
                 setT("")
+                setT2("")
+
                 sessionStorage.setItem("puntosApostados",puntosA)
                 reset()
                 setLoading(true)

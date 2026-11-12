@@ -24,7 +24,6 @@ const popupProps = {
 -CSS
 -MULTIJUGADOR CON SALA:
   -Modo loco: los jugadores pueden elegir restarle o sumarle a otro (limitado)
--IMPLEMENTAR REGLAS COMO SEGURO O RENDIRSE, SPLIT O DOBLE
 
 
 
@@ -37,10 +36,11 @@ NO NECESARIOS:
 
 
 /*Hacer ahora:
+-css de multijugador
 -ver como mostrar datos de partida/cartas de oponentes/desconectados y hold
--balancear pipis
--opcion de volver en nuevo juego
-aviso de blackjack
+-opcion de volver en nuevo juego (?)
+-posiblemente que el pipi clasista funcione si apostaste más de la mitad/ todos tus puntos
+-pipi visual
 */
 
 export default function HomePage() {
