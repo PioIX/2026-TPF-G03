@@ -46,21 +46,8 @@
 .btn {
   z-index: 1;
 }
-.ranking{
-  height: 400px;
-  width: calc(var(--w) - 4rem);
-  overflow-y:scroll;
-  justify-items: center;
-  text-align: center;
-  scrollbar-width: thin;
-  scrollbar-color: white black;
-}
-.title {
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  justify-self: center;
-}
+
+
 
 
 .btn {
@@ -130,3 +117,59 @@
   background: #ffffff;
 }
  
+.rmain{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    width: calc(var(--w) - 4rem);
+    max-height: calc(var(--h) - 2rem);
+}
+
+.ranking{
+    height: 400px;
+    width: 100%;
+    padding: 0 1rem;
+    overflow-y: scroll;
+    border: 4px solid #ffffff;
+    scrollbar-width: thin;
+    scrollbar-color: white black;
+}
+
+
+.title{
+    margin: 0;
+    padding: 0.5rem 3rem;
+    border: 4px solid #ffffff;
+    text-transform: uppercase;
+}
+
+
+
+.ranking table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 0.5rem;
+    font-size: 1rem;
+    text-align: center;
+    table-layout: fixed;
+}
+
+
+.ranking table thead tr {
+  position: sticky;
+  top: 0px;
+  background-color: #000000;
+}
+
+.ranking table tbody tr {
+padding-bottom: 10px;
+padding-top: 10px;
+}
+
+.ranking td {
+    padding: 0.4rem 0.75rem;
+    background: #000000;
+    border-top: 2px solid #ffffff;
+    border-bottom: 2px solid #ffffff;
+}

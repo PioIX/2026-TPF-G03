@@ -296,12 +296,16 @@ export default function TiendaPage() {
     console.log("random")
     console.log(rand)
     if(rand<=15){
-      console.log("5")
-      im=28 //Rata
+      console.log("Legendario")
+      if(r2<=50){
+        im=28 //Rata
+      }else{
+        im=29 //Flor
+      }
       setRarity("Legendario")
       //item raro, 15 en 100 chance
     }else if (rand<=50){
-      console.log("1")
+      console.log("Raro")
        setRarity("Raro")
         if(r2<=33){
         im=2 //corazón
@@ -313,7 +317,7 @@ export default function TiendaPage() {
         }
       //35 en 100
     }else{
-      console.log("4")
+      console.log("común")
       setRarity("Comùn")
       if(r2<=33){
         im=4 //té
@@ -372,7 +376,7 @@ export default function TiendaPage() {
     <div  className={styles.container}>
       {/*names define si aparecen los nombres en la tienda, inf si aparecen botones que dan info de cada uno*/}
       <h2>Fondos</h2>
-     <StoreList equip={equip} unequip={unequip} buy={buy} items={fondos} estaEnInv={estaEnInv} names={false} inf={false} className={styles.storeList} btnStyle={styles.btn}></StoreList>
+     <StoreList equip={equip} unequip={unequip} buy={buy} items={fondos} estaEnInv={estaEnInv} names={true} inf={false} className={styles.storeList} btnStyle={styles.btn}></StoreList>
      <h2>Pipis</h2>
      <StoreList equip={equip} unequip={unequip} buy={buy} items={pipis} estaEnInv={estaEnInv} names={true} inf={true}  className={styles.storeList} btnStyle={styles.btn}></StoreList>
 { /*<StoreList equip={equip} unequip={unequip} buy={buy} items={misc} estaEnInv={estaEnInv} names={false} inf={false}></StoreList>*/}

@@ -245,8 +245,10 @@ useEffect(()=>{
             <p>Dealer: {dealsum}</p>
             <p>Vos: {usersum}</p>
           </div>
+          <div>
           <ArrCartas cards={dealcards}></ArrCartas>
           <ArrCartas cards={usercards}></ArrCartas>
+          </div>
         </section>
         <section className={styles.menu}>
           {(disabled)?(<>

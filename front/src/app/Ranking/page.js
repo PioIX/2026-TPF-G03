@@ -44,8 +44,9 @@ export default function RankingPage() {
       <h1 className={styles.loading}>Cargando ranking..</h1>
     ):(
       <>
-        <h1 className={styles.title}>Ranking</h1>
-      <div style={{}} className={styles.ranking}>
+      <div className={styles.rmain}>
+      <h1 className={styles.title}>Ranking</h1>
+      <div className={styles.ranking}>
       <table>
         <thead>
           <tr>
@@ -68,9 +69,11 @@ export default function RankingPage() {
       </table>
       </div>
       <button onClick={()=>{router.back()}} className={styles.btn}>Volver</button>
+      </div>
       </>
     )}
     </div>
+    
     </>
   );
 }

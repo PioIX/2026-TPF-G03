@@ -39,7 +39,8 @@ NO NECESARIOS:
 /*Hacer ahora:
 -ver como mostrar datos de partida/cartas de oponentes/desconectados y hold
 -balancear pipis
--ultimo item
+-opcion de volver en nuevo juego
+aviso de blackjack
 */
 
 export default function HomePage() {
