@@ -153,17 +153,87 @@ height: 20px;
 }
  
 .tmain{
-    justify-items: center;
-    width: 70vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    width: calc(var(--w) - 4rem);
+    max-height: calc(var(--h) - 2rem);
 }
+
+.tmain > h1 {
+    margin: 0;
+    padding: 0.5rem 3rem;
+    border: 4px solid #ffffff;
+    text-transform: uppercase;
+}
+
+.tmain > p {
+    margin: 0;
+    font-size: 0.75rem;
+}
+
 .container{
-    height:400px;
+    height: 400px;
     width: 100%;
-    overflow-y:scroll;
+    padding: 0 1rem;
+    overflow-y: scroll;
+    border: 4px solid #ffffff;
     scrollbar-width: thin;
     scrollbar-color: white black;
 }
 
-.storeList{
-    /*dudoso*/
+.container h2 {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    border-bottom: 4px solid #ffffff;
+    padding-bottom: 0.5rem;
+}
+
+.container table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 0.5rem;
+    font-size: 0.7rem;
+}
+
+.container td {
+    padding: 0.4rem 0.75rem;
+    background: #111111;
+    border-top: 2px solid #ffffff;
+    border-bottom: 2px solid #ffffff;
+}
+
+.container td:first-child {
+    border-left: 2px solid #ffffff;
+}
+
+.container td:last-child {
+    border-right: 2px solid #ffffff;
+}
+
+.container td:has(button) {
+    width: 1%;
+    white-space: nowrap;
+}
+
+.container img {
+    image-rendering: pixelated;
+}
+
+.container > div {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    padding-bottom: 1rem;
+}
+
+.container > div > h2 {
+    width: 100%;
+}
+
+
+.itemcont{
+  justify-content: center;
 }

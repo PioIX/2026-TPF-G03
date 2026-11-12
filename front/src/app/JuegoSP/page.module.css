@@ -1,0 +1,162 @@
+/*Mismo estilo que Home/page.module.css*/
+/*faltan las sprites de las cartas*/
+/*ubicarlas según px para que entren en la mesa*/
+
+.page,
+.page *,
+.popupBox,
+.popupBox * {
+  box-sizing: border-box;
+  border-radius: 0;
+}
+
+.page {
+  --w: min(90vw, 60rem);
+  --h: min(90vh, 38rem);
+
+  position: relative;
+  min-height: 100vh;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  line-height: 1.4;
+  color: #ffffff;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: var(--w);
+  height: var(--h);
+  background: #000000;
+  border: 4px solid #ffffff;
+}
+
+.header,
+.mesa,
+.menu {
+  z-index: 1;
+}
+
+.header {
+  position: absolute;
+  top: calc(50% - var(--h) / 2 + 1rem);
+  left: calc(50% - var(--w) / 2 + 1rem);
+}
+
+.mesa {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.mesa p {
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.mesa img {
+  height: 5.5rem;
+  margin: 0 0.25rem;
+  image-rendering: pixelated;
+}
+
+.menu {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn {
+  padding: 0.8rem 1rem;
+  border: 4px solid #ffffff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #000000;
+  background: #ffffff;
+  box-shadow: 0 6px 0 #777777;
+}
+
+.btn:hover {
+  color: #ffffff;
+  background: #000000;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 #777777;
+}
+
+.btn:active {
+  transform: translateY(6px);
+  box-shadow: none;
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.small {
+  padding: 0.6rem 0.9rem;
+  font-size: 0.7rem;
+}
+
+.popupBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  min-width: min(90vw, 22rem);
+  max-width: 90vw;
+  padding: 2rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #ffffff;
+  background: #000000;
+  border: 4px solid #ffffff;
+  box-shadow: 0 0 0 8px #000000;
+}
+
+.popupBox ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  line-height: 2;
+}
+
+.popupTitle {
+  margin: 0;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+}
+
+.popupText {
+  margin: 0;
+}
+
+.input {
+  width: 100%;
+  padding: 0.75rem;
+  font: inherit;
+  text-align: center;
+  color: #ffffff;
+  background: #111111;
+  border: 4px solid #ffffff;
+  outline: none;
+}
+
+.error {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  color: #000000;
+  background: #ffffff;
+}

@@ -28,7 +28,7 @@ const server = app.listen(PORT, () => {
 
 const io = new Server(server, {
   cors: {
-	origin: ["http://localhost:3000", "http://localhost:3001","http://localhost:3002","http://localhost:3003","http://localhost:3004","http://10.1.5.244:3000"],
+	origin: ["http://localhost:3000", "http://localhost:3001","http://localhost:3002","http://localhost:3003","http://localhost:3004","http://10.1.5.244:3000","http://10.1.5.148:3000"],
 	methods: ["GET", "POST", "PUT", "DELETE"],
 	credentials: true,
 	//path: "/api/socketio",
