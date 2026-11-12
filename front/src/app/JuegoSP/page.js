@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation"
 import {useBlackJackLogic} from "@/hooks/useBlackjack"
 import ArrCartas from "@/components/ArrCartas";
 import Popup from 'reactjs-popup';
+import clsx from "clsx";
+import { Press_Start_2P } from "next/font/google";
+import styles from "./page.module.css";
+const pixel = Press_Start_2P({ weight: "400", subsets: ["latin"] });
 
 const popupProps = {
   contentStyle: { background: "none", border: "none", padding: 0, width: "auto" },
@@ -218,25 +222,25 @@ useEffect(()=>{
 
   return (
     <>
-    <div>
+    <div className={clsx(styles.page, pixel.className)} style={{backgroundImage: fondo ? `url(${fondo.imgsrc})` :null,backgroundColor: !fondo ?  "#2a2a2a":null}}>
     {(loading)?(
       <>
-      <header><button disabled>Volver</button></header>
+      <header className={styles.header}><button className={clsx(styles.btn, styles.small)} disabled>Volver</button></header>
        
-        <section>
+        <section className={styles.mesa}>
           <h2>Cargando cartas...</h2>
         </section>
 
-        <section>
-      <button disabled>Hit</button>
-      <button disabled>Stand</button>
+        <section className={styles.menu}>
+      <button className={styles.btn} disabled>Hit</button>
+      <button className={styles.btn} disabled>Stand</button>
         </section>
      
       </>
     ):(
       <>
-      <header><button onClick={()=>{reset();router.back()}}>Volver</button></header>
-        <section>
+      <header className={styles.header}><button className={clsx(styles.btn, styles.small)} onClick={()=>{reset();router.back()}}>Volver</button></header>
+        <section className={styles.mesa}>
           <div>
             <p>Dealer: {dealsum}</p>
             <p>Vos: {usersum}</p>
@@ -244,21 +248,21 @@ useEffect(()=>{
           <ArrCartas cards={dealcards}></ArrCartas>
           <ArrCartas cards={usercards}></ArrCartas>
         </section>
-        <section>
+        <section className={styles.menu}>
           {(disabled)?(<>
-          <button disabled>Hit</button>
-          <button disabled>Stand</button>
+          <button className={styles.btn} disabled>Hit</button>
+          <button className={styles.btn} disabled>Stand</button>
           </>):(<>
-          <button onClick={()=>{hit()}}>Hit</button>
-          <button onClick={()=>{stand()}}>Stand</button>
+          <button className={styles.btn} onClick={()=>{hit()}}>Hit</button>
+          <button className={styles.btn} onClick={()=>{stand()}}>Stand</button>
           </>)}
         </section>
-        <Popup open={open} onClose={()=>{setOpen(false)}} closeOnDocumentClick={false} closeOnEscape={false} >
+        <Popup open={open} onClose={()=>{setOpen(false)}} closeOnDocumentClick={false} closeOnEscape={false} {...popupProps}>
           {(usuario)?(
-            <div>
-            <h2>{popupText}</h2>
+            <div className={clsx(styles.popupBox, pixel.className)}>
+            <h2 className={styles.popupTitle}>{popupText}</h2>
             {T&&
-            <p>{T}</p>
+            <p className={styles.popupText}>{T}</p>
             }
             <ul>
               <li>Dealer: {dealsum}</li>
@@ -266,10 +270,10 @@ useEffect(()=>{
               <li>Tu dinero: {usuario.points}</li>
             </ul>
             {(replay)?(<>
-            <p>¿Cuántos puntos quiere apostar?</p>
-              <input onChange={(e)=>{setPuntosA(e.target.value)}} value={puntosA}></input>
-              {valueError&&<p>Valor inválido</p>}
-            <button onClick={()=>{
+            <p className={styles.popupText}>¿Cuántos puntos quiere apostar?</p>
+              <input className={styles.input} onChange={(e)=>{setPuntosA(e.target.value)}} value={puntosA}></input>
+              {valueError&&<p className={styles.error}>Valor inválido</p>}
+            <button className={styles.btn} onClick={()=>{
               if((puntosA>0 && puntosA<=usuario.points) || puntosA==1){
                 setOpen(false);
                 setValueError(false)
@@ -287,8 +291,8 @@ useEffect(()=>{
 
             </>):(<>
 
-              <button onClick={()=>{reset();router.back()}}>Volver</button>
-              <button onClick={()=>{setReplay(true)}}>Nuevo Juego</button>
+              <button className={styles.btn} onClick={()=>{reset();router.back()}}>Volver</button>
+              <button className={styles.btn} onClick={()=>{setReplay(true)}}>Nuevo Juego</button>
             </>)}
           </div>       
 
