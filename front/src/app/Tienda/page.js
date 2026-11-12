@@ -295,37 +295,32 @@ export default function TiendaPage() {
 
     console.log("random")
     console.log(rand)
-    if(rand<=5){
+    if(rand<=15){
       console.log("5")
       im=28 //Rata
       setRarity("Legendario")
-      //item raro, 5 en 100 chance
-    }else if(rand<=15){
-      console.log("2")
-      setRarity("Épico")
-      if(r2<=50){
-        im=26 //CD
-        }else{
-        im=27 //Huevo sospechoso
-      }
-      //item no tan raro, 10 en 100 chance
+      //item raro, 15 en 100 chance
     }else if (rand<=50){
       console.log("1")
        setRarity("Raro")
-        if(r2<=50){
+        if(r2<=33){
         im=2 //corazón
-        }else{
+        }else if(r2<=66){
         im = 5 //mandarina
+        }else{
+        im=26 //CD
 
-      }
+        }
       //35 en 100
     }else{
       console.log("4")
       setRarity("Comùn")
-      if(r2<=50){
+      if(r2<=33){
         im=4 //té
-      }else{
+      }else if(r2<=66){
         im=1 //café
+      }else{
+        im=27 //Huevo sospechoso
 
       }
       //50 en 100
@@ -333,6 +328,8 @@ export default function TiendaPage() {
    useFetch.getItemPorId(im)
     .then((data)=>{
       setGottenItem(data[0])
+      console.log("gotten item")
+      console.log(data[0])
     })
    let e
         useFetch.getEstadisticaDeUsuario(usuario.id)
@@ -352,7 +349,7 @@ export default function TiendaPage() {
             useFetch.putEstadistica({cant_items: e.cant_items+1, userid: usuario.id}),
             useFetch.putPoints(t.points,usuario.id)
             .then(
-              ()=>{setILoading(true)})
+              ()=>{})
             
           }
           )
@@ -379,7 +376,7 @@ export default function TiendaPage() {
      <h2>Pipis</h2>
      <StoreList equip={equip} unequip={unequip} buy={buy} items={pipis} estaEnInv={estaEnInv} names={true} inf={true}  className={styles.storeList} btnStyle={styles.btn}></StoreList>
 { /*<StoreList equip={equip} unequip={unequip} buy={buy} items={misc} estaEnInv={estaEnInv} names={false} inf={false}></StoreList>*/}
-     <div>
+     <div className={styles.itemcont}>
      <h2>Items</h2>
      <img src={"spr/buzon1.png"} style={{height:"100px"}}></img>
      <button className={styles.btn} onClick={()=>{if(usuario.points<chestPrice){setOpen(true)}else{setCOpen(true);}}}>Comprar cofre de items (${chestPrice})</button>

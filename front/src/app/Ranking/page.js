@@ -44,7 +44,8 @@ export default function RankingPage() {
       <h1 className={styles.loading}>Cargando ranking..</h1>
     ):(
       <>
-      <div style={{height: "400px",overflowY:"scroll"}}>
+        <h1 className={styles.title}>Ranking</h1>
+      <div style={{}} className={styles.ranking}>
       <table>
         <thead>
           <tr>
@@ -66,7 +67,7 @@ export default function RankingPage() {
       </tbody>
       </table>
       </div>
-      <button onClick={()=>{router.back()}}>Volver</button>
+      <button onClick={()=>{router.back()}} className={styles.btn}>Volver</button>
       </>
     )}
     </div>

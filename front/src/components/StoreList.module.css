@@ -1,0 +1,77 @@
+
+.btn {
+    text-align: center;
+  padding: 0.8rem 1rem;
+  border: 4px solid #ffffff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #000000;
+  background: #ffffff;
+  box-shadow: 0 6px 0 #777777;
+  width: 160px;
+}
+ 
+.btn:hover {
+  color: #ffffff;
+  background: #000000;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 #777777;
+}
+ 
+.btn:active {
+  transform: translateY(6px);
+  box-shadow: none;
+}
+ 
+.btn:focus-visible {
+  outline: 4px solid #ffffff;
+  outline-offset: 3px;
+}
+ 
+
+
+.inf {
+    text-align: center;
+  padding: 0.8rem 1rem;
+  border: 4px solid #ffffff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #000000;
+  background: #ffffff;
+  box-shadow: 0 6px 0 #777777;
+  width: 100px;
+}
+ 
+.inf:hover {
+  color: #ffffff;
+  background: #000000;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 #777777;
+}
+ 
+.inf:active {
+  transform: translateY(6px);
+  box-shadow: none;
+}
+ 
+.inf:focus-visible {
+  outline: 4px solid #ffffff;
+  outline-offset: 3px;
+}
+
+@media (max-width: 600px) {
+  .btn{
+    width: 100px;
+    font-size: 0.50rem;
+  }
+  .inf{
+    width: 50px;
+    font-size: 0.50rem;
+  }
+}

@@ -37,9 +37,8 @@ NO NECESARIOS:
 
 
 /*Hacer ahora:
--no hace falta recargar cuando se compra un cofre de items
 -ver como mostrar datos de partida/cartas de oponentes/desconectados y hold
--balancear pipis y cofre
+-balancear pipis
 -ultimo item
 */
 
@@ -276,7 +275,7 @@ export default function HomePage() {
             <button className={styles.btn} onClick={()=>{setMopen(true)}}>Multijugador</button>
 
 
-            <div> 
+            {/*<div> 
             {shownItems.map((it,i)=> i<(shownItems.length)/2?(
                (it.imgsrc.includes("shadow"))?(
               <Draggable nodeRef={nodeRef} key={i} disabled>
@@ -312,10 +311,10 @@ export default function HomePage() {
             )
             )}
         <hr className={styles.acheerre}></hr>
-           </div>
+           </div>*/}
  
         </section>
-      {/*<section className={styles.test}>
+      <section className={styles.sectest}>
 
         
       <div className={styles.test}> 
@@ -333,8 +332,7 @@ export default function HomePage() {
             )}
            </div>
         <hr className={styles.acheerre}></hr>
-
-      </section>*/}
+      </section>
         {/*POPUPS*/}
         {/*Apuesta para comenzar juego*/}
         <Popup open={Popen} onClose={()=>{setPopen(false)}} closeOnDocumentClick={false} {...popupProps}>

@@ -40,14 +40,26 @@
 .loading,
 .header,
 .titleWrap,
-.menu {
+.menu,
+.ranking,
+.title,
+.btn {
   z-index: 1;
 }
-
+.ranking{
+  height: 400px;
+  width: calc(var(--w) - 4rem);
+  overflow-y:scroll;
+  justify-items: center;
+  text-align: center;
+  scrollbar-width: thin;
+  scrollbar-color: white black;
+}
 .title {
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  justify-self: center;
 }
 
 
@@ -105,36 +117,7 @@
   box-shadow: 0 0 0 8px #000000;
 }
  
-.popupTitle {
-  margin: 0;
-  font-size: 1.1rem;
-  text-transform: uppercase;
-  line-height: 1.4;
-}
- 
-.popupText {
-  margin: 0;
-}
- 
-.popupActions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.5rem;
-}
- 
-.input {
-  width: 100%;
-  padding: 0.75rem;
-  font: inherit;
-  font-size: 1rem;
-  text-align: center;
-  color: #ffffff;
-  background: #111111;
-  border: 4px solid #ffffff;
-  outline: none;
-}
- 
+
 .input:focus {
   color: #000000;
   background: #ffffff;
