@@ -1,4 +1,6 @@
 /*Mismo estilo que Home/page.module.css*/
+/*faltan las sprites de las cartas*/
+/*ubicarlas según px para que entren en la mesa*/
 
 .page,
 .page *,
@@ -50,7 +52,6 @@
   left: calc(50% - var(--w) / 2 + 1rem);
 }
 
-/*Mesa: puntajes y cartas*/
 .mesa {
   display: flex;
   flex-direction: column;
