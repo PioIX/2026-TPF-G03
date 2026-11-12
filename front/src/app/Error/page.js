@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import * as useFetch from "@/hooks/useFetch.js"
 import { useRouter, useSearchParams } from "next/navigation"
 import Popup from 'reactjs-popup';
@@ -12,11 +12,8 @@ import { Press_Start_2P } from "next/font/google";
 import styles from "./page.module.css";
 const pixel = Press_Start_2P({ weight: "400", subsets: ["latin"] });
 
-export default function ErrorPage() {
-  const [open,setOpen]=useState(false)
-  const [eMsg,setEMsg]=useState(true)
+export default function ErrorPage(){
   const router = useRouter()
-  const searchParams=useSearchParams()
   const [pipi,setPipi]=useState(null)
   const [item,setItem]=useState(null)
   const [fondo,setFondo]=useState(null)
@@ -31,7 +28,31 @@ export default function ErrorPage() {
       if(localStorage.getItem("Misc")){
         setItem(JSON.parse(localStorage.getItem("Misc")))
       }
-    let err=searchParams.get("err")
+  
+    },[])
+    
+  return (
+    <>
+      <div className={clsx(styles.page, pixel.className)} style={{backgroundImage: fondo ? `url(${fondo.imgsrc})` :null,backgroundColor: !fondo ?  "#2a2a2a":null}}>
+    {/*<Suspense fallback={<p>Cargando...</p>}>*/}
+        <ErrorPopup></ErrorPopup>
+    {/*</Suspense>*/}
+      </div>
+
+    </>
+  );
+}
+
+
+function ErrorPopup() {
+  const [open,setOpen]=useState(false)
+  const [eMsg,setEMsg]=useState(true)
+  const router = useRouter()
+  const searchParams=useSearchParams()
+
+
+  useEffect(()=>{
+    let err=searchParams.get("err") || ''
     if(err==1){
         setEMsg("Host desconectado")
     }else if(err==2){
@@ -52,17 +73,14 @@ export default function ErrorPage() {
     },[eMsg])
   return (
     <>
-    
-      <div className={clsx(styles.page, pixel.className)} style={{backgroundImage: fondo ? `url(${fondo.imgsrc})` :null,backgroundColor: !fondo ?  "#2a2a2a":null}}>
           <Popup open={open} onClose={()=>{setOpen(false)}} closeOnDocumentClick={false} {...popupProps}>
                      <div className={clsx(styles.popupBox, pixel.className)}>
                       <>
-                        <h1 className={styles.popupTitle}>{eMsg}</h1>
+                      <h1 className={styles.popupTitle}>{eMsg}</h1>
                       <button className={styles.btn} onClick={()=>{setOpen(false);router.replace("/Home")}}>Home</button>
                       </>   
                       </div>
                </Popup>
-      </div>
     </>
   );
 }

@@ -77,7 +77,6 @@ export default function HomePage() {
  let p;
   let usuarioId = 0 
   const router = useRouter()
-  const searchParams=useSearchParams()
   
   useEffect(()=>{
     usuarioId=localStorage.getItem("userid")

@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import * as useFetch from "@/hooks/useFetch.js"
 import { useRouter, useSearchParams } from "next/navigation"
 import {useMultiBlackJack} from "@/hooks/useMultiBlackJack"
@@ -11,9 +11,13 @@ const popupProps = {
   contentStyle: { background: "none", border: "none", padding: 0, width: "auto" },
   overlayStyle: { background: "rgba(0,0,0,0.65)" },
 };
+import clsx from "clsx";
+import { Press_Start_2P } from "next/font/google";
+import styles from "./page.module.css";
+const pixel = Press_Start_2P({ weight: "400", subsets: ["latin"] });
 
 
-export default function JuegoMJPage() {
+function JuegoMJPage() {
   const {sum,ucards,reset,giveusercard,held,setHeld} = useMultiBlackJack()
   const router=useRouter()
   const { socket, isConnected } = useSocket();
@@ -326,15 +330,7 @@ function restartGame(){
     <div>
     {(loading || !socket)?(
       <>
-      <header><button disabled>Volver</button></header>
-       
-        <section>
-          <h2>Cargando...</h2>
-        </section>
-      {/*Mostrar un mejor framework*/}
-        <section>
-      
-        </section>
+          <h1>Cargando...</h1>
      
       </>
     ):(
@@ -349,11 +345,18 @@ function restartGame(){
           {members.map((m,i)=> m.username==usuario.username?<p key={i}></p>:
             <div key={i}>
             <p>{m.username}:</p>
-
             {/*lo que sea que diga cuando otro usuario ya hizo hold*/}
-            {m.hold&&<p>Listo</p>}
-
-            <img src="cartas/AV.png"></img>
+            {!m.connected?
+            <img src="cartas/shadowcard.png"></img>
+            :
+            <>
+            {m.hold?
+            <img src="cartas/greencard.png"></img>
+            :
+              <img src="cartas/redcard.png"></img>
+            }
+            </>
+            }
           {/*placeholder para carta dada vuelta*/}
             </div>
             
@@ -427,13 +430,31 @@ function restartGame(){
       <h1>Esperando a que el administrador comienze la partida...</h1>
       </>
       )}
-      <button onClick={()=>{router.replace("/Home")}}>Volver</button>
+      <button onClick={()=>{console.log("volver");router.replace("/Home")}}>Volver</button>
       </>
     )
       
     ) 
     }
         </div>
+    </>
+  );
+}
+
+
+export default function JuegoMJ2Page(){
+  const [fondo,setFondo]=useState(null)
+  useEffect(()=>{
+    if(localStorage.getItem("Fondo")){
+        setFondo(JSON.parse(localStorage.getItem("Fondo")))
+      }
+    },[])
+    
+  return (
+    <>
+   {/* <Suspense fallback={<div className={clsx(styles.page, pixel.className)} style={{backgroundImage: fondo ? `url(${fondo.imgsrc})` :null,backgroundColor: !fondo ?  "#2a2a2a":null}}><h1 className={styles.loading}>Cargando...</h1></div>}>*/}
+        <JuegoMJPage></JuegoMJPage>
+   {/* </Suspense>*/}
     </>
   );
 }
