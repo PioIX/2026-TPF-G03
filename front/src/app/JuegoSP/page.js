@@ -8,6 +8,8 @@ import Popup from 'reactjs-popup';
 import clsx from "clsx";
 import { Press_Start_2P } from "next/font/google";
 import styles from "./page.module.css";
+import React, { useRef } from 'react';
+import Draggable from 'react-draggable';
 const pixel = Press_Start_2P({ weight: "400", subsets: ["latin"] });
 const popupProps = {
   contentStyle: { background: "none", border: "none", padding: 0, width: "auto" },
@@ -36,6 +38,7 @@ export default function JuegoSPPage() {
   const [item,setItem]=useState(null)
   const [fondo,setFondo]=useState(null)
   let usuarioId=0
+  const nodeRef = useRef(null);
 
   useEffect(()=>{
         usuarioId = localStorage.getItem("userid")
@@ -253,13 +256,16 @@ useEffect(()=>{
     ):(
       <>
       <header className={styles.header}><button className={clsx(styles.btn, styles.small)} onClick={()=>{reset();router.back()}}>Volver</button></header>
+        <div className={styles.wrapper}>
+          <div className={styles.wrapper2}>
+
         <section className={styles.mesa}>
           <div>
-            <p>Dealer: {dealsum}</p>
-            <p>Vos: {usersum}</p>
+            <p className={styles.ptext}>Dealer: {dealsum}</p>
+          <ArrCartas cards={dealcards}></ArrCartas>
           </div>
           <div>
-          <ArrCartas cards={dealcards}></ArrCartas>
+            <p className={styles.ptext}>Vos: {usersum}</p>
           <ArrCartas cards={usercards}></ArrCartas>
           </div>
         </section>
@@ -272,6 +278,13 @@ useEffect(()=>{
           <button className={styles.btn} onClick={()=>{stand()}}>Stand</button>
           </>)}
         </section>
+          </div>
+        {pipi&&
+        <Draggable nodeRef={nodeRef}>
+          <img src={pipi.imgsrc} ref={nodeRef} className={styles.pipi}></img>
+        </Draggable>
+        }
+        </div>
         <Popup open={open} onClose={()=>{setOpen(false)}} closeOnDocumentClick={false} closeOnEscape={false} {...popupProps}>
           {(usuario)?(
             <div className={clsx(styles.popupBox, pixel.className)}>

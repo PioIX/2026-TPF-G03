@@ -27,6 +27,8 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  overflow: hidden;
+
 }
 
 .page::before {
@@ -42,8 +44,32 @@
 
 .header,
 .mesa,
-.menu {
+.menu,
+.wrapper{
   z-index: 1;
+}
+.wrapper{
+  height: calc(var(--h) - 6rem);
+  align-items: center;
+  display: flex;
+  position: relative;
+  width: calc(var(--w)/1.3);
+  justify-content: center;
+}
+/*.wrapper2{
+height:100%;
+  display: flex;
+  flex-direction: column;
+}*/
+
+.pipi{
+   flex: 0 0 auto;
+  position: absolute;
+  align-self:end ;
+  justify-self:end;
+  width: 150px;
+  height: auto;
+  right: 0;
 }
 
 .header {
@@ -53,17 +79,24 @@
 }
 
 .mesa {
-  width: calc(var(--w) - 6rem);
+  width: calc((var(--w) /3)*2);
+  height: calc((var(--w)/2.3));
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 2rem;
   justify-content: center;
+  justify-items: center;
+  /*
+  background-color: #111111;
+  border: 2px solid white;
+ */
 }
 
 .mesa p {
   margin: 0;
   text-transform: uppercase;
+  text-align: center;
 }
 
 .mesa img {
@@ -74,6 +107,7 @@
 
 .menu {
   display: flex;
+  justify-content: center;
   gap: 1rem;
 }
 

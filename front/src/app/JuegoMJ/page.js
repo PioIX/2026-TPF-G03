@@ -179,7 +179,7 @@ function JuegoMJPage() {
       socket.on("ended",({room,userArr,winner})=>{
         setEnded(true)
         setUserArr(userArr)
-        setHeldText("")
+        setHeld(false)
         if(winner.length/2==userArr.length){
           setPopupText("Empate")
         }else{
@@ -327,23 +327,23 @@ function restartGame(){
 
   return (
     <>
-    <div>
+    <div className={clsx(styles.page, pixel.className)} style={{backgroundImage: fondo ? `url(${fondo.imgsrc})` :null,backgroundColor: !fondo ?  "#2a2a2a":null}}>
     {(loading || !socket)?(
       <>
-          <h1>Cargando...</h1>
+          <h1 className={styles.loading}>Cargando...</h1>
      
       </>
     ):(
-
-    (started)?(
+      <div className={styles.juego}>
+    {(started)?(
       <>
-        <section>
+        <section className={styles.mesa}>
           {members.length>0&&
           <>
           {/*posiblemente marcar los usuarios desconectados en gris o algo*/}
-          <div style={{display:"flex"}}>
+          <div style={{display:"flex"}} className={styles.otherplayers}>
           {members.map((m,i)=> m.username==usuario.username?<p key={i}></p>:
-            <div key={i}>
+            <div key={i} className={styles.player}>
             <p>{m.username}:</p>
             {/*lo que sea que diga cuando otro usuario ya hizo hold*/}
             {!m.connected?
@@ -363,48 +363,68 @@ function restartGame(){
           )}
               </div>
           </>}
-          <div>
+          <div className={styles.user}>
             <p>Vos: {sum}</p>
-          </div>
           <ArrCartas cards={ucards}></ArrCartas>
-         
+          </div>
         </section>
-        <section>
-          {(held )?(<>
-          <h2>{heldText}</h2>
-          <button disabled>Hit</button>
-          <button disabled>Stand</button>
-          </>):(<>
-          <button onClick={()=>{hit()}}>Hit</button>
-          <button onClick={()=>{stand()}}>Stand</button>
+          {(held)?(<>
+          <h2 style={{textAlign:"center"}}>{heldText}</h2>
+          <section className={styles.btnsec}>
+            <button disabled className={styles.btn}>Hit</button>
+            <button disabled className={styles.btn}>Stand</button>
+          </section>
+          </>):
+          (<>
+            <section className={styles.btnsec}>
+              <button onClick={()=>{hit()}} className={styles.btn}>Hit</button>
+              <button onClick={()=>{stand()}} className={styles.btn}>Stand</button>
+          </section>
           </>)}
-        </section>
-        <Popup open={open} onClose={()=>{setOpen(false)}} closeOnDocumentClick={false} closeOnEscape={false}>
+        <Popup open={open} onClose={()=>{setOpen(false)}} closeOnDocumentClick={false} closeOnEscape={false} {...popupProps}>
           {usuario&&
-            <div>
-            <h2>{popupText}</h2>
-            <ul>
-              
-              {UserArr.length>0&&
-              <>
-              {UserArr.map((u,i)=>
-              <li key={i}>{u[0]}: {u[1].sum}</li>
-              )}
-              </>}
-              <li>Tu dinero: {usuario.points}</li>
-            </ul>
-          </div>       
-          }
+            <div className={clsx(styles.popupBox, pixel.className)}>
+              <div>
+                <h2 className={styles.popupTitle}>{popupText}</h2>
+                <ul>
+                  {UserArr.length>0&&
+                  <>
+                  {UserArr.map((u,i)=>
+                  <li key={i}>{u[0]}: {u[1].sum}</li>
+                  )}
+                  </>}
+                  <li>Tu dinero: {usuario.points}</li>
+                </ul>
+              </div>       
           
            {(searchParams.get("room")==usuario.id)?(
             <>
-            <p>{errM}</p>
-            <button onClick={()=>{if(pointCheck(puntosA)){socket.emit("restart",{roomId:searchParams.get("room"),user:usuario.username,socketId:socket.id,apuesta:puntosA})}}}>Volver a jugar</button>
+            {errM&&
+            <p className={styles.popupText}>{errM}</p>
+            }
+            <div className={styles.popupActions}>
+
+            <button className={styles.btn} onClick={()=>{if(pointCheck(puntosA)){socket.emit("restart",{roomId:searchParams.get("room"),user:usuario.username,socketId:socket.id,apuesta:puntosA})}}}>Volver a jugar</button>
+            <button className={styles.btn} onClick={()=>{router.replace("/Home")}}>Home</button>
+
+            </div>
+
            </>
            ):(
-            <p>Esperando al administrador....</p>
-           )}
-           <button onClick={()=>{router.replace("/Home")}}>Home</button>
+            <>
+             <p className={styles.popupText}>Esperando al administrador....</p>
+             <div className={styles.popupActions}>
+            <button className={styles.btn} onClick={()=>{router.replace("/Home")}}>Home</button>
+             </div>
+            </>
+
+           )
+           
+          }
+          </div>
+          }
+
+
         </Popup>
         </>
       
@@ -413,26 +433,27 @@ function restartGame(){
       <>
       {members.length>0&&
       <>
-      <h2>Miembros en la sala:</h2>
-      {members.map((m,i)=><p key={i}>{m.username}</p>)}
+      <h2 >Miembros en la sala:</h2>
+      {members.map((m,i)=><p key={i} className={styles.roomMember}>{m.username}</p>)}
       </>}
       {(searchParams.get("room")==usuario.id)?(
-        <>
+        <div className={styles.adminAction}>
         {(startDisabled)?(<>
-        <button disabled>Comenzar partida</button>
+        <button disabled className={styles.btn}>Comenzar partida</button>
         </>):(<>
-        <button onClick={()=>{startGame()}}>Comenzar partida</button>
+        <button onClick={()=>{startGame()}} className={styles.btn}>Comenzar partida</button>
         </>)}
-        
-        </>
+        <button onClick={()=>{console.log("volver");router.replace("/Home")}} className={styles.btn}>Volver</button>
+        </div>
       ):(
-        <>
-      <h1>Esperando a que el administrador comienze la partida...</h1>
-      </>
+      <div className={styles.wait}>
+      <h2>Esperando al administrador.....</h2>
+      <button onClick={()=>{console.log("volver");router.replace("/Home")}} className={styles.btn} >Volver</button>
+      </div>
       )}
-      <button onClick={()=>{console.log("volver");router.replace("/Home")}}>Volver</button>
       </>
-    )
+    )}
+    </div>
       
     ) 
     }

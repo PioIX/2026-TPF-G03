@@ -36,7 +36,6 @@ NO NECESARIOS:
 
 
 /*Hacer ahora:
--css de multijugador
 -ver como mostrar datos de partida/cartas de oponentes/desconectados y hold
 -opcion de volver en nuevo juego (?)
 -posiblemente que el pipi clasista funcione si apostaste más de la mitad/ todos tus puntos
@@ -390,8 +389,8 @@ export default function HomePage() {
             <div className={styles.popupActions}>
               
                {(disabled)?(<>
-                <button disabled>Crear sala</button>
-                <button disabled>Volver</button>  
+                <button disabled className={styles.btn}>Crear sala</button>
+                <button disabled className={styles.btn}>Volver</button>  
                </>):(<>
                 <button className={styles.btn} onClick={()=>{setAopen(true);setMopen(false);setErrM("")}}>Crear sala</button>
                 <button className={styles.btn} onClick={()=>{setMopen(false)}}>Volver</button>
@@ -406,7 +405,9 @@ export default function HomePage() {
              <div className={clsx(styles.popupBox, pixel.className)}>
              <h2>Ingrese puntos a apostar:</h2>
               <input type="number" value={apuesta} onChange={(e)=>{setApuesta(e.target.value)}} className={styles.input}></input>
+              {errM&&
               <p>{errM}</p>
+              }
               <div className={styles.popupActions}>
 
               <button className={styles.btn} onClick={()=>{if(pointCheck(apuesta)){setDisabled(true);socket.emit("createRoom",{user:usuario.username,socketId:socket.id,roomId:usuario.id,apuesta:apuesta});}}}>Crear</button>

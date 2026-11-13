@@ -167,7 +167,7 @@
   text-transform: uppercase;
   line-height: 1.4;
 }
- 
+
 .popupText {
   margin: 0;
 }
@@ -223,7 +223,7 @@
 }
  
 .roomInfo p {
-  margin: 0;
+  margin-bottom: 10px;
 }
  
 .stats {
