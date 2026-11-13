@@ -41,7 +41,12 @@
     justify-content: center;
     gap: 1rem;
 }
-
+.popupActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+}
 
 .page::before {
   content: "";

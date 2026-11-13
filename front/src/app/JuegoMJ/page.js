@@ -155,15 +155,22 @@ function JuegoMJPage() {
       
       socket.on("disconnected",(data)=>{
         console.log("usuario desconectado")
+        console.log(data)
+        console.log(members)
+        console.log(started)
           let room=data.room
           let roomId=searchParams.get("room")
           if(room.ownerName==data.user){
             socket.emit("hostDisconnect",roomId)
-          }else if(started){
+          }else{
+            console.log("started")
+            console.log(members)
             members.map((m,i)=>{
               if(m.username==data.user){
                 let t = members
                 t[i].connected=false
+                console.log("members after disconnect")
+                console.log(t)
                 setMembers(t)
               }
             })
@@ -174,6 +181,8 @@ function JuegoMJPage() {
 
     //eventos del juego
      socket.on("started",()=>{
+      console.log("START")
+      console.log(members)
         setStarted(true)
       })
       socket.on("ended",({room,userArr,winner})=>{

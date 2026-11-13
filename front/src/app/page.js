@@ -18,7 +18,7 @@ export default function LoginPage() {
   const [logged,setLogged]=useState(false)
   const [disabled,setDisabled]=useState(false)
   const [process,setProcess]=useState("")
-const [admin, setAdmin] = useState(false)
+  const [admin, setAdmin] = useState(false)
 
 
 
@@ -63,20 +63,30 @@ const [admin, setAdmin] = useState(false)
         //check de items que tiene equipados
         useFetch.getEquipados(t)
         .then((data)=>{
-          data.map((it,i)=>{
-            useFetch.getItemPorId(it.itemid)
-            .then((item)=>{
-              if (item[0].name.includes("Fondo")){
-                localStorage.setItem("Fondo",JSON.stringify(item[0]))
-              }else if(item[0].name.includes("Pipi")){
-                localStorage.setItem("Pipi",JSON.stringify(item[0]))
-  
-              }//equipar item que creo que no se va a usar
-              if(i==data.length-1){
-                router.replace("./Home")
-              }
+          console.log(data)
+          if (data.length>=1){
+            data.map((it,i)=>{
+              useFetch.getItemPorId(it.itemid)
+              .then((item)=>{
+                if (item[0].name.includes("Fondo")){
+                  localStorage.setItem("Fondo",JSON.stringify(item[0]))
+                }else if(item[0].name.includes("Pipi")){
+                  localStorage.setItem("Pipi",JSON.stringify(item[0]))
+    
+                }//equipar item que creo que no se va a usar
+                console.log(i)
+                console.log(data.length-1)
+                if(i==data.length-1){
+                  console.log("going home")
+                  router.replace("./Home")
+                }
+              })
             })
-          })
+          }else{
+            console.log("no items")
+            router.replace("./Home")
+
+          }
         })
       }
     }
@@ -94,7 +104,7 @@ const [admin, setAdmin] = useState(false)
   },[loading,arrayUsuarios])
 
     useEffect(()=>{
-    if(disabled){
+    if(disabled && process){
       if(process=="login"){
         handleLogin()
       }else if(process=="registro"){
@@ -242,7 +252,7 @@ const [admin, setAdmin] = useState(false)
             {(disabled)?(
                <button disabled className={styles.btn}>Confirmar</button>
             ):(
-              <button className={styles.btn} onClick={()=>{setProcess("login");setDisabled(true)}}>Confirmar</button>
+              <button className={styles.btn} onClick={()=>{setProcess("registro");setDisabled(true)}}>Confirmar</button>
             )}
             <button className={styles.btn} onClick={() => { setRegOpen(false);setDisabled(false);setProcess("");}}>Cerrar</button>
             </div>

@@ -203,11 +203,16 @@ io.on("connection", (socket) => {
 	console.log(user)
 	for (const roomId of socket.rooms) {
 		if (roomData.has(roomId)) {
+			console.log("ROOOMMM")
+			console.log(roomData.get(roomId))
 			if(roomData.get(roomId).started){
+				console.log("room started")
 				let temp=roomData.get(roomId).users.get(user)
 				temp.connected=false
 				roomData.get(roomId).users.set(user,temp)
+				
 			}else{
+				console.log("room not")
 				roomData.get(roomId).users.delete(user)
 				io.to(roomId).emit("left", {
 				room:roomId,
@@ -220,7 +225,8 @@ io.on("connection", (socket) => {
 				roomData.delete(roomId);
 			}
 			io.emit("roomChange")
-			io.to(roomId).emit("disconnected", {message: "Usuario desconectado",user:user,room:roomData.get(roomId)});
+			console.log("emitting")
+			io.to(roomId).emit("disconnected", {message: "Usuario desconectado",user:user,room:roomData.get(roomId),userNames:Array.from(roomData.get(roomId).users.keys())});
 
 		}
 	  }
@@ -273,6 +279,8 @@ io.on("connection", (socket) => {
 				let temp=roomData.get(roomId)
 				temp.started=true
 				roomData.set(roomId,temp)
+				console.log("start set")
+				console.log(roomData.get(roomId))
 			   io.to(roomId).emit("started")
 			   io.emit("roomChange")
 			}else{

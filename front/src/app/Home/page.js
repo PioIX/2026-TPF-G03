@@ -339,18 +339,27 @@ export default function HomePage() {
           <div className={clsx(styles.popupBox, pixel.className)}>
             <h2 className={styles.popupTitle}>¿Cuántos puntos quiere apostar?</h2>
             <p className={styles.popupText}>Tus puntos: {usuario.points}</p>
+            {disabled?
+            <input className={styles.input} disabled value={puntosA}></input>
+
+            :
+
             <input className={styles.input} onChange={(e)=>{setPuntosA(e.target.value)}} value={puntosA}></input>
+          }
             {valueError&&<p className={styles.error}>Valor inválido</p>}
+            {disabled?
+             <button className={styles.btn}>Comenzar</button>
+          :
             <button className={styles.btn} onClick={()=>{
               if((puntosA>0 && puntosA<=usuario.points) || puntosA==1){
                 setDisabled(true)
-                setPopen(false);
                 setValueError(false)
                 sessionStorage.setItem("puntosApostados",puntosA)
                 router.push("./JuegoSP")
               }else{
                 setValueError(true)
               }}}>Comenzar</button>
+          }
       
                 </div>       
                 }
@@ -358,7 +367,7 @@ export default function HomePage() {
 
 
        {/*Multijugador*/}
-        <Popup open={Mopen} onClose={()=>{setMopen(false)}} closeOnDocumentClick={false} {...popupProps}>
+        <Popup open={Mopen} onClose={()=>{setMopen(false)}} closeOnDocumentClick={false} closeOnEscape={false}{...popupProps}>
           {usuario&&
             <div className={clsx(styles.popupBox, pixel.className)}>
               <h2 className={styles.popupTitle}>Salas multijugador</h2> 
@@ -374,11 +383,14 @@ export default function HomePage() {
                         <button disabled className={clsx(styles.btn, styles.small)}>Unirse</button>
                       ):(
                         <>
-                          <p>{errM}</p>
                           <button className={clsx(styles.btn, styles.small)} onClick={()=>{if(pointCheck(room.apuesta)){setDisabled(true);router.push(`/JuegoMJ?room=${room.roomId}`)}}}>Unirse</button>
                         </>
                       )}
                   </div>)}
+                        {errM&&
+                        
+                      <p>{errM}</p>
+                        }
                   </div>):(<>
                 <p className={styles.popupText}>No hay salas disponibles</p>
               </>)}
@@ -399,7 +411,7 @@ export default function HomePage() {
           </div>}
        </Popup>
 
-        <Popup open={Aopen} onClose={()=>{setAopen(false)}} closeOnDocumentClick={false} {...popupProps}>
+        <Popup open={Aopen} onClose={()=>{setAopen(false)}} closeOnDocumentClick={false} closeOnEscape={false} {...popupProps}>
           {usuario&&
              <>
              <div className={clsx(styles.popupBox, pixel.className)}>
@@ -409,9 +421,17 @@ export default function HomePage() {
               <p>{errM}</p>
               }
               <div className={styles.popupActions}>
-
+              {disabled?
+            <>
+            <button className={styles.btn} onClick={()=>{if(pointCheck(apuesta)){setDisabled(true);socket.emit("createRoom",{user:usuario.username,socketId:socket.id,roomId:usuario.id,apuesta:apuesta});}}}>Crear</button>
+              <button className={styles.btn} onClick={()=>{setAopen(false)}}>Volver</button>
+            </>
+            :
+            <>
               <button className={styles.btn} onClick={()=>{if(pointCheck(apuesta)){setDisabled(true);socket.emit("createRoom",{user:usuario.username,socketId:socket.id,roomId:usuario.id,apuesta:apuesta});}}}>Crear</button>
               <button className={styles.btn} onClick={()=>{setAopen(false)}}>Volver</button>
+            </>
+          }
               </div>
               </div>
               </>   
