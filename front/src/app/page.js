@@ -3,15 +3,27 @@ import { useEffect, useState } from "react";
 import * as useFetch from "@/hooks/useFetch.js"
 import { useRouter } from "next/navigation"
 import Popup from 'reactjs-popup';
+import styles from "./page.module.css";
+import clsx from "clsx";
+import { Press_Start_2P } from "next/font/google";
 
+const pixel = Press_Start_2P({ weight: "400", subsets: ["latin"] });
+
+const popupProps = {
+contentStyle: { background: "none", border: "none", padding: 0, width: "auto" },
+overlayStyle: { background: "rgba(0,0,0,0.65)" },
+};
 export default function LoginPage() {
- const [logged,setLogged]=useState(false)
+
+  const [logged,setLogged]=useState(false)
+  const [disabled,setDisabled]=useState(false)
+  const [process,setProcess]=useState("")
 const [admin, setAdmin] = useState(false)
 
-const [disabled,setDisabled]=useState(false)
- const [process,setProcess]=useState("")
 
- const [loading,setLoading]=useState(true)
+
+
+  const [loading,setLoading]=useState(true)
   const [arrayUsuarios, setArrayUsuarios] = useState([])
   const [usuario, setUsuario] = useState("")
   const [contrasena, setContrasena] = useState("")
@@ -24,6 +36,7 @@ const [disabled,setDisabled]=useState(false)
  
 
   useEffect(() => {
+    setErrorMessage("")
     let t=localStorage.getItem("userid")
     console.log(t)
     if(t==-1){
@@ -47,8 +60,24 @@ const [disabled,setDisabled]=useState(false)
       if(t==-1){
         setAdmin(true)
       }else{
-
-        router.replace("./Home")
+        //check de items que tiene equipados
+        useFetch.getEquipados(t)
+        .then((data)=>{
+          data.map((it,i)=>{
+            useFetch.getItemPorId(it.itemid)
+            .then((item)=>{
+              if (item[0].name.includes("Fondo")){
+                localStorage.setItem("Fondo",JSON.stringify(item[0]))
+              }else if(item[0].name.includes("Pipi")){
+                localStorage.setItem("Pipi",JSON.stringify(item[0]))
+  
+              }//equipar item que creo que no se va a usar
+              if(i==data.length-1){
+                router.replace("./Home")
+              }
+            })
+          })
+        })
       }
     }
   },[logged])
@@ -75,7 +104,6 @@ const [disabled,setDisabled]=useState(false)
   },[process,disabled])
 
   function handleSignup() {
-    console.log("signup REACHED")
     if (usuario == ""  || contrasena == "") {
       setErrorMessage("Rellene todos los campos.")
       setProcess("")
@@ -100,11 +128,9 @@ const [disabled,setDisabled]=useState(false)
             points: 10,
             is_admin: 0
           }
-          console.log(nuevoUsuario)
           useFetch.postUsuario(nuevoUsuario)
           .then((data)=>{
              localStorage.setItem("userid",data)
-             console.log(data)
           //fetch de post devuelve el id del dato insertado
               useFetch.postEstadistica(data)
             .then((data)=>{
@@ -112,7 +138,6 @@ const [disabled,setDisabled]=useState(false)
               setDisabled(false)
               setLogged(true)
               })
-          /*sessionStorage.setItem("User", JSON.stringify(usuarioLogueado))*/ //ver si hacemos con cookies o que
           })
         }
 
@@ -131,19 +156,16 @@ const [disabled,setDisabled]=useState(false)
       for (let i = 0; i < arrayUsuarios.length; i++){
         if (arrayUsuarios[i].username == usuario) {
             if (arrayUsuarios[i].password == contrasena) {
-              t=arrayUsuarios[i].id
-              console.log(t)
-              if(arrayUsuarios[i].is_admin){
-                localStorage.setItem("userid",-1)  
-              }else{
-
+              if (arrayUsuarios[i].is_admin == true) {
+                t=arrayUsuarios[i].id
+                router.replace("./Admin")
+              } else {
+                t=arrayUsuarios[i].id
                 localStorage.setItem("userid",t)
+                setProcess("")
+                setDisabled(false)
+                setLogged(true)
               }
-               /*sessionStorage.setItem("User", JSON.stringify(usuarioLogueado))*/ //ver si hacemos con cookies o que
-               setProcess("")
-              setDisabled(false)
-              setLogged(true)
-  
             }
           }
       }
@@ -161,47 +183,77 @@ const [disabled,setDisabled]=useState(false)
 
 
   return (
-    <>
+    <div className={clsx(styles.page, pixel.className)}>
+
     {(loading)?(
-      <h1>Cargando..</h1>
+      <h1 className={styles.loading}>Cargando..</h1>
   
     ):(
     <>
-     <h1>BlackJack</h1>
-      <h4>Llene los campos para registrarse o iniciar sesión</h4>
-      <Popup open={logOpen} onClose={() => { setLogOpen(false) }} closeOnDocumentClick={false}>
-        {arrayUsuarios &&
-          <>
-            <input placeholder='Nombre de usuario' value={usuario} onChange={(event)=>{setUsuario(event.target.value)}}></input><br></br>
-            <input placeholder='Contraseña' value={contrasena} onChange={(event)=>{setContrasena(event.target.value)}} type="password"></input><br></br>
-            <button onClick={handleLogin}>Confirmar</button> <button onClick={() => { setLogOpen(false);setDisabled(false);setProcess("")}}>Cerrar</button>
-            <p>{errorMessage}</p>
-          </>
-        }
-      </Popup>
-      <Popup open={regOpen} onClose={() => { setRegOpen(false) }} closeOnDocumentClick={false}>
-        {arrayUsuarios &&
-          <>
-            <input placeholder='Nombre de usuario' value={usuario} onChange={(event)=>{setUsuario(event.target.value)}}></input><br></br>
-            <input placeholder='Contraseña' value={contrasena} onChange={(event)=>{setContrasena(event.target.value)}} type="password"></input><br></br>
-            <button onClick={handleSignup}>Confirmar</button> <button onClick={() => { setRegOpen(false);setDisabled(false);setProcess("")}}>Cerrar</button>
-            <p>{errorMessage}</p>
-          </>
-        }
-      </Popup>
+     <div className={styles.titleWrap}>
+          <h1 className={styles.title}> Blackjack </h1>
+        </div>
+        <section className={styles.menu}>
 
-      {disabled?(<>
-       <button disabled>Iniciar sesión</button>
-      <button disabled>Registrarse</button>
-  
-      </>):(<>
-      <button onClick={()=>{setDisabled(true);setProcess("login");setLogOpen(true)}}>Iniciar sesión</button>
-      <button onClick={()=>{setDisabled(true);setProcess("registro");setRegOpen(true)}}>Registrarse</button>
-      </>)}
+{disabled?(<>
+ <button className={styles.btn} disabled>Iniciar sesión</button>
+<button  className={styles.btn} disabled>Registrarse</button>
+
+</>):(<>
+<button  className={styles.btn} onClick={()=>{setLogOpen(true)}}>Iniciar sesión</button>
+<button className={styles.btn} onClick={()=>{setRegOpen(true)}}>Registrarse</button>
+</>)}
+  </section>
+      <Popup open={logOpen} onClose={() => { setLogOpen(false);setErrorMessage("");setUsuario("");setContrasena("") }} closeOnDocumentClick={false}  {...popupProps}>
+        {arrayUsuarios &&
+          <>
+           <div className={clsx(styles.popupBox, pixel.className)}>
+                        <h1>Ingrese sus datos</h1>
+
+            <input className={styles.input} placeholder='Nombre de usuario' value={usuario} onChange={(event)=>{setUsuario(event.target.value)}}></input><br></br>
+            <input className={styles.input} placeholder='Contraseña' value={contrasena} onChange={(event)=>{setContrasena(event.target.value)}} type="password"></input><br></br>
+           
+           
+              <p className={styles.popupText}>{errorMessage}</p>
+            <div className={styles.popupActions}>
+            {(disabled)?(
+               <button className={styles.btn} disabled>Confirmar</button>
+            ):(
+              <button className={styles.btn} onClick={()=>{setProcess("login");setDisabled(true);}}>Confirmar</button>
+            )}
+            
+            <button className={styles.btn} onClick={() => { setLogOpen(false);setDisabled(false);setProcess("")}}>Cerrar</button>
+            </div>
+            
+            </div>
+          </>
+        }
+      </Popup>
+      <Popup open={regOpen} onClose={() => { setRegOpen(false);setErrorMessage("");setUsuario("");setContrasena("") }} closeOnDocumentClick={false}  {...popupProps}>
+        {arrayUsuarios &&
+          <>
+           <div className={clsx(styles.popupBox, pixel.className)}>
+            <h1>Ingrese sus datos</h1>
+            <input className={styles.input} placeholder='Nombre de usuario' value={usuario} onChange={(event)=>{setUsuario(event.target.value)}}></input><br></br>
+            <input className={styles.input} placeholder='Contraseña' value={contrasena} onChange={(event)=>{setContrasena(event.target.value)}} type="password"></input><br></br>
+              <p className={styles.popupText}>{errorMessage}</p>
+           
+            <div className={styles.popupActions}>
+            {(disabled)?(
+               <button disabled className={styles.btn}>Confirmar</button>
+            ):(
+              <button className={styles.btn} onClick={()=>{setProcess("login");setDisabled(true)}}>Confirmar</button>
+            )}
+            <button className={styles.btn} onClick={() => { setRegOpen(false);setDisabled(false);setProcess("");}}>Cerrar</button>
+            </div>
+            </div>
+          </>
+        }
+      </Popup>
+      
          
     </>
   )}
-     
-    </>
+     </div>
   )
 }

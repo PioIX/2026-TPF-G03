@@ -1,0 +1,175 @@
+.page,
+.page *,
+.popupBox,
+.popupBox * {
+  box-sizing: border-box;
+  border-radius: 0;
+}
+
+
+.page {
+  --w: min(90vw, 60rem);
+  --h: min(90vh, 38rem);
+  
+  position: relative;
+  min-height: 100vh;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  line-height: 1.4;
+  color: #ffffff;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: var(--w);
+  height: var(--h);
+  background: #000000;
+  border: 4px solid #ffffff;
+}
+ 
+.loading,
+.header,
+.titleWrap,
+.menu,
+.ranking,
+.title,
+.btn {
+  z-index: 1;
+}
+
+
+
+
+.btn {
+  padding: 0.8rem 1rem;
+  border: 4px solid #ffffff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #000000;
+  background: #ffffff;
+  box-shadow: 0 6px 0 #777777;
+}
+ 
+.btn:hover {
+  color: #ffffff;
+  background: #000000;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 #777777;
+}
+ 
+.btn:active {
+  transform: translateY(6px);
+  box-shadow: none;
+}
+ 
+.btn:focus-visible {
+  outline: 4px solid #ffffff;
+  outline-offset: 3px;
+}
+ 
+.small {
+  padding: 0.6rem 0.9rem;
+  font-size: 0.7rem;
+  margin: 0.25rem;
+}
+ 
+.popupBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  min-width: min(90vw, 22rem);
+  max-width: 90vw;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 2rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #ffffff;
+  background: #000000;
+  border: 4px solid #ffffff;
+  box-shadow: 0 0 0 8px #000000;
+}
+ 
+
+.input:focus {
+  color: #000000;
+  background: #ffffff;
+}
+ 
+.error {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  color: #000000;
+  background: #ffffff;
+}
+ 
+.rmain{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    width: calc(var(--w) - 4rem);
+    max-height: calc(var(--h) - 2rem);
+}
+
+.ranking{
+    height: 400px;
+    width: 100%;
+    padding: 0 1rem;
+    overflow-y: scroll;
+    border: 4px solid #ffffff;
+    scrollbar-width: thin;
+    scrollbar-color: white black;
+}
+
+
+.title{
+    margin: 0;
+    padding: 0.5rem 3rem;
+    border: 4px solid #ffffff;
+    text-transform: uppercase;
+}
+
+
+
+.ranking table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 0.5rem;
+    font-size: 1rem;
+    text-align: center;
+    table-layout: fixed;
+}
+
+
+.ranking table thead tr {
+  position: sticky;
+  top: 0px;
+  background-color: #000000;
+}
+
+.ranking table tbody tr {
+padding-bottom: 10px;
+padding-top: 10px;
+}
+
+.ranking td {
+    padding: 0.4rem 0.75rem;
+    background: #000000;
+    border-top: 2px solid #ffffff;
+    border-bottom: 2px solid #ffffff;
+}

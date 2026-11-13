@@ -1,0 +1,243 @@
+.page,
+.page *,
+.popupBox,
+.popupBox * {
+  box-sizing: border-box;
+  border-radius: 0;
+}
+
+
+.page {
+  --w: min(90vw, 60rem);
+  --h: min(90vh, 38rem);
+  
+  position: relative;
+  min-height: 100vh;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  line-height: 1.4;
+  color: #ffffff;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: var(--w);
+  height: var(--h);
+  background: #000000;
+  border: 4px solid #ffffff;
+}
+ 
+.loading,
+.header,
+.titleWrap,
+.menu,
+.tmain {
+  z-index: 1;
+}
+
+.title {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+
+.btn {
+  padding: 0.8rem 1rem;
+  border: 4px solid #ffffff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #000000;
+  background: #ffffff;
+  box-shadow: 0 6px 0 #777777;
+}
+ 
+.tiendaBtn{
+width:50px;  
+height: 20px;
+}
+.btn:hover {
+  color: #ffffff;
+  background: #000000;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 #777777;
+}
+ 
+.btn:active {
+  transform: translateY(6px);
+  box-shadow: none;
+}
+ 
+.btn:focus-visible {
+  outline: 4px solid #ffffff;
+  outline-offset: 3px;
+}
+ 
+.small {
+  padding: 0.6rem 0.9rem;
+  font-size: 0.7rem;
+  margin: 0.25rem;
+}
+ 
+.popupBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  min-width: min(90vw, 22rem);
+  max-width: 90vw;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 2rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #ffffff;
+  background: #000000;
+  border: 4px solid #ffffff;
+  box-shadow: 0 0 0 8px #000000;
+}
+ 
+.popupTitle {
+  margin: 0;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  line-height: 1.4;
+}
+ 
+.popupText {
+  margin: 0;
+}
+ 
+.popupActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+}
+ 
+.input {
+  width: 100%;
+  padding: 0.75rem;
+  font: inherit;
+  font-size: 1rem;
+  text-align: center;
+  color: #ffffff;
+  background: #111111;
+  border: 4px solid #ffffff;
+  outline: none;
+}
+ 
+.input:focus {
+  color: #000000;
+  background: #ffffff;
+}
+ 
+.error {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  color: #000000;
+  background: #ffffff;
+}
+
+
+
+
+ 
+.tmain{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    width: calc(var(--w) - 4rem);
+    max-height: calc(var(--h) - 2rem);
+}
+
+.tmain > h1 {
+    margin: 0;
+    padding: 0.5rem 3rem;
+    border: 4px solid #ffffff;
+    text-transform: uppercase;
+}
+
+.tmain > p {
+    margin: 0;
+    font-size: 0.75rem;
+}
+
+.container{
+    height: 400px;
+    width: 100%;
+    padding: 0 1rem;
+    overflow-y: scroll;
+    border: 4px solid #ffffff;
+    scrollbar-width: thin;
+    scrollbar-color: white black;
+}
+
+.container h2 {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    border-bottom: 4px solid #ffffff;
+    padding-bottom: 0.5rem;
+}
+
+.container table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 0.5rem;
+    font-size: 0.7rem;
+}
+
+.container td {
+    padding: 0.4rem 0.75rem;
+    background: #111111;
+    border-top: 2px solid #ffffff;
+    border-bottom: 2px solid #ffffff;
+}
+
+.container td:first-child {
+    border-left: 2px solid #ffffff;
+}
+
+.container td:last-child {
+    border-right: 2px solid #ffffff;
+}
+
+.container td:has(button) {
+    width: 1%;
+    white-space: nowrap;
+}
+
+.container img {
+    image-rendering: pixelated;
+}
+
+.container > div {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    padding-bottom: 1rem;
+}
+
+.container > div > h2 {
+    width: 100%;
+}
+
+
+.itemcont{
+  justify-content: center;
+}

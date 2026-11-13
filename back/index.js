@@ -28,7 +28,7 @@ const server = app.listen(PORT, () => {
 
 const io = new Server(server, {
   cors: {
-	origin: ["http://localhost:3000", "http://localhost:3001","http://localhost:3002","http://localhost:3003","http://localhost:3004"],
+	origin: ["http://localhost:3000", "http://localhost:3001","http://localhost:3002","http://localhost:3003","http://localhost:3004","http://10.1.5.244:3000","http://10.1.5.148:3000"],
 	methods: ["GET", "POST", "PUT", "DELETE"],
 	credentials: true,
 	//path: "/api/socketio",
@@ -83,6 +83,7 @@ io.on("connection", (socket) => {
 
 
   socket.on("joinRoom", ({roomId,user,socketId}) => {
+	console.log("JOIN ROOM")
 	roomId=parseInt(roomId)
 
 		if (roomData.has(roomId)){
@@ -377,6 +378,26 @@ app.get('/ItemsporUsuario', async function(req, res){
 			message: respuesta
 		});
 		console.log('ItemporUsuario enviado')
+	} catch (error) {
+		console.log('Error:', error.message)
+		res.status(500).send({
+			message: "Error al obtener el itemporusuario"
+		});
+	}
+});
+
+app.get('/Equipados', async function(req, res){
+	try {
+		console.log(req.query)
+		userid=req.query.userid
+		
+		if (userid){
+			respuesta = await MySQL.realizarQuery(`SELECT * FROM ItemsporUsuario WHERE userid = ${userid} AND active = 1;`)
+		}
+		res.status(200).send({
+			message: respuesta
+		});
+		console.log('Activados enviados')
 	} catch (error) {
 		console.log('Error:', error.message)
 		res.status(500).send({

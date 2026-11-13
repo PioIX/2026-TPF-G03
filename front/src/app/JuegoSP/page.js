@@ -5,7 +5,16 @@ import { useRouter } from "next/navigation"
 import {useBlackJackLogic} from "@/hooks/useBlackjack"
 import ArrCartas from "@/components/ArrCartas";
 import Popup from 'reactjs-popup';
-
+import clsx from "clsx";
+import { Press_Start_2P } from "next/font/google";
+import styles from "./page.module.css";
+import React, { useRef } from 'react';
+import Draggable from 'react-draggable';
+const pixel = Press_Start_2P({ weight: "400", subsets: ["latin"] });
+const popupProps = {
+  contentStyle: { background: "none", border: "none", padding: 0, width: "auto" },
+  overlayStyle: { background: "rgba(0,0,0,0.65)" },
+};
 
 export default function JuegoSPPage() {
   const {usersum,dealsum,isuserturn,usercards,dealcards,reset,givedealcard,giveusercard,wl,setWL,setIsUserTurn} = useBlackJackLogic()
@@ -19,9 +28,17 @@ export default function JuegoSPPage() {
   const [disabled,setDisabled]=useState(true)
   const [open,setOpen]=useState(false)
 
+  const [T,setT]=useState("")
+  const [T2,setT2]=useState("")
+
   const [popupText,setPopupText]=useState("")
   const [puntosA,setPuntosA]=useState(0)
+
+  const [pipi,setPipi]=useState(null)
+  const [item,setItem]=useState(null)
+  const [fondo,setFondo]=useState(null)
   let usuarioId=0
+  const nodeRef = useRef(null);
 
   useEffect(()=>{
         usuarioId = localStorage.getItem("userid")
@@ -37,6 +54,15 @@ export default function JuegoSPPage() {
           useFetch.getUsuarioPorId(usuarioId)
           .then((data)=>{
             setUsuario(data[0])
+            if(localStorage.getItem("Fondo")){
+              setFondo(JSON.parse(localStorage.getItem("Fondo")))
+            }
+            if(localStorage.getItem("Pipi")){
+              setPipi(JSON.parse(localStorage.getItem("Pipi")))
+            }
+            if(localStorage.getItem("Misc")){
+              setItem(JSON.parse(localStorage.getItem("Misc")))
+            }
           })
           .then(
             useFetch.getEstadisticaDeUsuario(usuarioId)
@@ -66,11 +92,17 @@ useEffect(()=>{
     if (wl==1){
       setDisabled(true)
       if(usersum==21){
+        setT2("BlackJack! Ganancias triplicadas")
         win(parseInt(puntosA)*3)
       }else{
         win(puntosA)
       }
-      }else if(wl==-1){
+    }else if(wl==-1){
+        console.log("dealer")
+        console.log(dealsum)
+        console.log("user")
+        console.log(usersum)
+        console.log("Wl -1")
         setDisabled(true)
         lose(puntosA)
       }
@@ -102,25 +134,70 @@ useEffect(()=>{
     }
     const timer = setTimeout(() => {
       if(wl==0 && dealsum<=usersum && dealsum<21){
+        console.log("condiciones cumplidas")
         let res=givedealcard()
         console.log(res)
-      } else if(dealsum>usersum){
-       setWL(-1)
+      } else if(dealsum>usersum && dealsum<=21){
+        setWL(-1)
       }
       
     }, 1500);
     return () => clearTimeout(timer);
   }
 
-
+  
+  function rand(min, max) {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+  }
 
   function win(points){
-        console.log(usuario)
+   console.log("win running")
+    if(pipi){
+      if(pipi.name=="Pipi"){
+        //Pipi normal, no hace nada creo
+      }else if(pipi.name=="Evil Pipi"){
+        let c = rand(1,4)
+        if(c==1){
+          points=points*3
+          setT("Pipi vomitó! Puntos triplicados")
+        }else{
+          let r= rand(1,points/2)
+          console.log(r)
+          points-=r
+          setT(`Pipi se comió ${r} punto/s`)
+        }
 
+      }else if(pipi.name=="Pipi loco"){
+       let r= rand(points*-1,points)
+       console.log(r)
+       points+=r
+       if(r>=0){
+         setT(`Pipi sumó ${r} puntos`)
+       }else{
+        setT(`Pipi restó ${r*-1} puntos`)
+       }
+
+      }else if(pipi.name=="Pipi responsable"){
+        points=Math.round(points*1.25)
+        setT("Pipi multiplicó por 1.25")
+
+      }else if(pipi.name=="Pipi clasista"){
+        if(usuario.points>50){
+          points=Math.round(points*1.5)
+          setT("Pipi multiplicó por 1.5")
+        }else{
+          setT("Sos muy pobre, pipi no hizo nada")
+        }
+      }
+      if (points<0){
+        points=0
+      }
+    }
+    console.log(usuario)
     setPopupText("Ganaste")
     console.log(points)
     let newE={
-      userid:usuarioId,
+      userid:usuario.id,
       wins:estadistica.wins+1,
       losses:estadistica.losses,
       played:estadistica.played+1,
@@ -134,20 +211,26 @@ useEffect(()=>{
   }
 
   function lose(points){
+    console.log("lose running")
     setPopupText("Perdiste")
     console.log(usuario)
-    let newE={
-      userid:usuarioId,
-      wins:estadistica.wins,
-      losses:estadistica.losses+1,
-      played:estadistica.played+1,
-      streak:0,
-      points_lost:estadistica.points_lost+parseInt(points),
-      cant_items:estadistica.cant_items
+    if(usuario.points<=0){
+      setT2("La casa tiene pena, no te saca más puntos")
+      points=0
     }
-    useFetch.putEstadistica(newE)
-    useFetch.putPoints(usuario.points-parseInt(points),usuario.id)
-    usuario.points-=parseInt(points)
+      let newE={
+        userid:usuario.id,
+        wins:estadistica.wins,
+        losses:estadistica.losses+1,
+        played:estadistica.played+1,
+        streak:0,
+        points_lost:estadistica.points_lost+parseInt(points),
+        cant_items:estadistica.cant_items
+      }
+      useFetch.putEstadistica(newE)
+      useFetch.putPoints(usuario.points-parseInt(points),usuario.id)
+      usuario.points-=parseInt(points)
+    
 
   }
 
@@ -155,59 +238,81 @@ useEffect(()=>{
 
   return (
     <>
+    <div className={clsx(styles.page, pixel.className)} style={{backgroundImage: fondo ? `url(${fondo.imgsrc})` :null,backgroundColor: !fondo ?  "#2a2a2a":null}}>
     {(loading)?(
       <>
-      <header><button disabled>Volver</button></header>
+      <header className={styles.header}><button className={clsx(styles.btn, styles.small)} disabled>Volver</button></header>
        
-        <section>
+        <section className={styles.mesa}>
           <h2>Cargando cartas...</h2>
         </section>
 
-        <section>
-      <button disabled>Hit</button>
-      <button disabled>Stand</button>
+        <section className={styles.menu}>
+      <button className={styles.btn} disabled>Hit</button>
+      <button className={styles.btn} disabled>Stand</button>
         </section>
      
       </>
     ):(
       <>
-      <header><button onClick={()=>{reset();router.back()}}>Volver</button></header>
-        <section>
+      <header className={styles.header}><button className={clsx(styles.btn, styles.small)} onClick={()=>{reset();router.back()}}>Volver</button></header>
+        <div className={styles.wrapper}>
+          <div className={styles.wrapper2}>
+
+        <section className={styles.mesa}>
           <div>
-            <p>Dealer: {dealsum}</p>
-            <p>Vos: {usersum}</p>
-          </div>
+            <p className={styles.ptext}>Dealer: {dealsum}</p>
           <ArrCartas cards={dealcards}></ArrCartas>
+          </div>
+          <div>
+            <p className={styles.ptext}>Vos: {usersum}</p>
           <ArrCartas cards={usercards}></ArrCartas>
+          </div>
         </section>
-        <section>
+        <section className={styles.menu}>
           {(disabled)?(<>
-          <button disabled>Hit</button>
-          <button disabled>Stand</button>
+          <button className={styles.btn} disabled>Hit</button>
+          <button className={styles.btn} disabled>Stand</button>
           </>):(<>
-          <button onClick={()=>{hit()}}>Hit</button>
-          <button onClick={()=>{stand()}}>Stand</button>
+          <button className={styles.btn} onClick={()=>{hit()}}>Hit</button>
+          <button className={styles.btn} onClick={()=>{stand()}}>Stand</button>
           </>)}
         </section>
-        <Popup open={open} onClose={()=>{setOpen(false)}} closeOnDocumentClick={false} closeOnEscape={false} >
+          </div>
+        {pipi&&
+        <Draggable nodeRef={nodeRef}>
+          <img src={pipi.imgsrc} ref={nodeRef} className={styles.pipi}></img>
+        </Draggable>
+        }
+        </div>
+        <Popup open={open} onClose={()=>{setOpen(false)}} closeOnDocumentClick={false} closeOnEscape={false} {...popupProps}>
           {(usuario)?(
-            <div>
-            <h2>{popupText}</h2>
+            <div className={clsx(styles.popupBox, pixel.className)}>
+            <h2 className={styles.popupTitle}>{popupText}</h2>
+            {T2&&
+            <p className={styles.popupText}>{T2}</p>
+            }
+            {T&&
+            <p className={styles.popupText}>{T}</p>
+            }
             <ul>
               <li>Dealer: {dealsum}</li>
               <li>Vos: {usersum}</li>
               <li>Tu dinero: {usuario.points}</li>
             </ul>
             {(replay)?(<>
-            <p>¿Cuántos puntos quiere apostar?</p>
-              <input onChange={(e)=>{setPuntosA(e.target.value)}} value={puntosA}></input>
-              {valueError&&<p>Valor inválido</p>}
-            <button onClick={()=>{
+            <p className={styles.popupText}>¿Cuántos puntos quiere apostar?</p>
+              <input className={styles.input} onChange={(e)=>{setPuntosA(e.target.value)}} value={puntosA}></input>
+              {valueError&&<p className={styles.error}>Valor inválido</p>}
+            <button className={styles.btn} onClick={()=>{
               if((puntosA>0 && puntosA<=usuario.points) || puntosA==1){
                 setOpen(false);
                 setValueError(false)
                 setReplay(false)
                 setPopupText("")
+                setT("")
+                setT2("")
+
                 sessionStorage.setItem("puntosApostados",puntosA)
                 reset()
                 setLoading(true)
@@ -219,8 +324,8 @@ useEffect(()=>{
 
             </>):(<>
 
-              <button onClick={()=>{reset();router.back()}}>Volver</button>
-              <button onClick={()=>{setReplay(true)}}>Nuevo Juego</button>
+              <button className={styles.btn} onClick={()=>{reset();router.back()}}>Volver</button>
+              <button className={styles.btn} onClick={()=>{setReplay(true)}}>Nuevo Juego</button>
             </>)}
           </div>       
 
@@ -234,6 +339,7 @@ useEffect(()=>{
      
       
     )}
+    </div>
     </>
   );
 }

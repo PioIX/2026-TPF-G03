@@ -1,6 +1,16 @@
 import { useEffect, useState } from "react";
+import Popup from 'reactjs-popup';
+import styles from './StoreList.module.css';
+export default function StoreList({items, estaEnInv,unequip,equip,buy,names,inf}) {
+  const [open,setOpen]=useState(false)
+    const [text,setText]=useState(false)
 
-export default function StoreList({items, estaEnInv,unequip,equip,buy}) {
+    useEffect(()=>{
+      if(text){
+        setOpen(true)
+      }
+
+    },[text])
     let t=10
   return (
     <>
@@ -11,26 +21,58 @@ export default function StoreList({items, estaEnInv,unequip,equip,buy}) {
       <tbody>
         {items.map((item,i)=>(
           <tr key={i}>
-              <td>{item.name}</td>
+            {names?(
+               <td>{item.name}</td>
+            ):(
+              <></>
+            )}
+             
               {/*imgsrc */}
+              {item.name.includes("Fondo")?
+              <td><img src={item.imgsrc} style={{height:"80px"}}></img></td>
+              :
               <td><img src={item.imgsrc} style={{height:"50px"}}></img></td>
+
+              }
               
               {(t=estaEnInv(item.id))==1&&
               <>
-              <td><button onClick={()=>{unequip(item)}}>Desequipar</button></td>
+              <td><button  className={styles.btn} onClick={()=>{unequip(item)}}>Desequipar</button></td>
               </>}   
               {(t==0)&&
               <>
-              <td><button onClick={()=>{equip(item)}}>Equipar</button></td>
+              <td><button  className={styles.btn} onClick={()=>{equip(item)}}>Equipar</button></td>
               </>}
              {(t==-1)&&
               <>
-              <td><button onClick={()=>{buy(item)}}>${item.price}</button></td>
+              <td><button  className={styles.btn} onClick={()=>{buy(item)}}>${item.price}</button></td>
+              </>}
+              {inf&&
+              <>
+              {item.name=="Pipi"&&
+              <td><button  className={styles.inf} onClick={()=>{setText("El pipi original. Compralo para desbloquear a sus hermanos con habilidades extraordinarias.")}}>Info</button></td>}
+            
+              {item.name=="Evil Pipi"&&
+              <td><button  className={styles.inf} onClick={()=>{setText("El hermano malvado de Pipi. Le gusta comer tus puntos, pero tiene una chance de vomitar y triplicar tus ganancias.")}}>Info</button></td>}
+              
+              {item.name=="Pipi loco"&&
+              <td><button  className={styles.inf} onClick={()=>{setText("Un pipi desorientado. Puede restarte o sumarte puntos aleatoriamente.")}}>Info</button></td>}
+              
+              {item.name=="Pipi clasista"&&
+              <td><button  className={styles.inf} onClick={()=>{setText("Un pipi que se rehusa a funcionar cuando tenés pocos puntos, pero cuando no, te multiplica tus ganancias por 1,5.")}}>Info</button></td>}
+              
+              {item.name=="Pipi responsable"&&
+              <td><button  className={styles.inf} onClick={()=>{setText("Un pipi consistente. Siempre multiplica tus ganancias por 1,25")}}>Info</button></td>}
               </>}
           </tr>
+
         ))}
       </tbody>
       </table>
+
+      <Popup open={open} onClose={()=>{setOpen(false);setText("")}} closeOnDocumentClick={true}>
+        <p>{text}</p>
+        </Popup>
     </>
   );
 }

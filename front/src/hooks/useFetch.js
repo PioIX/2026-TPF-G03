@@ -1,18 +1,20 @@
 "use client"
 /*GET*/
+/*http://localhost:4000/"
+ */
+const IP_BACK="http://localhost:4000/"
 
 
 export function getUsuarios(){
-        return fetch(`http://localhost:4000/Usuarios`)
+        return fetch(`${IP_BACK}Usuarios`)
         .then(response => response.json())
         .then(data => {
-            console.log(data); 
             return data.message
     });
 }
 
 export function getUsuarioPorId(id){
-        return fetch(`http://localhost:4000/Usuarios?id=${id}`)
+        return fetch(`${IP_BACK}Usuarios?id=${id}`)
         .then(response => response.json())
         .then(data => {
             console.log(data); 
@@ -21,7 +23,7 @@ export function getUsuarioPorId(id){
 }
 
 export function getUsuarioPorUsername(username){
-        return fetch(`http://localhost:4000/Usuarios?username=${username}`)
+        return fetch(`${IP_BACK}Usuarios?username=${username}`)
         .then(response => response.json())
         .then(data => {
             console.log(data); 
@@ -30,7 +32,7 @@ export function getUsuarioPorUsername(username){
 }
 
 export function getRanking(){
-        return fetch(`http://localhost:4000/Ranking`)
+        return fetch(`${IP_BACK}Ranking`)
         .then(response => response.json())
         .then(data => {
             console.log(data); 
@@ -39,25 +41,23 @@ export function getRanking(){
 }
 
 export function getItems(){
-        return fetch(`http://localhost:4000/Items`)
+        return fetch(`${IP_BACK}Items`)
         .then(response => response.json())
         .then(data => {
-            console.log(data); 
             return data.message
     });
 }
 
 export function getItemPorId(id){
-        return fetch(`http://localhost:4000/Items?id=${id}`)
+        return fetch(`${IP_BACK}Items?id=${id}`)
         .then(response => response.json())
         .then(data => {
-            console.log(data); 
             return data.message
     });
 }
 
 export function getUnItemPorUnUsuario(itemid,userid){
-        return fetch(`http://localhost:4000/ItemsporUsuario?itemid=${itemid}&userid=${userid}`)
+        return fetch(`${IP_BACK}ItemsporUsuario?itemid=${itemid}&userid=${userid}`)
         .then(response => response.json())
         .then(data => {
             console.log(data); 
@@ -66,16 +66,25 @@ export function getUnItemPorUnUsuario(itemid,userid){
 }
 
 export function getInventario(userid){
-        return fetch(`http://localhost:4000/ItemsporUsuario?userid=${userid}`)
+        return fetch(`${IP_BACK}ItemsporUsuario?userid=${userid}`)
         .then(response => response.json())
         .then(data => {
-            console.log(data); 
             return data.message
     });
 }
 
+export function getEquipados(userid){
+        return fetch(`${IP_BACK}Equipados?userid=${userid}`)
+        .then(response => response.json())
+        .then(data => {
+            return data.message
+    });
+}
+
+
+
 export function getItemsPorUsuario(){
-        return fetch(`http://localhost:4000/ItemsporUsuario`)
+        return fetch(`${IP_BACK}ItemsporUsuario`)
         .then(response => response.json())
         .then(data => {
             console.log(data); 
@@ -84,7 +93,7 @@ export function getItemsPorUsuario(){
 }
 
 export function getEstadisticaDeUsuario(userid){
-        return fetch(`http://localhost:4000/Estadistica?userid=${userid}`)
+        return fetch(`${IP_BACK}Estadistica?userid=${userid}`)
         .then(response => response.json())
         .then(data => {
             console.log(data); 
@@ -93,7 +102,7 @@ export function getEstadisticaDeUsuario(userid){
 }
 
 export function getSalas(){
-        return fetch(`http://localhost:4000/Salas`)
+        return fetch(`${IP_BACK}Salas`)
         .then(response => response.json())
         .then(data => {
             console.log(data); 
@@ -102,7 +111,7 @@ export function getSalas(){
 }
 
 export function getSalaDeUsuario(){
-        return fetch(`http://localhost:4000/Salas?userid=${userid}`)
+        return fetch(`${IP_BACK}Salas?userid=${userid}`)
         .then(response => response.json())
         .then(data => {
             console.log(data); 
@@ -111,7 +120,7 @@ export function getSalaDeUsuario(){
 }
 
 export function getSalasPorActividad(activa){
-        return fetch(`http://localhost:4000/Salas?activa=${activa}`)
+        return fetch(`${IP_BACK}Salas?activa=${activa}`)
         .then(response => response.json())
         .then(data => {
             console.log(data); 
@@ -123,7 +132,7 @@ export function getSalasPorActividad(activa){
 
 export function postUsuario(datos){
    try {
-     return fetch('http://localhost:4000/Usuarios', {
+     return fetch(`${IP_BACK}Usuarios`, {
          method: 'POST',
          headers: {
          'Content-Type': 'application/json'
@@ -144,7 +153,7 @@ export function postUsuario(datos){
 
 export function postItem(datos){
    try {
-     return fetch('http://localhost:4000/Items', {
+     return fetch(`${IP_BACK}Items`, {
          method: 'POST',
          headers: {
          'Content-Type': 'application/json'
@@ -164,7 +173,7 @@ export function postItem(datos){
 /*Poner userid, itemid, y active*/
 export function postItemPorUsuario(datos){
    try {
-     return fetch('http://localhost:4000/ItemsporUsuario', {
+     return fetch(`${IP_BACK}ItemsporUsuario`, {
          method: 'POST',
          headers: {
          'Content-Type': 'application/json'
@@ -184,7 +193,7 @@ export function postItemPorUsuario(datos){
 
 export function postEstadistica(userid){
    try {
-     return fetch('http://localhost:4000/Estadistica', {
+     return fetch(`${IP_BACK}Estadistica`, {
          method: 'POST',
          headers: {
          'Content-Type': 'application/json'
@@ -204,7 +213,7 @@ export function postEstadistica(userid){
 /*Poner userid, apuesta, y activa*/
 export function postSala(datos){
    try {
-     return fetch('http://localhost:4000/Salas', {
+     return fetch(`${IP_BACK}Salas`, {
          method: 'POST',
          headers: {
          'Content-Type': 'application/json'
@@ -227,7 +236,7 @@ export function postSala(datos){
 
 export function deleteUsuario(id){
    try {
-     return fetch('http://localhost:4000/Usuarios', {
+     return fetch(`${IP_BACK}Usuarios`, {
          method: 'DELETE',
          headers: {
          'Content-Type': 'application/json'
@@ -245,7 +254,7 @@ export function deleteUsuario(id){
 
 export function deleteItem(id){
    try {
-     return fetch('http://localhost:4000/Items', {
+     return fetch(`${IP_BACK}Items`, {
          method: 'DELETE',
          headers: {
          'Content-Type': 'application/json'
@@ -263,7 +272,7 @@ export function deleteItem(id){
 
 export function deleteItemPorUsuario(userid,itemid){
    try {
-     return fetch('http://localhost:4000/ItemsporUsuario', {
+     return fetch(`${IP_BACK}ItemsporUsuario`, {
          method: 'DELETE',
          headers: {
          'Content-Type': 'application/json'
@@ -281,7 +290,7 @@ export function deleteItemPorUsuario(userid,itemid){
 
 export function vaciarInventario(userid){
    try {
-     return fetch('http://localhost:4000/ItemsporUsuario', {
+     return fetch(`${IP_BACK}ItemsporUsuario`, {
          method: 'DELETE',
          headers: {
          'Content-Type': 'application/json'
@@ -299,7 +308,7 @@ export function vaciarInventario(userid){
 
 export function deleteItemDeTodoInventario(itemid){
    try {
-     return fetch('http://localhost:4000/ItemsporUsuario', {
+     return fetch(`${IP_BACK}ItemsporUsuario`, {
          method: 'DELETE',
          headers: {
          'Content-Type': 'application/json'
@@ -317,7 +326,7 @@ export function deleteItemDeTodoInventario(itemid){
 
 export function deleteEstadistica(userid){
    try {
-     return fetch('http://localhost:4000/Estadistica', {
+     return fetch(`${IP_BACK}Estadistica`, {
          method: 'DELETE',
          headers: {
          'Content-Type': 'application/json'
@@ -335,7 +344,7 @@ export function deleteEstadistica(userid){
 
 export function deleteSala(userid){
    try {
-     return fetch('http://localhost:4000/Salas', {
+     return fetch(`${IP_BACK}Salas`, {
          method: 'DELETE',
          headers: {
          'Content-Type': 'application/json'
@@ -356,7 +365,7 @@ export function deleteSala(userid){
 
 export function putUsername(newuser,id){
    try {
-     return fetch('http://localhost:4000/Usuarios', {
+     return fetch(`${IP_BACK}Usuarios`, {
          method: 'PUT',
          headers: {
          'Content-Type': 'application/json'
@@ -374,7 +383,7 @@ export function putUsername(newuser,id){
 
 export function putPassword(newpass,id){
    try {
-     return fetch('http://localhost:4000/Usuarios', {
+     return fetch(`${IP_BACK}Usuarios`, {
          method: 'PUT',
          headers: {
          'Content-Type': 'application/json'
@@ -397,7 +406,7 @@ export function putPoints(newpoints,id){
   console.log(id)
 
    try {
-     return fetch('http://localhost:4000/Usuarios', {
+     return fetch(`${IP_BACK}Usuarios`, {
          method: 'PUT',
          headers: {
          'Content-Type': 'application/json'
@@ -415,7 +424,7 @@ export function putPoints(newpoints,id){
 
 export function putAdmin(isadmin,id){
    try {
-     return fetch('http://localhost:4000/Usuarios', {
+     return fetch(`${IP_BACK}Usuarios`, {
          method: 'PUT',
          headers: {
          'Content-Type': 'application/json'
@@ -433,7 +442,7 @@ export function putAdmin(isadmin,id){
 
 export function putItemName(newname,id){
    try {
-     return fetch('http://localhost:4000/Items', {
+     return fetch(`${IP_BACK}Items`, {
          method: 'PUT',
          headers: {
          'Content-Type': 'application/json'
@@ -451,7 +460,7 @@ export function putItemName(newname,id){
 
 export function putItemSRC(imgsrc,id){
    try {
-     return fetch('http://localhost:4000/Items', {
+     return fetch(`${IP_BACK}Items`, {
          method: 'PUT',
          headers: {
          'Content-Type': 'application/json'
@@ -469,7 +478,7 @@ export function putItemSRC(imgsrc,id){
 
 export function putPrice(newprice,id){
    try {
-     return fetch('http://localhost:4000/Items', {
+     return fetch(`${IP_BACK}Items`, {
          method: 'PUT',
          headers: {
          'Content-Type': 'application/json'
@@ -487,7 +496,7 @@ export function putPrice(newprice,id){
 
 export function activateItem(itemid,userid){
    try {
-     return fetch('http://localhost:4000/onactive', {
+     return fetch(`${IP_BACK}onactive`, {
          method: 'PUT',
          headers: {
          'Content-Type': 'application/json'
@@ -505,7 +514,7 @@ export function activateItem(itemid,userid){
 
 export function deactivateItem(itemid,userid){
    try {
-     return fetch('http://localhost:4000/offactive', {
+     return fetch(`${IP_BACK}offactive`, {
          method: 'PUT',
          headers: {
          'Content-Type': 'application/json'
@@ -526,7 +535,7 @@ export function putEstadistica(estadistica){
   console.log("Estadistica recibida por fetch")
   console.log(estadistica)
    try {
-     return fetch('http://localhost:4000/Estadistica', {
+     return fetch(`${IP_BACK}Estadistica`, {
          method: 'PUT',
          headers: {
          'Content-Type': 'application/json'
@@ -544,7 +553,7 @@ export function putEstadistica(estadistica){
 
 export function putApuestaDeSala(apuesta,userid){
    try {
-     return fetch('http://localhost:4000/Salas', {
+     return fetch(`${IP_BACK}Salas`, {
          method: 'PUT',
          headers: {
          'Content-Type': 'application/json'
@@ -562,7 +571,7 @@ export function putApuestaDeSala(apuesta,userid){
 
 export function putRondasDeSala(cant_rondas,userid){
    try {
-     return fetch('http://localhost:4000/Salas', {
+     return fetch(`${IP_BACK}Salas`, {
          method: 'PUT',
          headers: {
          'Content-Type': 'application/json'
@@ -580,7 +589,7 @@ export function putRondasDeSala(cant_rondas,userid){
 
 export function activarSala(userid){
    try {
-     return fetch('http://localhost:4000/activarSala', {
+     return fetch(`${IP_BACK}activarSala`, {
          method: 'PUT',
          headers: {
          'Content-Type': 'application/json'
@@ -598,7 +607,7 @@ export function activarSala(userid){
 
 export function desactivarSala(userid){
    try {
-     return fetch('http://localhost:4000/desactivarSala', {
+     return fetch(`${IP_BACK}desactivarSala`, {
          method: 'PUT',
          headers: {
          'Content-Type': 'application/json'

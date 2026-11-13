@@ -18,6 +18,7 @@
     "next": "16.2.12",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "react-draggable": "^4.7.2",
     "reactjs-popup": "^2.0.6",
     "socket.io-client": "^4.8.4"
   },

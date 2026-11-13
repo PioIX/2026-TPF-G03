@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import * as useFetch from "@/hooks/useFetch.js"
 import { useRouter, useSearchParams } from "next/navigation"
 import {useMultiBlackJack} from "@/hooks/useMultiBlackJack"
@@ -7,9 +7,17 @@ import ArrCartas from "@/components/ArrCartas";
 import Popup from 'reactjs-popup';
 import useSocket from "@/hooks/useSocket";
 import { connect } from "socket.io-client";
+const popupProps = {
+  contentStyle: { background: "none", border: "none", padding: 0, width: "auto" },
+  overlayStyle: { background: "rgba(0,0,0,0.65)" },
+};
+import clsx from "clsx";
+import { Press_Start_2P } from "next/font/google";
+import styles from "./page.module.css";
+const pixel = Press_Start_2P({ weight: "400", subsets: ["latin"] });
 
 
-export default function JuegoMJPage() {
+function JuegoMJPage() {
   const {sum,ucards,reset,giveusercard,held,setHeld} = useMultiBlackJack()
   const router=useRouter()
   const { socket, isConnected } = useSocket();
@@ -30,6 +38,10 @@ export default function JuegoMJPage() {
   const [heldText,setHeldText]=useState("Esperando a los otros jugadores..")
   const [errM,setErrM]=useState("")
 
+  const [pipi,setPipi]=useState(null)
+  const [item,setItem]=useState(null)
+  const [fondo,setFondo]=useState(null)
+
 
 
   const [popupText,setPopupText]=useState("")
@@ -45,6 +57,15 @@ export default function JuegoMJPage() {
           useFetch.getUsuarioPorId(usuarioId)
           .then((data)=>{
             setUsuario(data[0])
+            if(localStorage.getItem("Fondo")){
+              setFondo(JSON.parse(localStorage.getItem("Fondo")))
+            }
+            if(localStorage.getItem("Pipi")){
+              setPipi(JSON.parse(localStorage.getItem("Pipi")))
+            }
+            if(localStorage.getItem("Misc")){
+              setItem(JSON.parse(localStorage.getItem("Misc")))
+            }
           })
           .then(
             useFetch.getEstadisticaDeUsuario(usuarioId)
@@ -158,7 +179,7 @@ export default function JuegoMJPage() {
       socket.on("ended",({room,userArr,winner})=>{
         setEnded(true)
         setUserArr(userArr)
-        setHeldText("")
+        setHeld(false)
         if(winner.length/2==userArr.length){
           setPopupText("Empate")
         }else{
@@ -306,84 +327,104 @@ function restartGame(){
 
   return (
     <>
+    <div className={clsx(styles.page, pixel.className)} style={{backgroundImage: fondo ? `url(${fondo.imgsrc})` :null,backgroundColor: !fondo ?  "#2a2a2a":null}}>
     {(loading || !socket)?(
       <>
-      <header><button disabled>Volver</button></header>
-       
-        <section>
-          <h2>Cargando...</h2>
-        </section>
-      {/*Mostrar un mejor framework*/}
-        <section>
-      
-        </section>
+          <h1 className={styles.loading}>Cargando...</h1>
      
       </>
     ):(
-
-    (started)?(
+      <div className={styles.juego}>
+    {(started)?(
       <>
-        <section>
+        <section className={styles.mesa}>
           {members.length>0&&
           <>
           {/*posiblemente marcar los usuarios desconectados en gris o algo*/}
-          <div style={{display:"flex"}}>
+          <div style={{display:"flex"}} className={styles.otherplayers}>
           {members.map((m,i)=> m.username==usuario.username?<p key={i}></p>:
-            <div key={i}>
+            <div key={i} className={styles.player}>
             <p>{m.username}:</p>
-
             {/*lo que sea que diga cuando otro usuario ya hizo hold*/}
-            {m.hold&&<p>Listo</p>}
-
-            <img src="cartas/AV.png"></img>
+            {!m.connected?
+            <img src="cartas/shadowcard.png"></img>
+            :
+            <>
+            {m.hold?
+            <img src="cartas/greencard.png"></img>
+            :
+              <img src="cartas/redcard.png"></img>
+            }
+            </>
+            }
           {/*placeholder para carta dada vuelta*/}
             </div>
             
           )}
               </div>
           </>}
-          <div>
+          <div className={styles.user}>
             <p>Vos: {sum}</p>
-          </div>
           <ArrCartas cards={ucards}></ArrCartas>
-         
+          </div>
         </section>
-        <section>
-          {(held )?(<>
-          <h2>{heldText}</h2>
-          <button disabled>Hit</button>
-          <button disabled>Stand</button>
-          </>):(<>
-          <button onClick={()=>{hit()}}>Hit</button>
-          <button onClick={()=>{stand()}}>Stand</button>
+          {(held)?(<>
+          <h2 style={{textAlign:"center"}}>{heldText}</h2>
+          <section className={styles.btnsec}>
+            <button disabled className={styles.btn}>Hit</button>
+            <button disabled className={styles.btn}>Stand</button>
+          </section>
+          </>):
+          (<>
+            <section className={styles.btnsec}>
+              <button onClick={()=>{hit()}} className={styles.btn}>Hit</button>
+              <button onClick={()=>{stand()}} className={styles.btn}>Stand</button>
+          </section>
           </>)}
-        </section>
-        <Popup open={open} onClose={()=>{setOpen(false)}} closeOnDocumentClick={false} closeOnEscape={false}>
+        <Popup open={open} onClose={()=>{setOpen(false)}} closeOnDocumentClick={false} closeOnEscape={false} {...popupProps}>
           {usuario&&
-            <div>
-            <h2>{popupText}</h2>
-            <ul>
-              
-              {UserArr.length>0&&
-              <>
-              {UserArr.map((u,i)=>
-              <li key={i}>{u[0]}: {u[1].sum}</li>
-              )}
-              </>}
-              <li>Tu dinero: {usuario.points}</li>
-            </ul>
-          </div>       
-          }
+            <div className={clsx(styles.popupBox, pixel.className)}>
+              <div>
+                <h2 className={styles.popupTitle}>{popupText}</h2>
+                <ul>
+                  {UserArr.length>0&&
+                  <>
+                  {UserArr.map((u,i)=>
+                  <li key={i}>{u[0]}: {u[1].sum}</li>
+                  )}
+                  </>}
+                  <li>Tu dinero: {usuario.points}</li>
+                </ul>
+              </div>       
           
            {(searchParams.get("room")==usuario.id)?(
             <>
-            <p>{errM}</p>
-            <button onClick={()=>{if(pointCheck(puntosA)){socket.emit("restart",{roomId:searchParams.get("room"),user:usuario.username,socketId:socket.id,apuesta:puntosA})}}}>Volver a jugar</button>
+            {errM&&
+            <p className={styles.popupText}>{errM}</p>
+            }
+            <div className={styles.popupActions}>
+
+            <button className={styles.btn} onClick={()=>{if(pointCheck(puntosA)){socket.emit("restart",{roomId:searchParams.get("room"),user:usuario.username,socketId:socket.id,apuesta:puntosA})}}}>Volver a jugar</button>
+            <button className={styles.btn} onClick={()=>{router.replace("/Home")}}>Home</button>
+
+            </div>
+
            </>
            ):(
-            <p>Esperando al administrador....</p>
-           )}
-           <button onClick={()=>{router.replace("/Home")}}>Home</button>
+            <>
+             <p className={styles.popupText}>Esperando al administrador....</p>
+             <div className={styles.popupActions}>
+            <button className={styles.btn} onClick={()=>{router.replace("/Home")}}>Home</button>
+             </div>
+            </>
+
+           )
+           
+          }
+          </div>
+          }
+
+
         </Popup>
         </>
       
@@ -392,30 +433,49 @@ function restartGame(){
       <>
       {members.length>0&&
       <>
-      <h2>Miembros en la sala:</h2>
-      {members.map((m,i)=><p key={i}>{m.username}</p>)}
+      <h2 >Miembros en la sala:</h2>
+      {members.map((m,i)=><p key={i} className={styles.roomMember}>{m.username}</p>)}
       </>}
       {(searchParams.get("room")==usuario.id)?(
-        <>
+        <div className={styles.adminAction}>
         {(startDisabled)?(<>
-        <button disabled>Comenzar partida</button>
+        <button disabled className={styles.btn}>Comenzar partida</button>
         </>):(<>
-        <button onClick={()=>{startGame()}}>Comenzar partida</button>
+        <button onClick={()=>{startGame()}} className={styles.btn}>Comenzar partida</button>
         </>)}
-        
-        </>
+        <button onClick={()=>{console.log("volver");router.replace("/Home")}} className={styles.btn}>Volver</button>
+        </div>
       ):(
-        <>
-      <h1>Esperando a que el administrador comienze la partida...</h1>
-      </>
+      <div className={styles.wait}>
+      <h2>Esperando al administrador.....</h2>
+      <button onClick={()=>{console.log("volver");router.replace("/Home")}} className={styles.btn} >Volver</button>
+      </div>
       )}
-      <button onClick={()=>{router.replace("/Home")}}>Volver</button>
       </>
-    )
+    )}
+    </div>
       
     ) 
     }
-        
+        </div>
+    </>
+  );
+}
+
+
+export default function JuegoMJ2Page(){
+  const [fondo,setFondo]=useState(null)
+  useEffect(()=>{
+    if(localStorage.getItem("Fondo")){
+        setFondo(JSON.parse(localStorage.getItem("Fondo")))
+      }
+    },[])
+    
+  return (
+    <>
+   {/* <Suspense fallback={<div className={clsx(styles.page, pixel.className)} style={{backgroundImage: fondo ? `url(${fondo.imgsrc})` :null,backgroundColor: !fondo ?  "#2a2a2a":null}}><h1 className={styles.loading}>Cargando...</h1></div>}>*/}
+        <JuegoMJPage></JuegoMJPage>
+   {/* </Suspense>*/}
     </>
   );
 }
