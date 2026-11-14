@@ -273,11 +273,10 @@ export default function TiendaPage() {
             }
           useFetch.postItemPorUsuario(newitem)
           .then(()=>{
-            let t=usuario
-            t.points-=price
-            useFetch.putEstadistica({cant_items: e.cant_items+1, userid: usuario.id}),
-            useFetch.putPoints(t.points,usuario.id)
+            let t={...usuario, points: usuario.points-item.price}
+            useFetch.putEstadistica({cant_items: e.cant_items+1, userid: usuario.id})
             setUsuario(t)
+            useFetch.putPoints(t.points,usuario.id)
             .then(
               ()=>{setILoading(true)})
             
