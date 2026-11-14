@@ -36,7 +36,7 @@ NO NECESARIOS:
 
 /*
 NOTAS DEL GAMEPLAY
-  - es lentooo cuando empezás pero con los pipis que compras arranca (cuando juntaś 30+)
+  - es lentooo cuando empezás pero a partir de los 30 puntos SE dispara
   si lo queremos hacer roguelike está bien porque después te cebás y perdés todo
   capaz clickeando 10 veces en el pipi normal te puede dar 1 o dos puntos para hacer más rápido el principio
 evil pipi:
@@ -49,7 +49,7 @@ pipi responsable:
   para cuando lo podés comprar ya no vale la pena porque tenés al evil pipi. tiene que ser el más barato de todos
   hay que darlo algo extra, como que cuando hacés blackjack te sume 10 puntos o algo
 pipi clasista:
-  este + blackjack es tremendo
+  este + blackjack es tremendo.
 
 Bug de las cartas:
   el 50% de las veces, la J vale 11 independientemente de si es de diamantes o de picas
