@@ -7,7 +7,7 @@ export default function ArrCartas({ cards }) {
     <>
     <div className={styles.cards}>
     {cards.map((c,i)=>( 
-        <Carta card={c[0]} key={i} palo={c[1]}></Carta>
+        <Carta card={c[0]} key={`${i}-${c[0]}-${c[1]}`} palo={c[1]}></Carta>
     ))}
     </div>
     </>
