@@ -386,7 +386,7 @@ export default function TiendaPage() {
      <button className={styles.btn} onClick={()=>{if(usuario.points<chestPrice){setOpen(true)}else{setCOpen(true);}}}>Comprar cofre de items (${chestPrice})</button>
      </div>
     </div>
-      <button className={styles.btn} onClick={()=>{router.back()}}>Volver</button>
+      <button className={styles.btn} onClick={()=>{router.push("./Home")}}>Volver</button>
 
 
        <Popup open={open} onClose={()=>{setOpen(false)}} closeOnDocumentClick={true} {...popupProps}>

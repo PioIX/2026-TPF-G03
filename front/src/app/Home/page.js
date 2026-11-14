@@ -21,7 +21,7 @@ const popupProps = {
 /*MASTERLIST DE COSAS QUE FALTAN:
 
 
--CSS
+
 -MULTIJUGADOR CON SALA:
   -Modo loco: los jugadores pueden elegir restarle o sumarle a otro (limitado)
 
@@ -36,10 +36,9 @@ NO NECESARIOS:
 
 
 /*Hacer ahora:
--ver como mostrar datos de partida/cartas de oponentes/desconectados y hold
--opcion de volver en nuevo juego (?)
+-ver disabled al entrar a cosas
 -posiblemente que el pipi clasista funcione si apostaste más de la mitad/ todos tus puntos
--pipi visual
+
 */
 
 export default function HomePage() {
@@ -334,7 +333,7 @@ export default function HomePage() {
       </section>
         {/*POPUPS*/}
         {/*Apuesta para comenzar juego*/}
-        <Popup open={Popen} onClose={()=>{setPopen(false)}} closeOnDocumentClick={false} {...popupProps}>
+        <Popup open={Popen} onClose={()=>{setPopen(false)}} closeOnDocumentClick={false} closeOnEscape={false} {...popupProps}>
         {usuario&&
           <div className={clsx(styles.popupBox, pixel.className)}>
             <h2 className={styles.popupTitle}>¿Cuántos puntos quiere apostar?</h2>
@@ -348,7 +347,7 @@ export default function HomePage() {
           }
             {valueError&&<p className={styles.error}>Valor inválido</p>}
             {disabled?
-             <button className={styles.btn}>Comenzar</button>
+             <button className={styles.btn} disabled>Comenzar</button>
           :
             <button className={styles.btn} onClick={()=>{
               if((puntosA>0 && puntosA<=usuario.points) || puntosA==1){
@@ -416,15 +415,20 @@ export default function HomePage() {
              <>
              <div className={clsx(styles.popupBox, pixel.className)}>
              <h2>Ingrese puntos a apostar:</h2>
-              <input type="number" value={apuesta} onChange={(e)=>{setApuesta(e.target.value)}} className={styles.input}></input>
+             {disabled?
+            <input type="number" value={apuesta} disabled className={styles.input}></input>
+            : 
+            <input type="number" value={apuesta} onChange={(e)=>{setApuesta(e.target.value)}} className={styles.input}></input>
+            
+            }
               {errM&&
               <p>{errM}</p>
               }
               <div className={styles.popupActions}>
               {disabled?
             <>
-            <button className={styles.btn} onClick={()=>{if(pointCheck(apuesta)){setDisabled(true);socket.emit("createRoom",{user:usuario.username,socketId:socket.id,roomId:usuario.id,apuesta:apuesta});}}}>Crear</button>
-              <button className={styles.btn} onClick={()=>{setAopen(false)}}>Volver</button>
+            <button className={styles.btn} disabled>Crear</button>
+              <button className={styles.btn} disabled>Volver</button>
             </>
             :
             <>

@@ -191,7 +191,18 @@ io.on("connection", (socket) => {
 	io.emit("roomChange")
   });
 
+ /* socket.on("checkConnected", ({roomId}) => {
+	let us=Array.from(roomData.get(roomId).users.keys())
+	let usdata =[]
+	let t
+	us.map((u,i)=>{
+		t={username:u,held:roomData.get(roomId).users.get(u).held,connected:roomData.get(roomId).users.get(u).connected}
+		usdata.push(t)
 
+	})
+	io.to(roomId).emit("checkedConnected")
+  });
+*/
   //puede que haya quedado obsoleto
  /* socket.on("roomExists", ({roomId,userId}) => {
 	io.emit("verify",{exists:roomData.has(roomId),roomId:roomId,userId:userId}) 
@@ -226,26 +237,16 @@ io.on("connection", (socket) => {
 			}
 			io.emit("roomChange")
 			console.log("emitting")
-			io.to(roomId).emit("disconnected", {message: "Usuario desconectado",user:user,room:roomData.get(roomId),userNames:Array.from(roomData.get(roomId).users.keys())});
+			if(roomData.get(roomId)){
+				io.to(roomId).emit("disconnected", {message: "Usuario desconectado",user:user,room:roomData.get(roomId),userNames:Array.from(roomData.get(roomId).users.keys())});
+				checkWinner(roomId)
+			}
 
 		}
 	  }
 	});
-
-	
-	/*Juego*/
-	  socket.on("updateHold", ({cards,sum,username,roomId}) => {
-		roomId=parseInt(roomId)
-		roomData.get(roomId).users.set(username,{
-			sum:sum,
-			cards:cards,
-			held:true,
-			connected:true
-	
-			//datos de cada usuario cuando hace hold
-		});
-		io.emit("held", {message: "Cartas y suma del usuario actualizadas",user:username});
-		let us=Array.from(roomData.get(roomId).users.values())
+function checkWinner(roomId){
+	let us=Array.from(roomData.get(roomId).users.values())
 		let na=us.filter(u=>u.held||!u.connected)
 		
 		if(na.length==us.length){
@@ -269,6 +270,21 @@ io.on("connection", (socket) => {
 		  
 		});
 		}
+}
+	
+	/*Juego*/
+	  socket.on("updateHold", ({cards,sum,username,roomId}) => {
+		roomId=parseInt(roomId)
+		roomData.get(roomId).users.set(username,{
+			sum:sum,
+			cards:cards,
+			held:true,
+			connected:true
+	
+			//datos de cada usuario cuando hace hold
+		});
+		io.to(roomId).emit("held", {message: "Cartas y suma del usuario actualizadas",user:username});
+		checkWinner(roomId)
 	  });
 	
 	
