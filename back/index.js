@@ -731,6 +731,7 @@ try {
 
 app.put('/Estadistica', async function(req, res){
 try {
+		
 		let userid=req.body.userid
 		let wins=req.body.wins
 		let losses=req.body.losses
@@ -739,6 +740,7 @@ try {
 		let points_lost=req.body.points_lost
 		let cant_items=req.body.cant_items
 		console.log(userid)
+		console.log(streak)
 		if(wins){
 			await MySQL.realizarQuery(`UPDATE Estadistica SET 
 			wins = ${req.body.wins} WHERE userid = ${req.body.userid};`)
@@ -751,7 +753,7 @@ try {
 			await MySQL.realizarQuery(`UPDATE Estadistica SET 
 			played = ${req.body.played} WHERE userid = ${req.body.userid};`)
 		}
-		if(streak){
+		if(streak!=undefined){
 			await MySQL.realizarQuery(`UPDATE Estadistica SET 
 			streak = ${req.body.streak} WHERE userid = ${req.body.userid};`)
 		}

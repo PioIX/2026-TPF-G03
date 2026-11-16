@@ -39,18 +39,15 @@ NOTAS DEL GAMEPLAY
   - es lentooo cuando empezás pero a partir de los 30 puntos SE dispara
   si lo queremos hacer roguelike está bien porque después te cebás y perdés todo
   capaz clickeando 10 veces en el pipi normal te puede dar 1 o dos puntos para hacer más rápido el principio
-evil pipi:
-  podría tener menos prob de triplicar (como 1/4 o 1/3 menos) pero anda bien
-pipi loco:
-  no resta puntos
-  hay un mega bug que te multiplica x10 cuando ganas sin blackjack y estás jugando de nuevo.
-    con ese bug me compré la casa
-pipi responsable:
-  para cuando lo podés comprar ya no vale la pena porque tenés al evil pipi. tiene que ser el más barato de todos
-  hay que darlo algo extra, como que cuando hacés blackjack te sume 10 puntos o algo
-pipi clasista:
-  este + blackjack es tremendo.
 
+
+
+pipi responsable:
+  hay que darlo algo extra, como que cuando hacés blackjack te sume 10 puntos o algo
+
+
+
+POSIBLEMENTE ARREGLADO:
 Bug de las cartas:
   el 50% de las veces, la J vale 11 independientemente de si es de diamantes o de picas
 
@@ -58,7 +55,6 @@ Bug de las cartas:
 
 /*Hacer ahora:
 -ver disabled al entrar a cosas
--posiblemente que el pipi clasista funcione si apostaste más de la mitad/ todos tus puntos
 
 */
 
@@ -478,7 +474,7 @@ export default function HomePage() {
                 <p className={styles.stat}>Racha actual: {estadistica.streak}</p>
                 <p className={styles.stat}>Puntos perdidos: {estadistica.points_lost}</p>
                 <p className={styles.stat}>Puntos actuales: {usuario.points}</p>
-                <p className={styles.stat}>Cantidad de items: {estadistica.cant_items}</p>
+                <p className={styles.stat}>Cofres abiertos: {estadistica.cant_items}</p>
                 </div>
               <button className={styles.btn} onClick={()=>{setEopen(false)}}>Cerrar</button>
               </>   

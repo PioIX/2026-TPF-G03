@@ -147,16 +147,20 @@ useEffect(()=>{
 
   
   function rand(min, max) {
-    return Math.floor(Math.random() * (max - min + 1) + min);
+    console.log(min)
+    console.log(max)
+    return parseInt(Math.floor(Math.random() * (max - min + 1) + min));
   }
 
   function win(points){
+    console.log(points)
+    points=parseInt(points)
    console.log("win running")
     if(pipi){
       if(pipi.name=="Pipi"){
         //Pipi normal, no hace nada creo
       }else if(pipi.name=="Evil Pipi"){
-        let c = rand(1,4)
+        let c = rand(1,5)
         if(c==1){
           points=points*3
           setT("Pipi vomitó! Puntos triplicados")
@@ -168,43 +172,56 @@ useEffect(()=>{
         }
 
       }else if(pipi.name=="Pipi loco"){
-       let r= rand(points*-1,points)
-       console.log(r)
-       points+=r
+        console.log("OLD WIN POINTS")
+        console.log(points)
+       let r= rand((points*-1),points)
+       console.log("RANDOM PIPI LOCO ")
+       console.log(parseInt(r))
+       points=points+parseInt(r)
+       console.log("new win points")
+       console.log(points)
        if(r>=0){
          setT(`Pipi sumó ${r} puntos`)
        }else{
-        setT(`Pipi restó ${r*-1} puntos`)
+        setT(`Pipi restó ${(r*-1)} puntos`)
        }
-
+      console.log(points)
       }else if(pipi.name=="Pipi responsable"){
         points=Math.round(points*1.25)
         setT("Pipi multiplicó por 1.25")
 
       }else if(pipi.name=="Pipi clasista"){
-        if(usuario.points>50){
+        console.log(puntosA)
+        if(puntosA>(usuario.points/2)){
           points=Math.round(points*1.5)
           setT("Pipi multiplicó por 1.5")
         }else{
-          setT("Sos muy pobre, pipi no hizo nada")
+          setT("Apostaste muy poco, pipi no hace nada")
         }
       }
       if (points<0){
+        console.log("points 0")
         points=0
+        console.log(points)
       }
     }
     console.log(usuario)
     setPopupText("Ganaste")
     console.log(points)
+    console.log(parseInt(points))
     let newE={
       userid:usuario.id,
-      wins:estadistica.wins+1,
+      wins:parseInt(estadistica.wins)+1,
       losses:estadistica.losses,
-      played:estadistica.played+1,
-      streak:estadistica.streak+1,
+      played:parseInt(estadistica.played)+1,
+      streak:parseInt(estadistica.streak)+1,
       points_lost:estadistica.points_lost,
       cant_items:estadistica.cant_items
     }
+    console.log(" old streak")
+    console.log(estadistica.streak)
+    console.log("new streak")
+    console.log(newE.streak)
     useFetch.putEstadistica(newE)
     useFetch.putPoints(usuario.points+parseInt(points),usuario.id)
     usuario.points+=parseInt(points)
@@ -218,19 +235,25 @@ useEffect(()=>{
       setT2("La casa tiene pena, no te saca más puntos")
       points=0
     }
-      let newE={
+    let newE={
         userid:usuario.id,
         wins:estadistica.wins,
-        losses:estadistica.losses+1,
-        played:estadistica.played+1,
+        losses:parseInt(estadistica.losses)+1,
+        played:parseInt(estadistica.played)+1,
         streak:0,
         points_lost:estadistica.points_lost+parseInt(points),
         cant_items:estadistica.cant_items
       }
+       console.log(" old streak")
+      console.log(estadistica.streak)
+      console.log("new streak")
+      console.log(newE)
       useFetch.putEstadistica(newE)
       useFetch.putPoints(usuario.points-parseInt(points),usuario.id)
       usuario.points-=parseInt(points)
-    
+      if(puntosA>usuario.points){
+        setPuntosA(1)
+      }
 
   }
 

@@ -67,7 +67,7 @@ export default function StoreList({items, estaEnInv,unequip,equip,buy,names,inf}
               <td><button  className={styles.inf} onClick={()=>{setTitle(item.name);setText("Un pipi desorientado. Puede restarte o sumarte puntos aleatoriamente.")}}>Info</button></td>}
               
               {item.name=="Pipi clasista"&&
-              <td><button  className={styles.inf} onClick={()=>{setTitle(item.name);setText("Un pipi que se rehusa a funcionar cuando tenés pocos puntos, pero cuando no, te multiplica tus ganancias por 1,5.")}}>Info</button></td>}
+              <td><button  className={styles.inf} onClick={()=>{setTitle(item.name);setText("Un pipi que se rehusa a funcionar cuando apostás pocos puntos, pero cuando no, te multiplica tus ganancias por 1,5.")}}>Info</button></td>}
               
               {item.name=="Pipi responsable"&&
               <td><button  className={styles.inf} onClick={()=>{setTitle(item.name);setText("Un pipi consistente. Siempre multiplica tus ganancias por 1,25")}}>Info</button></td>}

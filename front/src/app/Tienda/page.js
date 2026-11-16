@@ -274,7 +274,6 @@ export default function TiendaPage() {
           useFetch.postItemPorUsuario(newitem)
           .then(()=>{
             let t={...usuario, points: usuario.points-item.price}
-            useFetch.putEstadistica({cant_items: e.cant_items+1, userid: usuario.id})
             setUsuario(t)
             useFetch.putPoints(t.points,usuario.id)
             .then(
@@ -294,16 +293,16 @@ export default function TiendaPage() {
 
     console.log("random")
     console.log(rand)
-    if(rand<=15){
+    if(rand<=10){
       console.log("Legendario")
-      if(r2<=50){
+      if(r2<=60){
         im=28 //Rata
       }else{
         im=29 //Flor
       }
       setRarity("Legendario")
-      //item raro, 15 en 100 chance
-    }else if (rand<=50){
+      //item raro, 10 en 100 chance
+    }else if (rand<=40){
       console.log("Raro")
        setRarity("Raro")
         if(r2<=33){
@@ -314,7 +313,7 @@ export default function TiendaPage() {
         im=26 //CD
 
         }
-      //35 en 100
+      //30 en 100
     }else{
       console.log("común")
       setRarity("Comùn")
@@ -326,7 +325,7 @@ export default function TiendaPage() {
         im=27 //Huevo sospechoso
 
       }
-      //50 en 100
+      //60 en 100
     }
    useFetch.getItemPorId(im)
     .then((data)=>{
