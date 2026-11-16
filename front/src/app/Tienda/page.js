@@ -273,11 +273,9 @@ export default function TiendaPage() {
             }
           useFetch.postItemPorUsuario(newitem)
           .then(()=>{
-            let t=usuario
-            t.points-=price
-            useFetch.putEstadistica({cant_items: e.cant_items+1, userid: usuario.id}),
-            useFetch.putPoints(t.points,usuario.id)
+            let t={...usuario, points: usuario.points-item.price}
             setUsuario(t)
+            useFetch.putPoints(t.points,usuario.id)
             .then(
               ()=>{setILoading(true)})
             
@@ -295,16 +293,16 @@ export default function TiendaPage() {
 
     console.log("random")
     console.log(rand)
-    if(rand<=15){
+    if(rand<=10){
       console.log("Legendario")
-      if(r2<=50){
+      if(r2<=60){
         im=28 //Rata
       }else{
         im=29 //Flor
       }
       setRarity("Legendario")
-      //item raro, 15 en 100 chance
-    }else if (rand<=50){
+      //item raro, 10 en 100 chance
+    }else if (rand<=40){
       console.log("Raro")
        setRarity("Raro")
         if(r2<=33){
@@ -315,7 +313,7 @@ export default function TiendaPage() {
         im=26 //CD
 
         }
-      //35 en 100
+      //30 en 100
     }else{
       console.log("común")
       setRarity("Comùn")
@@ -327,7 +325,7 @@ export default function TiendaPage() {
         im=27 //Huevo sospechoso
 
       }
-      //50 en 100
+      //60 en 100
     }
    useFetch.getItemPorId(im)
     .then((data)=>{
@@ -386,7 +384,7 @@ export default function TiendaPage() {
      <button className={styles.btn} onClick={()=>{if(usuario.points<chestPrice){setOpen(true)}else{setCOpen(true);}}}>Comprar cofre de items (${chestPrice})</button>
      </div>
     </div>
-      <button className={styles.btn} onClick={()=>{router.back()}}>Volver</button>
+      <button className={styles.btn} onClick={()=>{router.push("./Home")}}>Volver</button>
 
 
        <Popup open={open} onClose={()=>{setOpen(false)}} closeOnDocumentClick={true} {...popupProps}>

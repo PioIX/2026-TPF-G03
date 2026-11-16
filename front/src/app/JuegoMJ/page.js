@@ -88,6 +88,8 @@ function JuegoMJPage() {
   },[estadistica,usuario, loading])
 
     useEffect(()=>{
+      console.log("MEMBERS")
+      console.log(members)
       if (members.length>1){
         setStartDisabled(false)
       }else{
@@ -152,21 +154,29 @@ function JuegoMJPage() {
           setInRoom(false)
           
         })
-      
+     /* socket.on("checkConnected",()=>{
+          socket.emit("",{roomId})
+          
+        })*/
       socket.on("disconnected",(data)=>{
         console.log("usuario desconectado")
+        console.log(data)
+        console.log(members)
+        console.log(started)
           let room=data.room
           let roomId=searchParams.get("room")
           if(room.ownerName==data.user){
             socket.emit("hostDisconnect",roomId)
-          }else if(started){
-            members.map((m,i)=>{
-              if(m.username==data.user){
-                let t = members
-                t[i].connected=false
-                setMembers(t)
-              }
-            })
+          }else{
+            console.log("started")
+            console.log(members)
+            setMembers(prev => 
+              prev.map((m, i) => 
+              m.username ==data.user
+                ? { ...m, connected: false } 
+                : m 
+              )
+            )
           }
         
       })
@@ -174,6 +184,8 @@ function JuegoMJPage() {
 
     //eventos del juego
      socket.on("started",()=>{
+      console.log("START")
+      console.log(members)
         setStarted(true)
       })
       socket.on("ended",({room,userArr,winner})=>{
@@ -194,6 +206,7 @@ function JuegoMJPage() {
         }
       })
       socket.on("held",({user})=>{
+        console.log(members)
          setMembers(prev => 
          prev.map((m, i) => 
          m.username ==user
@@ -337,6 +350,7 @@ function restartGame(){
       <div className={styles.juego}>
     {(started)?(
       <>
+      <div className={styles.wrapper}>
         <section className={styles.mesa}>
           {members.length>0&&
           <>
@@ -347,13 +361,13 @@ function restartGame(){
             <p>{m.username}:</p>
             {/*lo que sea que diga cuando otro usuario ya hizo hold*/}
             {!m.connected?
-            <img src="cartas/shadowcard.png"></img>
+            <img src="cartas/greyback.png"></img>
             :
             <>
             {m.hold?
-            <img src="cartas/greencard.png"></img>
+            <img src="cartas/greenback.png"></img>
             :
-              <img src="cartas/redcard.png"></img>
+              <img src="cartas/redback.png"></img>
             }
             </>
             }
@@ -369,10 +383,9 @@ function restartGame(){
           </div>
         </section>
           {(held)?(<>
-          <h2 style={{textAlign:"center"}}>{heldText}</h2>
           <section className={styles.btnsec}>
-            <button disabled className={styles.btn}>Hit</button>
-            <button disabled className={styles.btn}>Stand</button>
+          <p style={{textAlign:"center"}}>{heldText}</p>
+          
           </section>
           </>):
           (<>
@@ -381,6 +394,8 @@ function restartGame(){
               <button onClick={()=>{stand()}} className={styles.btn}>Stand</button>
           </section>
           </>)}
+          </div>
+
         <Popup open={open} onClose={()=>{setOpen(false)}} closeOnDocumentClick={false} closeOnEscape={false} {...popupProps}>
           {usuario&&
             <div className={clsx(styles.popupBox, pixel.className)}>
@@ -430,28 +445,31 @@ function restartGame(){
       
      
     ):(
-      <>
+      <div className={styles.waitWrapper}>
       {members.length>0&&
-      <>
+      <div>
       <h2 >Miembros en la sala:</h2>
       {members.map((m,i)=><p key={i} className={styles.roomMember}>{m.username}</p>)}
-      </>}
-      {(searchParams.get("room")==usuario.id)?(
-        <div className={styles.adminAction}>
-        {(startDisabled)?(<>
-        <button disabled className={styles.btn}>Comenzar partida</button>
-        </>):(<>
-        <button onClick={()=>{startGame()}} className={styles.btn}>Comenzar partida</button>
-        </>)}
-        <button onClick={()=>{console.log("volver");router.replace("/Home")}} className={styles.btn}>Volver</button>
-        </div>
+      </div>}
+      {(searchParams.get("room")==usuario.id)?(<>   
+      <div className={styles.adminAction}>
+        <div className={styles.wait}>
+            {(startDisabled)?(<>
+            <button disabled className={styles.btn}>Comenzar partida</button>
+            </>):(<>
+            <button onClick={()=>{startGame()}} className={styles.btn}>Comenzar partida</button>
+            </>)}
+          </div>
+          <button onClick={()=>{console.log("volver");router.replace("/Home")}} className={styles.btn}>Volver</button>
+      </div>     
+      </>
       ):(
       <div className={styles.wait}>
-      <h2>Esperando al administrador.....</h2>
+      <p>Esperando al administrador.....</p>
       <button onClick={()=>{console.log("volver");router.replace("/Home")}} className={styles.btn} >Volver</button>
       </div>
       )}
-      </>
+      </div>
     )}
     </div>
       
@@ -473,9 +491,9 @@ export default function JuegoMJ2Page(){
     
   return (
     <>
-   {/* <Suspense fallback={<div className={clsx(styles.page, pixel.className)} style={{backgroundImage: fondo ? `url(${fondo.imgsrc})` :null,backgroundColor: !fondo ?  "#2a2a2a":null}}><h1 className={styles.loading}>Cargando...</h1></div>}>*/}
+    <Suspense fallback={<div className={clsx(styles.page, pixel.className)} style={{backgroundImage: fondo ? `url(${fondo.imgsrc})` :null,backgroundColor: !fondo ?  "#2a2a2a":null}}><h1 className={styles.loading}>Cargando...</h1></div>}>
         <JuegoMJPage></JuegoMJPage>
-   {/* </Suspense>*/}
+    </Suspense>
     </>
   );
 }

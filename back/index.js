@@ -28,7 +28,7 @@ const server = app.listen(PORT, () => {
 
 const io = new Server(server, {
   cors: {
-	origin: ["http://localhost:3000", "http://localhost:3001","http://localhost:3002","http://localhost:3003","http://localhost:3004","http://10.1.5.244:3000","http://10.1.5.148:3000"],
+	origin: ["http://localhost:3000", "http://localhost:3001","http://localhost:3002","http://localhost:3003","http://localhost:3004","http://10.1.5.244:3000","http://10.1.5.148:3000","http://10.1.4.144:3000","http://10.1.4.144"],
 	methods: ["GET", "POST", "PUT", "DELETE"],
 	credentials: true,
 	//path: "/api/socketio",
@@ -191,7 +191,18 @@ io.on("connection", (socket) => {
 	io.emit("roomChange")
   });
 
+ /* socket.on("checkConnected", ({roomId}) => {
+	let us=Array.from(roomData.get(roomId).users.keys())
+	let usdata =[]
+	let t
+	us.map((u,i)=>{
+		t={username:u,held:roomData.get(roomId).users.get(u).held,connected:roomData.get(roomId).users.get(u).connected}
+		usdata.push(t)
 
+	})
+	io.to(roomId).emit("checkedConnected")
+  });
+*/
   //puede que haya quedado obsoleto
  /* socket.on("roomExists", ({roomId,userId}) => {
 	io.emit("verify",{exists:roomData.has(roomId),roomId:roomId,userId:userId}) 
@@ -203,11 +214,16 @@ io.on("connection", (socket) => {
 	console.log(user)
 	for (const roomId of socket.rooms) {
 		if (roomData.has(roomId)) {
+			console.log("ROOOMMM")
+			console.log(roomData.get(roomId))
 			if(roomData.get(roomId).started){
+				console.log("room started")
 				let temp=roomData.get(roomId).users.get(user)
 				temp.connected=false
 				roomData.get(roomId).users.set(user,temp)
+				
 			}else{
+				console.log("room not")
 				roomData.get(roomId).users.delete(user)
 				io.to(roomId).emit("left", {
 				room:roomId,
@@ -220,26 +236,17 @@ io.on("connection", (socket) => {
 				roomData.delete(roomId);
 			}
 			io.emit("roomChange")
-			io.to(roomId).emit("disconnected", {message: "Usuario desconectado",user:user,room:roomData.get(roomId)});
+			console.log("emitting")
+			if(roomData.get(roomId)){
+				io.to(roomId).emit("disconnected", {message: "Usuario desconectado",user:user,room:roomData.get(roomId),userNames:Array.from(roomData.get(roomId).users.keys())});
+				checkWinner(roomId)
+			}
 
 		}
 	  }
 	});
-
-	
-	/*Juego*/
-	  socket.on("updateHold", ({cards,sum,username,roomId}) => {
-		roomId=parseInt(roomId)
-		roomData.get(roomId).users.set(username,{
-			sum:sum,
-			cards:cards,
-			held:true,
-			connected:true
-	
-			//datos de cada usuario cuando hace hold
-		});
-		io.emit("held", {message: "Cartas y suma del usuario actualizadas",user:username});
-		let us=Array.from(roomData.get(roomId).users.values())
+function checkWinner(roomId){
+	let us=Array.from(roomData.get(roomId).users.values())
 		let na=us.filter(u=>u.held||!u.connected)
 		
 		if(na.length==us.length){
@@ -263,6 +270,21 @@ io.on("connection", (socket) => {
 		  
 		});
 		}
+}
+	
+	/*Juego*/
+	  socket.on("updateHold", ({cards,sum,username,roomId}) => {
+		roomId=parseInt(roomId)
+		roomData.get(roomId).users.set(username,{
+			sum:sum,
+			cards:cards,
+			held:true,
+			connected:true
+	
+			//datos de cada usuario cuando hace hold
+		});
+		io.to(roomId).emit("held", {message: "Cartas y suma del usuario actualizadas",user:username});
+		checkWinner(roomId)
 	  });
 	
 	
@@ -273,6 +295,8 @@ io.on("connection", (socket) => {
 				let temp=roomData.get(roomId)
 				temp.started=true
 				roomData.set(roomId,temp)
+				console.log("start set")
+				console.log(roomData.get(roomId))
 			   io.to(roomId).emit("started")
 			   io.emit("roomChange")
 			}else{
@@ -707,6 +731,7 @@ try {
 
 app.put('/Estadistica', async function(req, res){
 try {
+		
 		let userid=req.body.userid
 		let wins=req.body.wins
 		let losses=req.body.losses
@@ -715,6 +740,7 @@ try {
 		let points_lost=req.body.points_lost
 		let cant_items=req.body.cant_items
 		console.log(userid)
+		console.log(streak)
 		if(wins){
 			await MySQL.realizarQuery(`UPDATE Estadistica SET 
 			wins = ${req.body.wins} WHERE userid = ${req.body.userid};`)
@@ -727,7 +753,7 @@ try {
 			await MySQL.realizarQuery(`UPDATE Estadistica SET 
 			played = ${req.body.played} WHERE userid = ${req.body.userid};`)
 		}
-		if(streak){
+		if(streak!=undefined){
 			await MySQL.realizarQuery(`UPDATE Estadistica SET 
 			streak = ${req.body.streak} WHERE userid = ${req.body.userid};`)
 		}

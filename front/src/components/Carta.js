@@ -1,8 +1,4 @@
-import { useEffect, useState } from "react";
-
 export default function Carta({palo, card}) {
-    const [val,setVal]=useState(0)
-
     const cartasrefP = [
     "/cartas/AV.png",
     "/cartas/2V.png",
@@ -36,19 +32,18 @@ export default function Carta({palo, card}) {
 
     ];
 
-    useEffect(()=>{
-        if (card=="A"){
-            setVal(0)
-        }else if(card=="J"){
-            setVal(10)
-        }else if(card=="Q"){
-            setVal(11)
-        }else if(card=="K"){
-            setVal(12)
-        }else{
-            setVal(Number(card)-1)
-        }
-    },[])
+    let val
+    if (card=="A"){
+        val=0
+    }else if(card=="J"){
+        val=10
+    }else if(card=="Q"){
+        val=11
+    }else if(card=="K"){
+        val=12
+    }else{
+        val=Number(card)-1
+    }
   return (
     <>
     {(palo)?(

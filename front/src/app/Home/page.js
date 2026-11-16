@@ -19,14 +19,6 @@ const popupProps = {
 
 
 /*MASTERLIST DE COSAS QUE FALTAN:
-
-
--CSS
--MULTIJUGADOR CON SALA:
-  -Modo loco: los jugadores pueden elegir restarle o sumarle a otro (limitado)
-
-
-
 NO NECESARIOS:
 -IMPLEMENTAR REGLAS COMO SEGURO O RENDIRSE, SPLIT O DOBLE
 -PERSONALIZACION DEL MAZO
@@ -34,12 +26,25 @@ NO NECESARIOS:
 -PODER SUBIR IMAGENES DE FONDO
 */
 
+/*
+NOTAS DEL GAMEPLAY
+  - es lentooo cuando empezás pero a partir de los 30 puntos SE dispara
+  si lo queremos hacer roguelike está bien porque después te cebás y perdés todo
+  capaz clickeando 10 veces en el pipi normal te puede dar 1 o dos puntos para hacer más rápido el principio
+
+pipi responsable:
+  hay que darlo algo extra, como que cuando hacés blackjack te sume 10 puntos o algo
+
+
+POSIBLEMENTE ARREGLADO:
+Bug de las cartas:
+  el 50% de las veces, la J vale 11 independientemente de si es de diamantes o de picas
+
+*/
 
 /*Hacer ahora:
--ver como mostrar datos de partida/cartas de oponentes/desconectados y hold
--opcion de volver en nuevo juego (?)
--posiblemente que el pipi clasista funcione si apostaste más de la mitad/ todos tus puntos
--pipi visual
+-ver disabled al entrar a cosas
+
 */
 
 export default function HomePage() {
@@ -255,7 +260,7 @@ export default function HomePage() {
 
           <header className={styles.header}>
           <button className={clsx(styles.btn, styles.small)} onClick={()=>{setLopen(true)}}>Logout</button>
-          <div>
+          <div className={styles.header2}>
           <button className={clsx(styles.btn, styles.small)} onClick={()=>{setEopen(true)}}>Estadistica</button>
           <button className={clsx(styles.btn, styles.small)} onClick={()=>{setIopen(true)}}>Info</button>
 
@@ -334,23 +339,32 @@ export default function HomePage() {
       </section>
         {/*POPUPS*/}
         {/*Apuesta para comenzar juego*/}
-        <Popup open={Popen} onClose={()=>{setPopen(false)}} closeOnDocumentClick={false} {...popupProps}>
+        <Popup open={Popen} onClose={()=>{setPopen(false)}} closeOnDocumentClick={false} closeOnEscape={false} {...popupProps}>
         {usuario&&
           <div className={clsx(styles.popupBox, pixel.className)}>
             <h2 className={styles.popupTitle}>¿Cuántos puntos quiere apostar?</h2>
             <p className={styles.popupText}>Tus puntos: {usuario.points}</p>
+            {disabled?
+            <input className={styles.input} disabled value={puntosA}></input>
+
+            :
+
             <input className={styles.input} onChange={(e)=>{setPuntosA(e.target.value)}} value={puntosA}></input>
+          }
             {valueError&&<p className={styles.error}>Valor inválido</p>}
+            {disabled?
+             <button className={styles.btn} disabled>Comenzar</button>
+            :
             <button className={styles.btn} onClick={()=>{
               if((puntosA>0 && puntosA<=usuario.points) || puntosA==1){
                 setDisabled(true)
-                setPopen(false);
                 setValueError(false)
                 sessionStorage.setItem("puntosApostados",puntosA)
                 router.push("./JuegoSP")
               }else{
                 setValueError(true)
               }}}>Comenzar</button>
+          }
       
                 </div>       
                 }
@@ -358,7 +372,7 @@ export default function HomePage() {
 
 
        {/*Multijugador*/}
-        <Popup open={Mopen} onClose={()=>{setMopen(false)}} closeOnDocumentClick={false} {...popupProps}>
+        <Popup open={Mopen} onClose={()=>{setMopen(false)}} closeOnDocumentClick={false} closeOnEscape={false}{...popupProps}>
           {usuario&&
             <div className={clsx(styles.popupBox, pixel.className)}>
               <h2 className={styles.popupTitle}>Salas multijugador</h2> 
@@ -374,11 +388,14 @@ export default function HomePage() {
                         <button disabled className={clsx(styles.btn, styles.small)}>Unirse</button>
                       ):(
                         <>
-                          <p>{errM}</p>
                           <button className={clsx(styles.btn, styles.small)} onClick={()=>{if(pointCheck(room.apuesta)){setDisabled(true);router.push(`/JuegoMJ?room=${room.roomId}`)}}}>Unirse</button>
                         </>
                       )}
                   </div>)}
+                        {errM&&
+                        
+                      <p>{errM}</p>
+                        }
                   </div>):(<>
                 <p className={styles.popupText}>No hay salas disponibles</p>
               </>)}
@@ -399,19 +416,32 @@ export default function HomePage() {
           </div>}
        </Popup>
 
-        <Popup open={Aopen} onClose={()=>{setAopen(false)}} closeOnDocumentClick={false} {...popupProps}>
+        <Popup open={Aopen} onClose={()=>{setAopen(false)}} closeOnDocumentClick={false} closeOnEscape={false} {...popupProps}>
           {usuario&&
              <>
              <div className={clsx(styles.popupBox, pixel.className)}>
              <h2>Ingrese puntos a apostar:</h2>
-              <input type="number" value={apuesta} onChange={(e)=>{setApuesta(e.target.value)}} className={styles.input}></input>
+             {disabled?
+            <input type="number" value={apuesta} disabled className={styles.input}></input>
+            : 
+            <input type="number" value={apuesta} onChange={(e)=>{setApuesta(e.target.value)}} className={styles.input}></input>
+            
+            }
               {errM&&
               <p>{errM}</p>
               }
               <div className={styles.popupActions}>
-
+              {disabled?
+            <>
+            <button className={styles.btn} disabled>Crear</button>
+              <button className={styles.btn} disabled>Volver</button>
+            </>
+            :
+            <>
               <button className={styles.btn} onClick={()=>{if(pointCheck(apuesta)){setDisabled(true);socket.emit("createRoom",{user:usuario.username,socketId:socket.id,roomId:usuario.id,apuesta:apuesta});}}}>Crear</button>
               <button className={styles.btn} onClick={()=>{setAopen(false)}}>Volver</button>
+            </>
+          }
               </div>
               </div>
               </>   
@@ -433,7 +463,7 @@ export default function HomePage() {
                 <p className={styles.stat}>Racha actual: {estadistica.streak}</p>
                 <p className={styles.stat}>Puntos perdidos: {estadistica.points_lost}</p>
                 <p className={styles.stat}>Puntos actuales: {usuario.points}</p>
-                <p className={styles.stat}>Cantidad de items: {estadistica.cant_items}</p>
+                <p className={styles.stat}>Cofres abiertos: {estadistica.cant_items}</p>
                 </div>
               <button className={styles.btn} onClick={()=>{setEopen(false)}}>Cerrar</button>
               </>   
@@ -460,7 +490,7 @@ export default function HomePage() {
         {/*Info*/}
         <Popup open={Iopen} onClose={()=>{setIopen(false)}} closeOnDocumentClick={false} {...popupProps}>
           {usuario&&
-              <div className={clsx(styles.popupBox, pixel.className)}>
+              <div className={clsx(styles.popupBox, pixel.className)} style={{overflowX:"hidden"}}>
                 <div style={{overflowY:"scroll",paddingLeft:"200px",paddingRight:"200px",scrollbarWidth:"thin",scrollbarColor:"white black"}}>
                   <h2 className={styles.popupTitle}>Reglas del juego:</h2> 
                   <div style={{textAlign:"justify",marginBottom:"50px"}}>

@@ -31,5 +31,5 @@
 ## PARA EJECUTAR:
 Si se planea ejecutar el backend y frontend en el mismo dispositivo, se debe tener instalado node.js y los archivos .env correspondientes en la carpeta "back"
 Tanto para el backend como para el frontend, se debe abrir un cmd en la carpeta y correr el comando "npm install"
-Después, para el primero se corre "npm run pio/home" (uno o el otro, dependiendo de desde dónde se ejecuta), y para el segundo "npm run build".
+Después, para el primero se corre "npm run pio/home" (uno o el otro, dependiendo de desde dónde se ejecuta), y para el segundo "npm run build", y seguido "npm start".
 Para entrar al juego se debe ingresar a "http://localhost:3000"
