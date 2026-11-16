@@ -212,7 +212,9 @@ gap: 2rem;
 .player p, .user p{
     text-align: center;
 }
-
+.player{
+  text-align: center;
+}
 .wait{
     width: 100%;
     display: flex;

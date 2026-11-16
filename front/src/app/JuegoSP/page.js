@@ -281,26 +281,25 @@ useEffect(()=>{
       <header className={styles.header}><button className={clsx(styles.btn, styles.small)} onClick={()=>{reset();router.back()}}>Volver</button></header>
         <div className={styles.wrapper}>
           <div className={styles.wrapper2}>
-
-        <section className={styles.mesa}>
-          <div>
-            <p className={styles.ptext}>Dealer: {dealsum}</p>
-          <ArrCartas cards={dealcards}></ArrCartas>
-          </div>
-          <div>
-            <p className={styles.ptext}>Vos: {usersum}</p>
-          <ArrCartas cards={usercards}></ArrCartas>
-          </div>
-        </section>
-        <section className={styles.menu}>
-          {(disabled)?(<>
-          <button className={styles.btn} disabled>Hit</button>
-          <button className={styles.btn} disabled>Stand</button>
-          </>):(<>
-          <button className={styles.btn} onClick={()=>{hit()}}>Hit</button>
-          <button className={styles.btn} onClick={()=>{stand()}}>Stand</button>
-          </>)}
-        </section>
+            <section className={styles.mesa}>
+              <div>
+                <p className={styles.ptext}>Dealer: {dealsum}</p>
+              <ArrCartas cards={dealcards}></ArrCartas>
+              </div>
+              <div>
+                <p className={styles.ptext}>Vos: {usersum}</p>
+              <ArrCartas cards={usercards}></ArrCartas>
+              </div>
+            </section>
+            <section className={styles.menu}>
+              {(disabled)?(<>
+              <button className={styles.btn} disabled>Hit</button>
+              <button className={styles.btn} disabled>Stand</button>
+              </>):(<>
+              <button className={styles.btn} onClick={()=>{hit()}}>Hit</button>
+              <button className={styles.btn} onClick={()=>{stand()}}>Stand</button>
+              </>)}
+            </section>
           </div>
         {pipi&&
         <Draggable nodeRef={nodeRef}>

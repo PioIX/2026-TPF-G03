@@ -491,9 +491,9 @@ export default function JuegoMJ2Page(){
     
   return (
     <>
-   {/* <Suspense fallback={<div className={clsx(styles.page, pixel.className)} style={{backgroundImage: fondo ? `url(${fondo.imgsrc})` :null,backgroundColor: !fondo ?  "#2a2a2a":null}}><h1 className={styles.loading}>Cargando...</h1></div>}>*/}
+    <Suspense fallback={<div className={clsx(styles.page, pixel.className)} style={{backgroundImage: fondo ? `url(${fondo.imgsrc})` :null,backgroundColor: !fondo ?  "#2a2a2a":null}}><h1 className={styles.loading}>Cargando...</h1></div>}>
         <JuegoMJPage></JuegoMJPage>
-   {/* </Suspense>*/}
+    </Suspense>
     </>
   );
 }

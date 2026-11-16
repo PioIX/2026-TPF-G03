@@ -259,7 +259,35 @@
   }
   .sectest{
   width: auto;
- 
 }
+.drags{
+  height: 25px;
+  width: auto;
+}
+}
+
+
+@media (max-width: 410px) {
+  .header .btn{
+    font-size: 6px;
+  }
+  .header{
+    align-items: center;
+    justify-content: center;
+  }
+  .header2{
+    display: flex;
+    
+  }
+  .title{
+    font-size: 20px
+  }
+  .test{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-rows: auto auto  ;
+    
+  }
+
 }
  

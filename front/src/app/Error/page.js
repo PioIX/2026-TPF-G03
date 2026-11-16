@@ -34,9 +34,9 @@ export default function ErrorPage(){
   return (
     <>
       <div className={clsx(styles.page, pixel.className)} style={{backgroundImage: fondo ? `url(${fondo.imgsrc})` :null,backgroundColor: !fondo ?  "#2a2a2a":null}}>
-    {/*<Suspense fallback={<p>Cargando...</p>}>*/}
+    <Suspense fallback={<p>Cargando...</p>}>
         <ErrorPopup></ErrorPopup>
-    {/*</Suspense>*/}
+   </Suspense>
       </div>
 
     </>

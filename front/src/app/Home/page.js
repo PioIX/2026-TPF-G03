@@ -19,14 +19,6 @@ const popupProps = {
 
 
 /*MASTERLIST DE COSAS QUE FALTAN:
-
-
-
--MULTIJUGADOR CON SALA:
-  -Modo loco: los jugadores pueden elegir restarle o sumarle a otro (limitado)
-
-
-
 NO NECESARIOS:
 -IMPLEMENTAR REGLAS COMO SEGURO O RENDIRSE, SPLIT O DOBLE
 -PERSONALIZACION DEL MAZO
@@ -40,11 +32,8 @@ NOTAS DEL GAMEPLAY
   si lo queremos hacer roguelike está bien porque después te cebás y perdés todo
   capaz clickeando 10 veces en el pipi normal te puede dar 1 o dos puntos para hacer más rápido el principio
 
-
-
 pipi responsable:
   hay que darlo algo extra, como que cuando hacés blackjack te sume 10 puntos o algo
-
 
 
 POSIBLEMENTE ARREGLADO:
@@ -271,7 +260,7 @@ export default function HomePage() {
 
           <header className={styles.header}>
           <button className={clsx(styles.btn, styles.small)} onClick={()=>{setLopen(true)}}>Logout</button>
-          <div>
+          <div className={styles.header2}>
           <button className={clsx(styles.btn, styles.small)} onClick={()=>{setEopen(true)}}>Estadistica</button>
           <button className={clsx(styles.btn, styles.small)} onClick={()=>{setIopen(true)}}>Info</button>
 
@@ -365,7 +354,7 @@ export default function HomePage() {
             {valueError&&<p className={styles.error}>Valor inválido</p>}
             {disabled?
              <button className={styles.btn} disabled>Comenzar</button>
-          :
+            :
             <button className={styles.btn} onClick={()=>{
               if((puntosA>0 && puntosA<=usuario.points) || puntosA==1){
                 setDisabled(true)
@@ -501,7 +490,7 @@ export default function HomePage() {
         {/*Info*/}
         <Popup open={Iopen} onClose={()=>{setIopen(false)}} closeOnDocumentClick={false} {...popupProps}>
           {usuario&&
-              <div className={clsx(styles.popupBox, pixel.className)}>
+              <div className={clsx(styles.popupBox, pixel.className)} style={{overflowX:"hidden"}}>
                 <div style={{overflowY:"scroll",paddingLeft:"200px",paddingRight:"200px",scrollbarWidth:"thin",scrollbarColor:"white black"}}>
                   <h2 className={styles.popupTitle}>Reglas del juego:</h2> 
                   <div style={{textAlign:"justify",marginBottom:"50px"}}>
