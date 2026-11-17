@@ -71,6 +71,9 @@ export default function StoreList({items, estaEnInv,unequip,equip,buy,names,inf}
               
               {item.name=="Pipi responsable"&&
               <td><button  className={styles.inf} onClick={()=>{setTitle(item.name);setText("Un pipi consistente. Siempre multiplica tus ganancias por 1,25")}}>Info</button></td>}
+              {item.name=="Pipi dorado"&&
+              <td><button  className={styles.inf} onClick={()=>{setTitle(item.name);setText("El pipi supremo. Es solo para los jugadores más dedicados: no tiene efectos en el juego, pero deja que todos sepan que lo compraste.")}}>Info</button></td>}
+              
               </>}
           </tr>
 

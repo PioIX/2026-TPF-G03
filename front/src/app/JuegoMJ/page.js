@@ -39,6 +39,8 @@ function JuegoMJPage() {
   const [errM,setErrM]=useState("")
 
   const [pipi,setPipi]=useState(null)
+  const [golden,setGolden]=useState(styles.regPage)
+
   const [item,setItem]=useState(null)
   const [fondo,setFondo]=useState(null)
 
@@ -113,7 +115,14 @@ function JuegoMJPage() {
           //poner graficos de usuario distintos o poner que espere
       }
   },[held])
+   useEffect(()=>{
+    if(pipi){
 
+      if (pipi.name=="Pipi dorado"){
+            setGolden(styles.goldenPage)
+      }
+    }
+  },[pipi])
 
 
   useEffect(()=>{
@@ -123,17 +132,31 @@ function JuegoMJPage() {
       if(!inRoom && !loading){
         socket.nickname=usuario.username
         let room=searchParams.get("room")
-        socket.emit("joinRoom",{roomId:room, user:usuario.username,socketId:socket.id})
+        console.log(golden)
+        let pip=JSON.parse(localStorage.getItem("Pipi"))
+        if(pip){
+          console.log("tiene a pipi")
+          console.log(pip.name)
+          if(pip.name=="Pipi dorado"){
+            console.log("golden")
+            socket.emit("joinRoom",{roomId:room, user:usuario.username,socketId:socket.id,golden:true})
+          }else{
+            socket.emit("joinRoom",{roomId:room, user:usuario.username,socketId:socket.id,golden:false})
+          }
+        }else{
+          socket.emit("joinRoom",{roomId:room, user:usuario.username,socketId:socket.id,golden:false})
+        }
       }
      
        socket.on("joined",(data)=>{
+        console.log(data)
         if(data.user==usuario.username){
           setInRoom(true)
           console.log("apuesta")
           console.log(data.apuesta)
           setPuntosA(data.apuesta)
         } 
-        let t=data.users.map((m)=>({username:m,hold:false,connected:true}))
+        let t=data.users.map((m)=>({username:m,hold:false,connected:true,golden:data.goldens.includes(m)}))
         setMembers(t)
         
       })
@@ -143,7 +166,7 @@ function JuegoMJPage() {
 
       socket.on("left",(data)=>{
         console.log("USER LEFT")
-         let t=data.users.map((m)=>({username:m,hold:false,connected:true}))
+         let t=data.users.map((m)=>({username:m,hold:false,connected:true,golden:data.goldens.includes(m)}))
         setMembers(t)
       })
       
@@ -340,7 +363,8 @@ function restartGame(){
 
   return (
     <>
-    <div className={clsx(styles.page, pixel.className)} style={{backgroundImage: fondo ? `url(${fondo.imgsrc})` :null,backgroundColor: !fondo ?  "#2a2a2a":null}}>
+    
+    <div className={clsx(styles.page, pixel.className,golden)} style={{backgroundImage: fondo ? `url(${fondo.imgsrc})` :null,backgroundColor: !fondo ?  "#2a2a2a":null}}>
     {(loading || !socket)?(
       <>
           <h1 className={styles.loading}>Cargando...</h1>
@@ -358,7 +382,11 @@ function restartGame(){
           <div style={{display:"flex"}} className={styles.otherplayers}>
           {members.map((m,i)=> m.username==usuario.username?<p key={i}></p>:
             <div key={i} className={styles.player}>
-            <p>{m.username}:</p>
+              {m.golden?
+            <p className={styles.golden}>{m.username}:</p>  
+            :
+            <p className={styles.regular}>{m.username}:</p>
+            }
             {/*lo que sea que diga cuando otro usuario ya hizo hold*/}
             {!m.connected?
             <img src="cartas/greyback.png"></img>
@@ -378,7 +406,11 @@ function restartGame(){
               </div>
           </>}
           <div className={styles.user}>
-            <p>Vos: {sum}</p>
+            {pipi&&pipi.name=="Pipi dorado"?
+            <p className={styles.golden}>Vos: {sum}</p>
+            :
+            <p className={styles.regular}>Vos: {sum}</p>
+            }
           <ArrCartas cards={ucards}></ArrCartas>
           </div>
         </section>

@@ -70,7 +70,7 @@ export default function HomePage() {
   const [errM,setErrM]=useState("")
   const [apuesta,setApuesta]=useState(1)
   const [shownItems,setShownItems]=useState(null)
-
+  const [golden,setGolden]=useState(styles.regPage)
   const [avRooms,setAvRooms]=useState(null)
   const { socket, isConnected } =useSocket()
   const [valueError,setValueError]=useState(false)
@@ -158,7 +158,14 @@ export default function HomePage() {
     }
   },[Mopen])
 
+   useEffect(()=>{
+    if(pipi){
 
+      if (pipi.name=="Pipi dorado"){
+            setGolden(styles.goldenPage)
+      }
+    }
+  },[pipi])
   useEffect(()=>{
       if(!socket){
         return
@@ -249,7 +256,7 @@ export default function HomePage() {
 
   return (
     <>
-    <div className={clsx(styles.page, pixel.className)} style={{backgroundImage: fondo ? `url(${fondo.imgsrc})` :null,backgroundColor: !fondo ?  "#2a2a2a":null}}>
+    <div className={clsx(styles.page, pixel.className,golden)} style={{backgroundImage: fondo ? `url(${fondo.imgsrc})` :null,backgroundColor: !fondo ?  "#2a2a2a":null}}>
     {(loading)?(
       
         <h1 className={styles.loading}>Cargando...</h1>
@@ -438,7 +445,7 @@ export default function HomePage() {
             </>
             :
             <>
-              <button className={styles.btn} onClick={()=>{if(pointCheck(apuesta)){setDisabled(true);socket.emit("createRoom",{user:usuario.username,socketId:socket.id,roomId:usuario.id,apuesta:apuesta});}}}>Crear</button>
+              <button className={styles.btn} onClick={()=>{if(pointCheck(apuesta)){setDisabled(true);socket.emit("createRoom",{user:usuario.username,socketId:socket.id,roomId:usuario.id,apuesta:apuesta,golden:(golden==styles.goldenPage)});}}}>Crear</button>
               <button className={styles.btn} onClick={()=>{setAopen(false)}}>Volver</button>
             </>
           }
