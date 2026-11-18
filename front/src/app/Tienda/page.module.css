@@ -215,16 +215,16 @@ height: 20px;
 .container td {
     padding: 0.4rem 0.75rem;
     background: #111111;
-    border-top: 2px solid #ffffff;
-    border-bottom: 2px solid #ffffff;
+    border-top: 2px solid var(--specColor);
+    border-bottom: 2px solid var(--specColor);
 }
 
 .container td:first-child {
-    border-left: 2px solid #ffffff;
+    border-left: 2px solid var(--specColor);
 }
 
 .container td:last-child {
-    border-right: 2px solid #ffffff;
+    border-right: 2px solid var(--specColor);
 }
 
 .container td:has(button) {

@@ -345,7 +345,7 @@ export default function HomePage() {
       </section>
         {/*POPUPS*/}
         {/*Apuesta para comenzar juego*/}
-        <Popup open={Popen} onClose={()=>{setPopen(false)}} closeOnDocumentClick={false} closeOnEscape={false} {...popupProps}>
+        <Popup open={Popen} onClose={()=>{setPopen(false)}} closeOnDocumentClick={false} closeOnEscape={true} {...popupProps}>
         {usuario&&
           <div className={clsx(styles.popupBox, pixel.className,golden)}>
             <h2 className={styles.popupTitle}>¿Cuántos puntos quiere apostar?</h2>
@@ -378,7 +378,7 @@ export default function HomePage() {
 
 
        {/*Multijugador*/}
-        <Popup open={Mopen} onClose={()=>{setMopen(false)}} closeOnDocumentClick={false} closeOnEscape={false}{...popupProps}>
+        <Popup open={Mopen} onClose={()=>{setMopen(false);setErrM("")}} closeOnDocumentClick={false} closeOnEscape={false}{...popupProps}>
           {usuario&&
             <div className={clsx(styles.popupBox, pixel.className,golden)}>
               <h2 className={styles.popupTitle}>Salas multijugador</h2> 

@@ -39,17 +39,19 @@
     align-items: center;
 }
 .roomMember{
+    align-items: center;
     justify-self: center;
     text-align: center;
     width: 100%;
     background-color: #111111;
-    border: 1px solid var(--specColor);
+    border: 1px solid #ffffff;
     padding-top: 10px;
     padding-bottom: 10px;
-    color: var(--specColor);
+    color: #ffffff;
 }
 
 .goldenRoomMember{
+    align-items: center;
     justify-self: center;
     text-align: center;
     width: 100%;
@@ -249,4 +251,12 @@ gap: 2rem;
 }
 .regular{
   color: white;
+}
+
+.star{
+  height:20px;
+  width: auto;
+  padding-left: 10px;
+  padding-right: 10px;
+
 }

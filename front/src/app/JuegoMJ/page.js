@@ -381,7 +381,7 @@ function restartGame(){
           {members.map((m,i)=> m.username==usuario.username?<p key={i}></p>:
             <div key={i} className={styles.player}>
               {m.golden?
-            <p className={styles.golden}>{m.username}:</p>  
+            <p className={styles.golden}><img className={styles.star} src="spr/star.png"></img>{m.username}:<img className={styles.star} src="spr/star.png"></img></p>  
             :
             <p className={styles.regular}>{m.username}:</p>
             }
@@ -405,7 +405,7 @@ function restartGame(){
           </>}
           <div className={styles.user}>
             {golden==styles.goldenPage?
-            <p className={styles.golden}>Vos: {sum}</p>
+            <p className={styles.golden}><img className={styles.star} src="spr/star.png"></img>Vos: {sum}<img className={styles.star} src="spr/star.png"></img></p>
             :
             <p className={styles.regular}>Vos: {sum}</p>
             }
@@ -481,7 +481,7 @@ function restartGame(){
       <h2 >Miembros en la sala:</h2>
       {members.map((m,i)=>
       m.golden?
-      <p key={i} className={styles.goldenRoomMember}>{m.username}</p>
+      <p key={i} className={styles.goldenRoomMember}><img className={styles.star} src="spr/star.png"></img>{m.username}<img className={styles.star} src="spr/star.png"></img></p>
     :
       <p key={i} className={styles.roomMember}>{m.username}</p>
 

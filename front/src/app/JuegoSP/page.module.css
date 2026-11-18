@@ -201,7 +201,11 @@
   border: 4px solid var(--specColor);
   outline: none;
 }
-
+.input:focus {
+  color: #000000;
+  background:var(--specColor);
+}
+ 
 .error {
   margin: 0;
   padding: 0.5rem 0.75rem;
