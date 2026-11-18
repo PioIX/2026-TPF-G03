@@ -93,7 +93,6 @@ export default function HomePage() {
       if(localStorage.getItem("Misc")){
         setItem(JSON.parse(localStorage.getItem("Misc")))
       }
-    console.log(usuarioId)
     if (!Number(usuarioId)){
      router.replace("./")}
     useFetch.getInventario(usuarioId)
@@ -172,14 +171,12 @@ export default function HomePage() {
       
       socket.on("allRooms",(data)=>{
         let rooms=data.message
-        console.log(rooms)
         setAvRooms(rooms)
       })
       socket.on("error",({type})=>{
        router.replace(`/Error?err=${type}`)
       })
       socket.on("connect",()=>{
-        console.log(socket.id)
       })
       socket.on("roomChange",()=>{
         socket.emit("listRooms")
@@ -239,7 +236,7 @@ export default function HomePage() {
 
     function pointCheck(points){
     setErrM("")
-    if(points<1){
+    if(points<1||!Number.isInteger(Number(points))){
       setErrM("Cantidad inválida")
     }else{
 
@@ -351,18 +348,18 @@ export default function HomePage() {
             <h2 className={styles.popupTitle}>¿Cuántos puntos quiere apostar?</h2>
             <p className={styles.popupText}>Tus puntos: {usuario.points}</p>
             {disabled?
-            <input className={styles.input} disabled value={puntosA}></input>
+            <input className={styles.input} disabled value={puntosA} type="number" min="0" step="1"></input>
 
             :
 
-            <input className={styles.input} onChange={(e)=>{setPuntosA(e.target.value)}} value={puntosA}></input>
+            <input className={styles.input} onChange={(e)=>{setPuntosA(e.target.value)}} value={puntosA}type="number" min="0" step="1"></input>
           }
             {valueError&&<p className={styles.error}>Valor inválido</p>}
             {disabled?
              <button className={styles.btn} disabled>Comenzar</button>
             :
             <button className={styles.btn} onClick={()=>{
-              if((puntosA>0 && puntosA<=usuario.points) || puntosA==1){
+              if(((puntosA>0 && puntosA<=usuario.points) || puntosA==1 )&&Number.isInteger(Number(puntosA))){
                 setDisabled(true)
                 setValueError(false)
                 sessionStorage.setItem("puntosApostados",puntosA)
@@ -428,9 +425,9 @@ export default function HomePage() {
              <div className={clsx(styles.popupBox, pixel.className,golden)}>
              <h2>Ingrese puntos a apostar:</h2>
              {disabled?
-            <input type="number" value={apuesta} disabled className={styles.input}></input>
+            <input type="number" min="0" step="1" value={apuesta} disabled className={styles.input}></input>
             : 
-            <input type="number" value={apuesta} onChange={(e)=>{setApuesta(e.target.value)}} className={styles.input}></input>
+            <input type="number" min="0" step="1" value={apuesta} onChange={(e)=>{setApuesta(e.target.value)}} className={styles.input}></input>
             
             }
               {errM&&

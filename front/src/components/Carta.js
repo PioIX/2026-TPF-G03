@@ -1,4 +1,4 @@
-export default function Carta({palo, card}) {
+export default function Carta({palo, card,clasS}) {
     const cartasrefP = [
     "/cartas/AV.png",
     "/cartas/2V.png",
@@ -47,9 +47,9 @@ export default function Carta({palo, card}) {
   return (
     <>
     {(palo)?(
-        <img src={cartasrefD[val]}></img>
+        <img src={cartasrefD[val]} className={clasS}></img>
     ):(
-        <img src={cartasrefP[val]}></img>
+        <img src={cartasrefP[val]}className={clasS}></img>
     )}
     
     </>

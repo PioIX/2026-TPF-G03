@@ -56,7 +56,6 @@ export default function TiendaPage() {
   
     useEffect(()=>{
       usuarioId=localStorage.getItem("userid")
-      console.log(usuarioId)
       if (!Number(usuarioId)){
        router.replace("./")}
       useFetch.getUsuarioPorId(usuarioId)
@@ -153,14 +152,12 @@ export default function TiendaPage() {
       if(animCount){
         if(animCount==3){
           const timer = setTimeout(() => {
-            console.log("pick")
            pickItem()
 
           }, 1000);
           return () => clearTimeout(timer);
         }else{
           const timer = setTimeout(() => {
-            console.log("next")
             setAnimCount((prev)=>prev+1)
           }, 1000);
           return () => clearTimeout(timer);
@@ -171,7 +168,6 @@ export default function TiendaPage() {
       
  useEffect(()=>{
    if(Copen){
-    console.log("started")
     setAnimCount(1)
    }
   },[Copen])
@@ -269,7 +265,6 @@ export default function TiendaPage() {
     //chequear si funciona la compra
     function buy(item){
       if(usuario.points<item.price){
-        console.log("Puntos insuficientes")
         setOpen(true)
       }else{
         //popup para confirmar compra
@@ -302,10 +297,7 @@ export default function TiendaPage() {
     let rand = Math.floor(Math.random()*100)
     let r2=Math.floor(Math.random()*100)
 
-    console.log("random")
-    console.log(rand)
     if(rand<=10){
-      console.log("Legendario")
       if(r2<=60){
         im=28 //Rata
       }else{
@@ -314,7 +306,6 @@ export default function TiendaPage() {
       setRarity("Legendario")
       //item raro, 10 en 100 chance
     }else if (rand<=40){
-      console.log("Raro")
        setRarity("Raro")
         if(r2<=33){
         im=2 //corazón
@@ -326,7 +317,6 @@ export default function TiendaPage() {
         }
       //30 en 100
     }else{
-      console.log("común")
       setRarity("Comùn")
       if(r2<=33){
         im=4 //té
@@ -341,8 +331,7 @@ export default function TiendaPage() {
    useFetch.getItemPorId(im)
     .then((data)=>{
       setGottenItem(data[0])
-      console.log("gotten item")
-      console.log(data[0])
+
     })
    let e
         useFetch.getEstadisticaDeUsuario(usuario.id)
@@ -400,7 +389,7 @@ export default function TiendaPage() {
 
        <Popup open={open} onClose={()=>{setOpen(false)}} closeOnDocumentClick={true} {...popupProps}>
               {usuario&&
-                <div  className={clsx(styles.popupBox, pixel.className)}>
+                <div  className={clsx(styles.popupBox, pixel.className,golden)}>
                   <h2 className={styles.popupTitle}>No tiene suficientes puntos para hacer esta compra</h2>
                   <button className={styles.btn} onClick={()=>{setOpen(false)}}>Cerrar</button>
                 </div>       
@@ -410,14 +399,14 @@ export default function TiendaPage() {
 
              <Popup open={Copen} onClose={()=>{setCOpen(false);setAnimCount(0)}} closeOnDocumentClick={false} {...popupProps}>
               {gottenItem&&rarity?
-                <div  className={clsx(styles.popupBox, pixel.className)}>
+                <div  className={clsx(styles.popupBox, pixel.className,golden)}>
                   <h2 className={styles.popupTitle}>Recibiste un/a {gottenItem.name}</h2>
                   <img src={gottenItem.imgsrc} style={{height:"100px"}}></img>
                   <p className={styles.popupText}>{rarity}</p>
                   <button className={styles.btn} onClick={()=>{setCOpen(false);setGottenItem(null),setRarity("")}}>Cerrar</button>
                 </div>
                 :
-                <div  className={clsx(styles.popupBox, pixel.className)}>
+                <div  className={clsx(styles.popupBox, pixel.className,golden)}>
                   {/*animación de carga lol*/}
                   {animCount&&
                   <img src={`/spr/buzon${animCount}.png`}></img>

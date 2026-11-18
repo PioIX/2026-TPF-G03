@@ -219,7 +219,6 @@ export default function AdminPage() {
       let allItems = await useFetch.getItems()
       for (i=0; i < allItems.length; i++) {
         let idAllItems = allItems[i].id
-        console.log(idAllItems)
         let currentItem = {
           userid: idAdmin,
           itemid: idAllItems,

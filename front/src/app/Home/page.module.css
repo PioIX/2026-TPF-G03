@@ -212,8 +212,8 @@
 .error {
   margin: 0;
   padding: 0.5rem 0.75rem;
-  color: #000000;
-  background: var(--specColor);
+  color: var(--specColor);
+  background: #000000;
 }
  
 .roomList {
