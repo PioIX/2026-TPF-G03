@@ -8,7 +8,7 @@ const popupProps = {
   contentStyle: { background: "none", border: "none", padding: 0, width: "auto" },
   overlayStyle: { background: "rgba(0,0,0,0.65)" },
 };
-export default function StoreList({items, estaEnInv,unequip,equip,buy,names,inf}) {
+export default function StoreList({items, estaEnInv,unequip,equip,buy,names,inf,golden}) {
   const [open,setOpen]=useState(false)
     const [text,setText]=useState(false)
     const [title,setTitle]=useState("")
@@ -22,7 +22,7 @@ export default function StoreList({items, estaEnInv,unequip,equip,buy,names,inf}
     let t=10
   return (
     <>
-     <table>
+     <table className={golden}>
          <thead>
           {/*ver si se necesita*/}
       </thead>
@@ -82,7 +82,7 @@ export default function StoreList({items, estaEnInv,unequip,equip,buy,names,inf}
       </table>
 
       <Popup open={open} onClose={()=>{setOpen(false);setText("")}} closeOnDocumentClick={true} {...popupProps}>
-        <div className={clsx(styles.infoBox, pixel.className)}>
+        <div className={clsx(styles.infoBox, pixel.className,golden)}>
           <h3 className={styles.infoTitle}>{title}</h3>
           <p className={styles.infoText}>{text}</p>
           <button className={clsx(styles.inf, styles.closeBtn)} onClick={()=>{setOpen(false);setText("")}}>Cerrar</button>

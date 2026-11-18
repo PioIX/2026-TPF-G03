@@ -149,11 +149,9 @@ function JuegoMJPage() {
       }
      
        socket.on("joined",(data)=>{
-        console.log(data)
         if(data.user==usuario.username){
           setInRoom(true)
-          console.log("apuesta")
-          console.log(data.apuesta)
+          
           setPuntosA(data.apuesta)
         } 
         let t=data.users.map((m)=>({username:m,hold:false,connected:true,golden:data.goldens.includes(m)}))
@@ -406,7 +404,7 @@ function restartGame(){
               </div>
           </>}
           <div className={styles.user}>
-            {pipi&&pipi.name=="Pipi dorado"?
+            {golden==styles.goldenPage?
             <p className={styles.golden}>Vos: {sum}</p>
             :
             <p className={styles.regular}>Vos: {sum}</p>
@@ -430,7 +428,7 @@ function restartGame(){
 
         <Popup open={open} onClose={()=>{setOpen(false)}} closeOnDocumentClick={false} closeOnEscape={false} {...popupProps}>
           {usuario&&
-            <div className={clsx(styles.popupBox, pixel.className)}>
+            <div className={clsx(styles.popupBox, pixel.className,golden)}>
               <div>
                 <h2 className={styles.popupTitle}>{popupText}</h2>
                 <ul>
@@ -481,7 +479,13 @@ function restartGame(){
       {members.length>0&&
       <div>
       <h2 >Miembros en la sala:</h2>
-      {members.map((m,i)=><p key={i} className={styles.roomMember}>{m.username}</p>)}
+      {members.map((m,i)=>
+      m.golden?
+      <p key={i} className={styles.goldenRoomMember}>{m.username}</p>
+    :
+      <p key={i} className={styles.roomMember}>{m.username}</p>
+
+)}
       </div>}
       {(searchParams.get("room")==usuario.id)?(<>   
       <div className={styles.adminAction}>

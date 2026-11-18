@@ -160,7 +160,6 @@ export default function HomePage() {
 
    useEffect(()=>{
     if(pipi){
-
       if (pipi.name=="Pipi dorado"){
             setGolden(styles.goldenPage)
       }
@@ -348,7 +347,7 @@ export default function HomePage() {
         {/*Apuesta para comenzar juego*/}
         <Popup open={Popen} onClose={()=>{setPopen(false)}} closeOnDocumentClick={false} closeOnEscape={false} {...popupProps}>
         {usuario&&
-          <div className={clsx(styles.popupBox, pixel.className)}>
+          <div className={clsx(styles.popupBox, pixel.className,golden)}>
             <h2 className={styles.popupTitle}>¿Cuántos puntos quiere apostar?</h2>
             <p className={styles.popupText}>Tus puntos: {usuario.points}</p>
             {disabled?
@@ -381,7 +380,7 @@ export default function HomePage() {
        {/*Multijugador*/}
         <Popup open={Mopen} onClose={()=>{setMopen(false)}} closeOnDocumentClick={false} closeOnEscape={false}{...popupProps}>
           {usuario&&
-            <div className={clsx(styles.popupBox, pixel.className)}>
+            <div className={clsx(styles.popupBox, pixel.className,golden)}>
               <h2 className={styles.popupTitle}>Salas multijugador</h2> 
               {(avRooms)?(<>
                 {(avRooms.length>0)?(<div className={styles.roomList}>
@@ -426,7 +425,7 @@ export default function HomePage() {
         <Popup open={Aopen} onClose={()=>{setAopen(false)}} closeOnDocumentClick={false} closeOnEscape={false} {...popupProps}>
           {usuario&&
              <>
-             <div className={clsx(styles.popupBox, pixel.className)}>
+             <div className={clsx(styles.popupBox, pixel.className,golden)}>
              <h2>Ingrese puntos a apostar:</h2>
              {disabled?
             <input type="number" value={apuesta} disabled className={styles.input}></input>
@@ -445,7 +444,7 @@ export default function HomePage() {
             </>
             :
             <>
-              <button className={styles.btn} onClick={()=>{if(pointCheck(apuesta)){setDisabled(true);socket.emit("createRoom",{user:usuario.username,socketId:socket.id,roomId:usuario.id,apuesta:apuesta,golden:(golden==styles.goldenPage)});}}}>Crear</button>
+              <button className={styles.btn} onClick={()=>{if(pointCheck(apuesta)){setDisabled(true);socket.emit("createRoom",{user:usuario.username,socketId:socket.id,roomId:usuario.id,apuesta:apuesta,golden:(golden===styles.goldenPage)});}}}>Crear</button>
               <button className={styles.btn} onClick={()=>{setAopen(false)}}>Volver</button>
             </>
           }
@@ -458,7 +457,7 @@ export default function HomePage() {
         {/*Estadística de usuario*/}
        <Popup open={Eopen} onClose={()=>{setEopen(false)}} closeOnDocumentClick={false} {...popupProps}>
           {usuario&&
-          <div className={clsx(styles.popupBox, pixel.className)}>
+          <div className={clsx(styles.popupBox, pixel.className,golden)}>
             {(eloading)?(
                 <h2 className={styles.popupTitle}>Cargando estadistica....</h2>
             ):(
@@ -483,7 +482,7 @@ export default function HomePage() {
         {/*Logout*/}
         <Popup open={Lopen} onClose={()=>{setLopen(false)}} closeOnDocumentClick={false} {...popupProps}>
           {usuario&&
-              <div className={clsx(styles.popupBox, pixel.className)}>
+              <div className={clsx(styles.popupBox, pixel.className,golden)}>
               <h2 className={styles.popupTitle}>¿Está seguro de que quiere cerrar sesión?</h2> 
               <div className={styles.popupActions}>
               <button className={styles.btn} onClick={()=>{setLopen(false)}}>Volver</button>
@@ -497,8 +496,8 @@ export default function HomePage() {
         {/*Info*/}
         <Popup open={Iopen} onClose={()=>{setIopen(false)}} closeOnDocumentClick={false} {...popupProps}>
           {usuario&&
-              <div className={clsx(styles.popupBox, pixel.className)} style={{overflowX:"hidden"}}>
-                <div style={{overflowY:"scroll",paddingLeft:"200px",paddingRight:"200px",scrollbarWidth:"thin",scrollbarColor:"white black"}}>
+              <div className={clsx(styles.popupBox, pixel.className,golden)} style={{overflowX:"hidden"}}>
+                <div style={{overflowY:"scroll",paddingLeft:"200px",paddingRight:"200px",scrollbarWidth:"thin"}}className={styles.scroll}>
                   <h2 className={styles.popupTitle}>Reglas del juego:</h2> 
                   <div style={{textAlign:"justify",marginBottom:"50px"}}>
                   <p>El objetivo del Blackjack es sumar 21 puntos (o lo más cerca posible) sin pasarte. En el modo de un solo jugador, se compite contra un dealer artificial.</p>

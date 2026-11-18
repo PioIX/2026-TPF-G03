@@ -27,6 +27,7 @@ export default function JuegoSPPage() {
   const [valueError,setValueError]=useState(false)
   const [disabled,setDisabled]=useState(true)
   const [open,setOpen]=useState(false)
+  const [golden,setGolden]=useState(styles.regPage)
 
   const [T,setT]=useState("")
   const [T2,setT2]=useState("")
@@ -120,7 +121,13 @@ useEffect(()=>{
     setOpen(true)
   }
   },[popupText])
-
+   useEffect(()=>{
+    if(pipi){
+      if (pipi.name=="Pipi dorado"){
+            setGolden(styles.goldenPage)
+      }
+    }
+  },[pipi])
 
   function hit(){
     let res = giveusercard()
@@ -261,7 +268,7 @@ useEffect(()=>{
 
   return (
     <>
-    <div className={clsx(styles.page, pixel.className)} style={{backgroundImage: fondo ? `url(${fondo.imgsrc})` :null,backgroundColor: !fondo ?  "#2a2a2a":null}}>
+    <div className={clsx(styles.page, pixel.className,golden)} style={{backgroundImage: fondo ? `url(${fondo.imgsrc})` :null,backgroundColor: !fondo ?  "#2a2a2a":null}}>
     {(loading)?(
       <>
       <header className={styles.header}><button className={clsx(styles.btn, styles.small)} disabled>Volver</button></header>
@@ -309,7 +316,7 @@ useEffect(()=>{
         </div>
         <Popup open={open} onClose={()=>{setOpen(false)}} closeOnDocumentClick={false} closeOnEscape={false} {...popupProps}>
           {(usuario)?(
-            <div className={clsx(styles.popupBox, pixel.className)}>
+            <div className={clsx(styles.popupBox, pixel.className,golden)}>
             <h2 className={styles.popupTitle}>{popupText}</h2>
             {T2&&
             <p className={styles.popupText}>{T2}</p>

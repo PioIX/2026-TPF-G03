@@ -40,6 +40,8 @@ export default function TiendaPage() {
     const [Iloading,setILoading]=useState(false)
     const [open,setOpen]=useState(false)
     const [Copen,setCOpen]=useState(false)
+      const [golden,setGolden]=useState(styles.regPage)
+
 
      const [rarity,setRarity]=useState("")
     const [gottenItem,setGottenItem]=useState(null)
@@ -107,6 +109,14 @@ export default function TiendaPage() {
         setAnimCount(0)
       }
     },[gottenItem,rarity])
+
+       useEffect(()=>{
+    if(pipi){
+      if (pipi.name=="Pipi dorado"){
+            setGolden(styles.goldenPage)
+      }
+    }
+  },[pipi])
 
     useEffect(()=>{
       if(inv&&fondos.length!=0&&Object.keys(usuario).length!=0&&misc.length!=0&&loading&&pipis.length!=0){
@@ -247,6 +257,7 @@ export default function TiendaPage() {
         }else if(item.name.includes("Pipi")){
           localStorage.removeItem("Pipi")
           setPipi(null)
+          setGolden(styles.regPage)
         }else{
           localStorage.removeItem("Misc")
           setItem(null)
@@ -363,7 +374,7 @@ export default function TiendaPage() {
 
   return (
     <>
-    <div className={clsx(styles.page, pixel.className)} style={{backgroundImage: fondo ? `url(${fondo.imgsrc})` :null,backgroundColor: !fondo ?  "#2a2a2a":null}}>
+    <div className={clsx(styles.page, pixel.className,golden)} style={{backgroundImage: fondo ? `url(${fondo.imgsrc})` :null,backgroundColor: !fondo ?  "#2a2a2a":null}}>
     {loading?(<>
     <h1 className={styles.loading}>Cargando tienda...</h1>
     
@@ -374,9 +385,9 @@ export default function TiendaPage() {
     <div  className={styles.container}>
       {/*names define si aparecen los nombres en la tienda, inf si aparecen botones que dan info de cada uno*/}
       <h2>Fondos</h2>
-     <StoreList equip={equip} unequip={unequip} buy={buy} items={fondos} estaEnInv={estaEnInv} names={true} inf={false} className={styles.storeList} btnStyle={styles.btn}></StoreList>
+     <StoreList equip={equip} unequip={unequip} buy={buy} items={fondos} estaEnInv={estaEnInv} names={true} inf={false} className={styles.storeList} btnStyle={styles.btn} golden={golden}></StoreList>
      <h2>Pipis</h2>
-     <StoreList equip={equip} unequip={unequip} buy={buy} items={pipis} estaEnInv={estaEnInv} names={true} inf={true}  className={styles.storeList} btnStyle={styles.btn}></StoreList>
+     <StoreList equip={equip} unequip={unequip} buy={buy} items={pipis} estaEnInv={estaEnInv} names={true} inf={true}  className={styles.storeList} btnStyle={styles.btn} golden={golden}></StoreList>
 { /*<StoreList equip={equip} unequip={unequip} buy={buy} items={misc} estaEnInv={estaEnInv} names={false} inf={false}></StoreList>*/}
      <div className={styles.itemcont}>
      <h2>Items</h2>

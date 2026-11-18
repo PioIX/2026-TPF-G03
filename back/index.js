@@ -114,12 +114,15 @@ io.on("connection", (socket) => {
 						user: userT
 					});
 				}
+					
+					
+					
 				io.to(roomId).emit("joined", {
 					room:roomId,
 					usersCount: roomInfo.users.size,
 					users: Array.from(roomInfo.users.keys()),
 					apuesta:roomInfo.apuesta,
-					goldens: Array.from(roomInfo.users).filter((u)=>u[1].golden==true)
+					goldens: Array.from(roomInfo.users).filter((u)=>u[1].golden==true).map((u)=>u[0])
 				});
 				io.emit("roomChange")
 			}else{
@@ -160,11 +163,12 @@ io.on("connection", (socket) => {
 	if(roomInfo.users.has(user)){
 		roomInfo.users.delete(user);
 			}
+		
 		io.to(roomId).emit("left", {
 				room:roomId,
 				usersCount: roomInfo.users.size,
 				users: Array.from(roomInfo.users.keys()),
-				goldens: Array.from(roomInfo.users).filter((u)=>u.golden)
+				goldens: Array.from(roomInfo.users).filter((u)=>u[1].golden).map((u)=>u[0])
 			});
 		io.emit("roomChange")
   });
@@ -234,7 +238,8 @@ io.on("connection", (socket) => {
 				io.to(roomId).emit("left", {
 				room:roomId,
 				usersCount: roomData.get(roomId).users.size,
-				users: Array.from(roomData.get(roomId).users.keys())
+				users: Array.from(roomData.get(roomId).users.keys()),
+				goldens: Array.from(roomData.get(roomId).users).filter((u)=>u[1].golden).map((u)=>u[0])
 				});
 				io.emit("roomChange")
 			}
@@ -244,7 +249,7 @@ io.on("connection", (socket) => {
 			io.emit("roomChange")
 			console.log("emitting")
 			if(roomData.get(roomId)){
-				io.to(roomId).emit("disconnected", {message: "Usuario desconectado",user:user,room:roomData.get(roomId),userNames:Array.from(roomData.get(roomId).users.keys()),goldens: Array.from(roomData.get(roomId).users).filter((u)=>u.golden)});
+				io.to(roomId).emit("disconnected", {message: "Usuario desconectado",user:user,room:roomData.get(roomId),userNames:Array.from(roomData.get(roomId).users.keys()),goldens: Array.from(roomData.get(roomId).users).filter((u)=>u[1].golden).map((u)=>u[0])});
 				checkWinner(roomId)
 			}
 

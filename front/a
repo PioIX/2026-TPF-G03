@@ -1,0 +1,326 @@
+
+> BlackJack@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.12 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.100.22:3000
+✓ Ready in 1719ms
+
+○ Compiling /Home ...
+ GET /Home 200 in 9.1s (next.js: 9.0s, application-code: 166ms)
+✓ Compiled in 605ms
+ GET /Home 200 in 779ms (next.js: 541ms, application-code: 238ms)
+ GET /Home 200 in 191ms (next.js: 39ms, application-code: 152ms)
+ GET /Home 200 in 168ms (next.js: 11ms, application-code: 158ms)
+ GET /Home 200 in 168ms (next.js: 34ms, application-code: 134ms)
+ GET /Home 200 in 167ms (next.js: 61ms, application-code: 106ms)
+ GET /Home 200 in 167ms (next.js: 87ms, application-code: 80ms)
+ GET /Home 200 in 172ms (next.js: 9ms, application-code: 163ms)
+ GET /Home 200 in 144ms (next.js: 9ms, application-code: 135ms)
+ GET /Home 200 in 139ms (next.js: 10ms, application-code: 129ms)
+ GET /Home 200 in 138ms (next.js: 31ms, application-code: 108ms)
+ GET /Home 200 in 160ms (next.js: 85ms, application-code: 75ms)
+ GET /Home 200 in 162ms (next.js: 60ms, application-code: 102ms)
+ GET /Home 200 in 190ms (next.js: 8ms, application-code: 183ms)
+ GET /Home 200 in 169ms (next.js: 9ms, application-code: 160ms)
+ GET /Home 200 in 171ms (next.js: 9ms, application-code: 163ms)
+ GET /Home 200 in 188ms (next.js: 48ms, application-code: 140ms)
+ GET /Home 200 in 188ms (next.js: 77ms, application-code: 111ms)
+ GET /Home 200 in 189ms (next.js: 112ms, application-code: 77ms)
+ GET /Home 200 in 140ms (next.js: 18ms, application-code: 123ms)
+ GET /Home 200 in 109ms (next.js: 6ms, application-code: 103ms)
+ GET /Home 200 in 88ms (next.js: 7ms, application-code: 82ms)
+ GET /Home 200 in 89ms (next.js: 31ms, application-code: 58ms)
+ GET /Home 200 in 67ms (next.js: 39ms, application-code: 29ms)
+ GET /JuegoMJ?room=2 200 in 947ms (next.js: 933ms, application-code: 14ms)
+ GET /Home 200 in 17ms (next.js: 4ms, application-code: 13ms)
+ GET /JuegoMJ?room=27 200 in 18ms (next.js: 5ms, application-code: 13ms)
+✓ Compiled in 422ms
+ GET /JuegoMJ?room=27 200 in 122ms (next.js: 104ms, application-code: 17ms)
+ GET /Home 200 in 18ms (next.js: 7ms, application-code: 11ms)
+ GET /Home 200 in 84ms (next.js: 5ms, application-code: 79ms)
+ GET /JuegoMJ?room=2 200 in 16ms (next.js: 5ms, application-code: 11ms)
+✓ Compiled in 247ms
+ GET /JuegoMJ?room=2 200 in 72ms (next.js: 50ms, application-code: 23ms)
+✓ Compiled in 229ms
+ GET /JuegoMJ?room=2 200 in 58ms (next.js: 42ms, application-code: 16ms)
+✓ Compiled in 260ms
+ GET /JuegoMJ?room=2 200 in 60ms (next.js: 41ms, application-code: 19ms)
+✓ Compiled in 242ms
+ GET /JuegoMJ?room=2 200 in 62ms (next.js: 43ms, application-code: 18ms)
+✓ Compiled in 216ms
+ GET /JuegoMJ?room=2 200 in 62ms (next.js: 43ms, application-code: 20ms)
+✓ Compiled in 216ms
+ GET /JuegoMJ?room=2 200 in 61ms (next.js: 42ms, application-code: 19ms)
+✓ Compiled in 228ms
+ GET /JuegoMJ?room=2 200 in 67ms (next.js: 45ms, application-code: 21ms)
+ GET /JuegoMJ?room=2 200 in 65ms (next.js: 5ms, application-code: 60ms)
+ GET /JuegoMJ?room=2 200 in 28ms (next.js: 5ms, application-code: 23ms)
+ GET /Error?err=2 200 in 390ms (next.js: 359ms, application-code: 31ms)
+ GET /Error?err=2 200 in 21ms (next.js: 5ms, application-code: 16ms)
+ GET /Home 200 in 18ms (next.js: 8ms, application-code: 10ms)
+ GET /JuegoMJ?room=27 200 in 20ms (next.js: 6ms, application-code: 14ms)
+ GET /JuegoMJ?room=27 200 in 25ms (next.js: 4ms, application-code: 20ms)
+ GET /Error?err=2 200 in 64ms (next.js: 8ms, application-code: 56ms)
+ GET /Error?err=2 200 in 35ms (next.js: 9ms, application-code: 27ms)
+ GET /Home 200 in 16ms (next.js: 4ms, application-code: 12ms)
+ GET /JuegoMJ?room=2 200 in 15ms (next.js: 4ms, application-code: 11ms)
+ GET /Error?err=1 200 in 131ms (next.js: 12ms, application-code: 120ms)
+ GET /Error?err=1 200 in 101ms (next.js: 9ms, application-code: 92ms)
+ GET /Error?err=1 200 in 92ms (next.js: 9ms, application-code: 83ms)
+ GET /Error?err=1 200 in 92ms (next.js: 25ms, application-code: 66ms)
+ GET /Error?err=1 200 in 92ms (next.js: 41ms, application-code: 51ms)
+ GET /Error?err=1 200 in 92ms (next.js: 57ms, application-code: 36ms)
+ GET /Error?err=1 200 in 61ms (next.js: 6ms, application-code: 55ms)
+ GET /Error?err=1 200 in 43ms (next.js: 9ms, application-code: 35ms)
+ GET /Error?err=1 200 in 16ms (next.js: 5ms, application-code: 12ms)
+ GET /Home 200 in 16ms (next.js: 5ms, application-code: 11ms)
+ GET /JuegoMJ?room=27 200 in 15ms (next.js: 4ms, application-code: 11ms)
+ GET /Home 200 in 17ms (next.js: 5ms, application-code: 13ms)
+ GET /Home 200 in 32ms (next.js: 4ms, application-code: 28ms)
+ GET /JuegoMJ?room=27 200 in 17ms (next.js: 5ms, application-code: 11ms)
+ GET /JuegoMJ?room=27 200 in 64ms (next.js: 35ms, application-code: 30ms)
+✓ Compiled in 281ms
+ GET /JuegoMJ?room=27 200 in 59ms (next.js: 36ms, application-code: 23ms)
+ GET /Home 200 in 72ms (next.js: 56ms, application-code: 16ms)
+ GET /JuegoMJ?room=27 200 in 16ms (next.js: 4ms, application-code: 12ms)
+✓ Compiled in 250ms
+ GET /JuegoMJ?room=27 200 in 57ms (next.js: 38ms, application-code: 19ms)
+✓ Compiled in 6ms
+ GET /JuegoMJ?room=27 200 in 62ms (next.js: 38ms, application-code: 24ms)
+✓ Compiled in 5ms
+✓ Compiled in 11ms
+✓ Compiled in 11ms
+✓ Compiled in 9ms
+✓ Compiled in 4ms
+✓ Compiled in 9ms
+✓ Compiled in 9ms
+✓ Compiled in 6ms
+✓ Compiled in 5ms
+✓ Compiled in 7ms
+✓ Compiled in 8ms
+✓ Compiled in 4ms
+✓ Compiled in 8ms
+✓ Compiled in 5ms
+✓ Compiled in 11ms
+✓ Compiled in 11ms
+✓ Compiled in 5ms
+ GET /JuegoMJ?room=27 200 in 58ms (next.js: 5ms, application-code: 53ms)
+ GET /Error?err=2 200 in 66ms (next.js: 16ms, application-code: 50ms)
+ GET /Error?err=2 200 in 26ms (next.js: 7ms, application-code: 20ms)
+ GET /Home 200 in 64ms (next.js: 47ms, application-code: 17ms)
+ GET /JuegoMJ?room=2 200 in 18ms (next.js: 4ms, application-code: 14ms)
+ GET /Error?err=1 200 in 50ms (next.js: 10ms, application-code: 39ms)
+ GET /Error?err=1 200 in 103ms (next.js: 5ms, application-code: 98ms)
+ GET /Error?err=1 200 in 90ms (next.js: 6ms, application-code: 84ms)
+ GET /Error?err=1 200 in 90ms (next.js: 35ms, application-code: 55ms)
+ GET /Error?err=1 200 in 90ms (next.js: 48ms, application-code: 42ms)
+ GET /Error?err=1 200 in 91ms (next.js: 20ms, application-code: 71ms)
+ GET /Error?err=1 200 in 56ms (next.js: 8ms, application-code: 48ms)
+ GET /Error?err=1 200 in 45ms (next.js: 10ms, application-code: 35ms)
+ GET /Error?err=1 200 in 17ms (next.js: 5ms, application-code: 12ms)
+ GET /Home 200 in 16ms (next.js: 4ms, application-code: 12ms)
+✓ Compiled in 11ms
+✓ Compiled in 6ms
+✓ Compiled in 17ms
+ GET /Home 200 in 39ms (next.js: 7ms, application-code: 32ms)
+✓ Compiled in 5ms
+✓ Compiled in 5ms
+✓ Compiled in 6ms
+✓ Compiled in 7ms
+ GET /Home 200 in 87ms (next.js: 65ms, application-code: 22ms)
+✓ Compiled in 6ms
+ GET /Home 200 in 21ms (next.js: 5ms, application-code: 15ms)
+✓ Compiled in 8ms
+ GET /Home 200 in 111ms (next.js: 79ms, application-code: 32ms)
+ GET /JuegoMJ?room=27 200 in 23ms (next.js: 10ms, application-code: 12ms)
+ GET /Home 200 in 17ms (next.js: 5ms, application-code: 12ms)
+✓ Compiled in 6ms
+✓ Compiled in 6ms
+✓ Compiled in 5ms
+✓ Compiled in 6ms
+✓ Compiled in 5ms
+✓ Compiled in 5ms
+✓ Compiled in 6ms
+✓ Compiled in 5ms
+✓ Compiled in 7ms
+✓ Compiled in 5ms
+✓ Compiled in 6ms
+✓ Compiled in 4ms
+✓ Compiled in 12ms
+✓ Compiled in 5ms
+✓ Compiled in 4ms
+✓ Compiled in 6ms
+✓ Compiled in 11ms
+✓ Compiled in 5ms
+✓ Compiled in 5ms
+✓ Compiled in 5ms
+✓ Compiled in 4ms
+✓ Compiled in 8ms
+✓ Compiled in 5ms
+✓ Compiled in 6ms
+✓ Compiled in 5ms
+✓ Compiled in 6ms
+✓ Compiled in 9ms
+✓ Compiled in 5ms
+✓ Compiled in 13ms
+✓ Compiled in 10ms
+✓ Compiled in 5ms
+✓ Compiled in 6ms
+✓ Compiled in 10ms
+✓ Compiled in 5ms
+✓ Compiled in 5ms
+✓ Compiled in 4ms
+✓ Compiled in 6ms
+ GET /Home 200 in 24ms (next.js: 6ms, application-code: 18ms)
+✓ Compiled in 5ms
+✓ Compiled in 5ms
+✓ Compiled in 5ms
+✓ Compiled in 6ms
+✓ Compiled in 5ms
+✓ Compiled in 5ms
+✓ Compiled in 7ms
+✓ Compiled in 7ms
+✓ Compiled in 5ms
+✓ Compiled in 5ms
+✓ Compiled in 366ms
+ GET /Home 200 in 68ms (next.js: 41ms, application-code: 27ms)
+✓ Compiled in 43ms
+ GET /Home 500 in 1112ms (next.js: 934ms, application-code: 179ms)
+ GET /Home 500 in 34ms (next.js: 18ms, application-code: 16ms)
+ GET /Home 500 in 29ms (next.js: 17ms, application-code: 12ms)
+ GET /Home 500 in 30ms (next.js: 23ms, application-code: 7ms)
+✓ Compiled in 164ms
+ GET /Home 200 in 102ms (next.js: 38ms, application-code: 64ms)
+ GET /Home 500 in 16ms (next.js: 10ms, application-code: 6ms)
+ GET /Home 500 in 19ms (next.js: 10ms, application-code: 9ms)
+ GET /Home 500 in 28ms (next.js: 16ms, application-code: 11ms)
+ GET /Home 500 in 31ms (next.js: 23ms, application-code: 8ms)
+ GET /Home 500 in 17ms (next.js: 11ms, application-code: 6ms)
+✓ Compiled in 147ms
+ GET /Home 200 in 98ms (next.js: 36ms, application-code: 63ms)
+ GET /Home 200 in 59ms (next.js: 35ms, application-code: 24ms)
+ GET /Home 200 in 53ms (next.js: 33ms, application-code: 19ms)
+ GET /Home 200 in 55ms (next.js: 35ms, application-code: 20ms)
+ GET /JuegoMJ?room=2 200 in 68ms (next.js: 49ms, application-code: 18ms)
+✓ Compiled in 6ms
+ GET /Error?err=1 200 in 142ms (next.js: 17ms, application-code: 125ms)
+ GET /Error?err=1 200 in 141ms (next.js: 10ms, application-code: 131ms)
+ GET /Error?err=1 200 in 107ms (next.js: 15ms, application-code: 92ms)
+ GET /Error?err=1 200 in 100ms (next.js: 43ms, application-code: 57ms)
+ GET /Error?err=1 200 in 102ms (next.js: 27ms, application-code: 75ms)
+ GET /Error?err=1 200 in 92ms (next.js: 8ms, application-code: 84ms)
+ GET /Error?err=1 200 in 104ms (next.js: 21ms, application-code: 83ms)
+ GET /Error?err=1 200 in 89ms (next.js: 7ms, application-code: 82ms)
+ GET /Error?err=1 200 in 87ms (next.js: 7ms, application-code: 80ms)
+ GET /Error?err=1 200 in 87ms (next.js: 28ms, application-code: 59ms)
+ GET /Error?err=1 200 in 66ms (next.js: 19ms, application-code: 47ms)
+ GET /Error?err=1 200 in 81ms (next.js: 5ms, application-code: 76ms)
+ GET /Error?err=1 200 in 82ms (next.js: 7ms, application-code: 75ms)
+ GET /Error?err=1 200 in 91ms (next.js: 5ms, application-code: 86ms)
+ GET /Error?err=1 200 in 76ms (next.js: 6ms, application-code: 70ms)
+ GET /Error?err=1 200 in 75ms (next.js: 20ms, application-code: 56ms)
+ GET /Error?err=1 200 in 48ms (next.js: 5ms, application-code: 43ms)
+ GET /Error?err=1 200 in 76ms (next.js: 7ms, application-code: 69ms)
+ GET /Error?err=1 200 in 88ms (next.js: 17ms, application-code: 71ms)
+ GET /Error?err=1 200 in 77ms (next.js: 6ms, application-code: 71ms)
+ GET /Error?err=1 200 in 78ms (next.js: 6ms, application-code: 72ms)
+ GET /Error?err=1 200 in 77ms (next.js: 18ms, application-code: 59ms)
+ GET /Error?err=1 200 in 64ms (next.js: 18ms, application-code: 46ms)
+ GET /Error?err=1 200 in 37ms (next.js: 5ms, application-code: 32ms)
+ GET /Error?err=1 200 in 23ms (next.js: 6ms, application-code: 16ms)
+ GET /Home 200 in 14ms (next.js: 4ms, application-code: 10ms)
+✓ Compiled in 4ms
+✓ Compiled in 15ms
+✓ Compiled in 8ms
+ GET /Home 200 in 63ms (next.js: 37ms, application-code: 26ms)
+✓ Compiled in 107ms
+ GET /Home 200 in 57ms (next.js: 37ms, application-code: 20ms)
+✓ Compiled in 248ms
+ GET /Home 200 in 93ms (next.js: 66ms, application-code: 27ms)
+✓ Compiled in 79ms
+ GET /Home 200 in 55ms (next.js: 34ms, application-code: 22ms)
+✓ Compiled in 4ms
+✓ Compiled in 4ms
+✓ Compiled in 10ms
+✓ Compiled in 5ms
+✓ Compiled in 88ms
+ GET /Home 200 in 70ms (next.js: 42ms, application-code: 28ms)
+✓ Compiled in 326ms
+ GET /Home 200 in 105ms (next.js: 78ms, application-code: 27ms)
+✓ Compiled in 242ms
+ GET /Home 200 in 94ms (next.js: 69ms, application-code: 25ms)
+✓ Compiled in 128ms
+ GET /Home 200 in 82ms (next.js: 60ms, application-code: 22ms)
+✓ Compiled in 251ms
+ GET /Home 200 in 88ms (next.js: 65ms, application-code: 23ms)
+✓ Compiled in 241ms
+ GET /Home 200 in 117ms (next.js: 86ms, application-code: 31ms)
+✓ Compiled in 229ms
+ GET /Home 200 in 86ms (next.js: 61ms, application-code: 24ms)
+✓ Compiled in 5ms
+✓ Compiled in 97ms
+ GET /Home 200 in 61ms (next.js: 38ms, application-code: 23ms)
+✓ Compiled in 4ms
+✓ Compiled in 4ms
+✓ Compiled in 264ms
+ GET /Home 200 in 63ms (next.js: 40ms, application-code: 23ms)
+✓ Compiled in 5ms
+ GET /JuegoMJ?room=2 200 in 81ms (next.js: 57ms, application-code: 24ms)
+✓ Compiled in 343ms
+ GET /Error?err=1 200 in 172ms (next.js: 63ms, application-code: 110ms)
+ GET /Error?err=1 200 in 86ms (next.js: 9ms, application-code: 77ms)
+ GET /Error?err=1 200 in 76ms (next.js: 6ms, application-code: 70ms)
+ GET /Error?err=1 200 in 76ms (next.js: 18ms, application-code: 57ms)
+ GET /Error?err=1 200 in 75ms (next.js: 32ms, application-code: 43ms)
+ GET /Error?err=1 200 in 88ms (next.js: 45ms, application-code: 43ms)
+ GET /Error?err=1 200 in 47ms (next.js: 5ms, application-code: 42ms)
+ GET /Error?err=1 200 in 30ms (next.js: 6ms, application-code: 24ms)
+ GET /Error?err=1 200 in 15ms (next.js: 5ms, application-code: 10ms)
+✓ Compiled in 262ms
+ GET /Error?err=1 200 in 63ms (next.js: 41ms, application-code: 22ms)
+✓ Compiled in 257ms
+ GET /Error?err=1 200 in 130ms (next.js: 47ms, application-code: 84ms)
+ GET /Error?err=1 200 in 28ms (next.js: 5ms, application-code: 23ms)
+ GET /Error?err=1 200 in 104ms (next.js: 39ms, application-code: 65ms)
+ GET /Error?err=1 200 in 123ms (next.js: 46ms, application-code: 78ms)
+✓ Compiled in 102ms
+ GET /Error?err=1 200 in 108ms (next.js: 51ms, application-code: 57ms)
+✓ Compiled in 107ms
+ GET /Error?err=1 200 in 69ms (next.js: 50ms, application-code: 19ms)
+✓ Compiled in 76ms
+✓ Compiled in 45ms
+ GET /Error?err=1 500 in 41ms (next.js: 33ms, application-code: 7ms)
+ GET /Error?err=1 500 in 30ms (next.js: 13ms, application-code: 17ms)
+ GET /Error?err=1 500 in 18ms (next.js: 11ms, application-code: 7ms)
+ GET /Error?err=1 200 in 100ms (next.js: 53ms, application-code: 47ms)
+ GET /Error?err=1 500 in 38ms (next.js: 32ms, application-code: 6ms)
+ GET /Error?err=1 500 in 21ms (next.js: 15ms, application-code: 6ms)
+✓ Compiled in 89ms
+ GET /Error?err=1 200 in 107ms (next.js: 57ms, application-code: 50ms)
+✓ Compiled in 123ms
+ GET /Error?err=1 200 in 79ms (next.js: 56ms, application-code: 23ms)
+✓ Compiled in 146ms
+ GET /Error?err=1 200 in 81ms (next.js: 61ms, application-code: 20ms)
+✓ Compiled in 100ms
+ GET /Error?err=1 200 in 71ms (next.js: 50ms, application-code: 20ms)
+ GET /Home 200 in 22ms (next.js: 9ms, application-code: 13ms)
+ GET /Home 500 in 39ms (next.js: 32ms, application-code: 7ms)
+ GET /Home 500 in 21ms (next.js: 14ms, application-code: 7ms)
+✓ Compiled in 11ms
+ GET /Home 200 in 123ms (next.js: 53ms, application-code: 70ms)
+✓ Compiled in 5ms
+ GET /Home 500 in 36ms (next.js: 29ms, application-code: 8ms)
+ GET /Home 500 in 22ms (next.js: 14ms, application-code: 8ms)
+✓ Compiled in 8ms
+ GET /Home 200 in 117ms (next.js: 57ms, application-code: 60ms)
+✓ Compiled in 9ms
+✓ Compiled in 6ms
+✓ Compiled in 7ms
+✓ Compiled in 9ms
+✓ Compiled in 5ms
+✓ Compiled in 5ms
+✓ Compiled in 4ms
+✓ Compiled in 7ms
+✓ Compiled in 7ms

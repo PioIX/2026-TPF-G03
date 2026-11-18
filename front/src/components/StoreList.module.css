@@ -1,21 +1,27 @@
+.regPage{
+  --specColor:white;
+}
+.goldenPage{
+    --specColor:gold;
 
+}
 .btn {
     text-align: center;
   padding: 0.8rem 1rem;
-  border: 4px solid #ffffff;
+  border: 4px solid var(--specColor);
   cursor: pointer;
   font: inherit;
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: #000000;
-  background: #ffffff;
+  background: var(--specColor);
   box-shadow: 0 6px 0 #777777;
   width: 160px;
 }
  
 .btn:hover {
-  color: #ffffff;
+  color: var(--specColor);
   background: #000000;
   transform: translateY(-2px);
   box-shadow: 0 8px 0 #777777;
@@ -27,7 +33,7 @@
 }
  
 .btn:focus-visible {
-  outline: 4px solid #ffffff;
+  outline: 4px solid var(--specColor);
   outline-offset: 3px;
 }
  
@@ -36,20 +42,20 @@
 .inf {
     text-align: center;
   padding: 0.8rem 1rem;
-  border: 4px solid #ffffff;
+  border: 4px solid var(--specColor);
   cursor: pointer;
   font: inherit;
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: #000000;
-  background: #ffffff;
+  background: var(--specColor);
   box-shadow: 0 6px 0 #777777;
   width: 100px;
 }
  
 .inf:hover {
-  color: #ffffff;
+  color: var(--specColor);
   background: #000000;
   transform: translateY(-2px);
   box-shadow: 0 8px 0 #777777;
@@ -61,7 +67,7 @@
 }
  
 .inf:focus-visible {
-  outline: 4px solid #ffffff;
+  outline: 4px solid var(--specColor);
   outline-offset: 3px;
 }
 
@@ -85,9 +91,9 @@
   width: min(85vw, 20rem);
   padding: 1.25rem;
   text-align: center;
-  color: #ffffff;
+  color: var(--specColor);
   background: #000000;
-  border: 4px solid #ffffff;
+  border: 4px solid var(--specColor);
   box-shadow: 0 0 0 6px #000000, 0 12px 0 6px #777777;
 }
 

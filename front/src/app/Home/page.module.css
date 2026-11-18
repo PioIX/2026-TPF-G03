@@ -1,5 +1,17 @@
 /*Hacer homepage (o en general) un poco más ancha, añadir colores*/
+.regPage{
+  --specColor:white;
+      --dropShadow:#777777;
 
+}
+.goldenPage{
+    --specColor:gold;
+    --dropShadow:rgb(156, 133, 0);
+
+}
+.scroll{
+  scrollbar-color: var(--specColor) black;
+}
 .page,
 .page *,
 .popupBox,
@@ -21,7 +33,7 @@
   justify-content: center;
   gap: 2rem;
   line-height: 1.4;
-  color: #ffffff;
+  color: var(--specColor);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -55,7 +67,8 @@
   margin-top: 0px;
   width: 100%;
   height:6px;
-  background-color: #ffffff;
+  background-color: var(--specColor);
+  border: 0px;
 }
  
 .page::before {
@@ -66,7 +79,7 @@
   width: var(--w);
   height: var(--h);
   background: #000000;
-  border: 4px solid #ffffff;
+  border: 4px solid var(--specColor);
 }
  
 .loading,
@@ -89,7 +102,7 @@
  
 .titleWrap {
   padding: 1rem 6rem;
-  border: 4px solid #ffffff;
+  border: 4px solid var(--specColor);
   margin-bottom: 1rem;
 }
  
@@ -104,27 +117,27 @@
   grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
   padding: 1rem 2rem;
-  border: 4px solid #ffffff;
+  border: 4px solid var(--specColor);
 }
  
 .btn {
   padding: 0.8rem 1rem;
-  border: 4px solid #ffffff;
+  border: 4px solid var(--specColor);
   cursor: pointer;
   font: inherit;
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: #000000;
-  background: #ffffff;
-  box-shadow: 0 6px 0 #777777;
+  background: var(--specColor);
+  box-shadow: 0 6px 0 var(--dropShadow);
 }
  
 .btn:hover {
-  color: #ffffff;
+  color: var(--specColor);
   background: #000000;
   transform: translateY(-2px);
-  box-shadow: 0 8px 0 #777777;
+  box-shadow: 0 8px 0 var(--dropShadow)
 }
  
 .btn:active {
@@ -133,7 +146,7 @@
 }
  
 .btn:focus-visible {
-  outline: 4px solid #ffffff;
+  outline: 4px solid var(--specColor);
   outline-offset: 3px;
 }
  
@@ -155,9 +168,9 @@
   padding: 2rem;
   text-align: center;
   font-size: 0.8rem;
-  color: #ffffff;
+  color: var(--specColor);
   background: #000000;
-  border: 4px solid #ffffff;
+  border: 4px solid var(--specColor);
   box-shadow: 0 0 0 8px #000000;
 }
  
@@ -185,22 +198,22 @@
   font: inherit;
   font-size: 1rem;
   text-align: center;
-  color: #ffffff;
+  color:var(--specColor);
   background: #111111;
-  border: 4px solid #ffffff;
+  border: 4px solid var(--specColor);
   outline: none;
 }
  
 .input:focus {
   color: #000000;
-  background: #ffffff;
+  background:white;
 }
  
 .error {
   margin: 0;
   padding: 0.5rem 0.75rem;
   color: #000000;
-  background: #ffffff;
+  background: var(--specColor);
 }
  
 .roomList {
@@ -218,7 +231,7 @@
   gap: 0.5rem;
   padding: 0.5rem 1rem;
   background: #111111;
-  border: 2px solid #ffffff;
+  border: 2px solid var(--specColor);
   text-align: left;
 }
  
@@ -239,7 +252,7 @@
   margin: 0;
   padding: 0.5rem 0.75rem;
   background: #111111;
-  border: 2px solid #ffffff;
+  border: 2px solid var(--specColor);
 }
  
 @media (max-width: 600px) {
