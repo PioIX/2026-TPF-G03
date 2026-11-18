@@ -38,7 +38,6 @@ export default function LoginPage() {
   useEffect(() => {
     setErrorMessage("")
     let t=localStorage.getItem("userid")
-    console.log(t)
     if(t==-1){
       setAdmin(true)
     }else{
@@ -56,14 +55,12 @@ export default function LoginPage() {
     useEffect(()=>{
     if(logged){
       let t=localStorage.getItem("userid")
-      console.log(t)
       if(t==-1){
         setAdmin(true)
       }else{
         //check de items que tiene equipados
         useFetch.getEquipados(t)
         .then((data)=>{
-          console.log(data)
           if (data.length>=1){
             data.map((it,i)=>{
               useFetch.getItemPorId(it.itemid)
@@ -74,16 +71,12 @@ export default function LoginPage() {
                   localStorage.setItem("Pipi",JSON.stringify(item[0]))
     
                 }//equipar item que creo que no se va a usar
-                console.log(i)
-                console.log(data.length-1)
                 if(i==data.length-1){
-                  console.log("going home")
                   router.replace("./Home")
                 }
               })
             })
           }else{
-            console.log("no items")
             router.replace("./Home")
 
           }

@@ -70,7 +70,7 @@ export default function HomePage() {
   const [errM,setErrM]=useState("")
   const [apuesta,setApuesta]=useState(1)
   const [shownItems,setShownItems]=useState(null)
-
+  const [golden,setGolden]=useState(styles.regPage)
   const [avRooms,setAvRooms]=useState(null)
   const { socket, isConnected } =useSocket()
   const [valueError,setValueError]=useState(false)
@@ -93,7 +93,6 @@ export default function HomePage() {
       if(localStorage.getItem("Misc")){
         setItem(JSON.parse(localStorage.getItem("Misc")))
       }
-    console.log(usuarioId)
     if (!Number(usuarioId)){
      router.replace("./")}
     useFetch.getInventario(usuarioId)
@@ -158,7 +157,13 @@ export default function HomePage() {
     }
   },[Mopen])
 
-
+   useEffect(()=>{
+    if(pipi){
+      if (pipi.name=="Pipi dorado"){
+            setGolden(styles.goldenPage)
+      }
+    }
+  },[pipi])
   useEffect(()=>{
       if(!socket){
         return
@@ -166,14 +171,12 @@ export default function HomePage() {
       
       socket.on("allRooms",(data)=>{
         let rooms=data.message
-        console.log(rooms)
         setAvRooms(rooms)
       })
       socket.on("error",({type})=>{
        router.replace(`/Error?err=${type}`)
       })
       socket.on("connect",()=>{
-        console.log(socket.id)
       })
       socket.on("roomChange",()=>{
         socket.emit("listRooms")
@@ -233,7 +236,7 @@ export default function HomePage() {
 
     function pointCheck(points){
     setErrM("")
-    if(points<1){
+    if(points<1||!Number.isInteger(Number(points))){
       setErrM("Cantidad inválida")
     }else{
 
@@ -249,7 +252,7 @@ export default function HomePage() {
 
   return (
     <>
-    <div className={clsx(styles.page, pixel.className)} style={{backgroundImage: fondo ? `url(${fondo.imgsrc})` :null,backgroundColor: !fondo ?  "#2a2a2a":null}}>
+    <div className={clsx(styles.page, pixel.className,golden)} style={{backgroundImage: fondo ? `url(${fondo.imgsrc})` :null,backgroundColor: !fondo ?  "#2a2a2a":null}}>
     {(loading)?(
       
         <h1 className={styles.loading}>Cargando...</h1>
@@ -339,24 +342,24 @@ export default function HomePage() {
       </section>
         {/*POPUPS*/}
         {/*Apuesta para comenzar juego*/}
-        <Popup open={Popen} onClose={()=>{setPopen(false)}} closeOnDocumentClick={false} closeOnEscape={false} {...popupProps}>
+        <Popup open={Popen} onClose={()=>{setPopen(false)}} closeOnDocumentClick={false} closeOnEscape={true} {...popupProps}>
         {usuario&&
-          <div className={clsx(styles.popupBox, pixel.className)}>
+          <div className={clsx(styles.popupBox, pixel.className,golden)}>
             <h2 className={styles.popupTitle}>¿Cuántos puntos quiere apostar?</h2>
             <p className={styles.popupText}>Tus puntos: {usuario.points}</p>
             {disabled?
-            <input className={styles.input} disabled value={puntosA}></input>
+            <input className={styles.input} disabled value={puntosA} type="number" min="0" step="1"></input>
 
             :
 
-            <input className={styles.input} onChange={(e)=>{setPuntosA(e.target.value)}} value={puntosA}></input>
+            <input className={styles.input} onChange={(e)=>{setPuntosA(e.target.value)}} value={puntosA}type="number" min="0" step="1"></input>
           }
             {valueError&&<p className={styles.error}>Valor inválido</p>}
             {disabled?
              <button className={styles.btn} disabled>Comenzar</button>
             :
             <button className={styles.btn} onClick={()=>{
-              if((puntosA>0 && puntosA<=usuario.points) || puntosA==1){
+              if(((puntosA>0 && puntosA<=usuario.points) || puntosA==1 )&&Number.isInteger(Number(puntosA))){
                 setDisabled(true)
                 setValueError(false)
                 sessionStorage.setItem("puntosApostados",puntosA)
@@ -372,9 +375,9 @@ export default function HomePage() {
 
 
        {/*Multijugador*/}
-        <Popup open={Mopen} onClose={()=>{setMopen(false)}} closeOnDocumentClick={false} closeOnEscape={false}{...popupProps}>
+        <Popup open={Mopen} onClose={()=>{setMopen(false);setErrM("")}} closeOnDocumentClick={false} closeOnEscape={false}{...popupProps}>
           {usuario&&
-            <div className={clsx(styles.popupBox, pixel.className)}>
+            <div className={clsx(styles.popupBox, pixel.className,golden)}>
               <h2 className={styles.popupTitle}>Salas multijugador</h2> 
               {(avRooms)?(<>
                 {(avRooms.length>0)?(<div className={styles.roomList}>
@@ -419,12 +422,12 @@ export default function HomePage() {
         <Popup open={Aopen} onClose={()=>{setAopen(false)}} closeOnDocumentClick={false} closeOnEscape={false} {...popupProps}>
           {usuario&&
              <>
-             <div className={clsx(styles.popupBox, pixel.className)}>
+             <div className={clsx(styles.popupBox, pixel.className,golden)}>
              <h2>Ingrese puntos a apostar:</h2>
              {disabled?
-            <input type="number" value={apuesta} disabled className={styles.input}></input>
+            <input type="number" min="0" step="1" value={apuesta} disabled className={styles.input}></input>
             : 
-            <input type="number" value={apuesta} onChange={(e)=>{setApuesta(e.target.value)}} className={styles.input}></input>
+            <input type="number" min="0" step="1" value={apuesta} onChange={(e)=>{setApuesta(e.target.value)}} className={styles.input}></input>
             
             }
               {errM&&
@@ -438,7 +441,7 @@ export default function HomePage() {
             </>
             :
             <>
-              <button className={styles.btn} onClick={()=>{if(pointCheck(apuesta)){setDisabled(true);socket.emit("createRoom",{user:usuario.username,socketId:socket.id,roomId:usuario.id,apuesta:apuesta});}}}>Crear</button>
+              <button className={styles.btn} onClick={()=>{if(pointCheck(apuesta)){setDisabled(true);socket.emit("createRoom",{user:usuario.username,socketId:socket.id,roomId:usuario.id,apuesta:apuesta,golden:(golden===styles.goldenPage)});}}}>Crear</button>
               <button className={styles.btn} onClick={()=>{setAopen(false)}}>Volver</button>
             </>
           }
@@ -451,7 +454,7 @@ export default function HomePage() {
         {/*Estadística de usuario*/}
        <Popup open={Eopen} onClose={()=>{setEopen(false)}} closeOnDocumentClick={false} {...popupProps}>
           {usuario&&
-          <div className={clsx(styles.popupBox, pixel.className)}>
+          <div className={clsx(styles.popupBox, pixel.className,golden)}>
             {(eloading)?(
                 <h2 className={styles.popupTitle}>Cargando estadistica....</h2>
             ):(
@@ -476,7 +479,7 @@ export default function HomePage() {
         {/*Logout*/}
         <Popup open={Lopen} onClose={()=>{setLopen(false)}} closeOnDocumentClick={false} {...popupProps}>
           {usuario&&
-              <div className={clsx(styles.popupBox, pixel.className)}>
+              <div className={clsx(styles.popupBox, pixel.className,golden)}>
               <h2 className={styles.popupTitle}>¿Está seguro de que quiere cerrar sesión?</h2> 
               <div className={styles.popupActions}>
               <button className={styles.btn} onClick={()=>{setLopen(false)}}>Volver</button>
@@ -490,8 +493,8 @@ export default function HomePage() {
         {/*Info*/}
         <Popup open={Iopen} onClose={()=>{setIopen(false)}} closeOnDocumentClick={false} {...popupProps}>
           {usuario&&
-              <div className={clsx(styles.popupBox, pixel.className)} style={{overflowX:"hidden"}}>
-                <div style={{overflowY:"scroll",paddingLeft:"200px",paddingRight:"200px",scrollbarWidth:"thin",scrollbarColor:"white black"}}>
+              <div className={clsx(styles.popupBox, pixel.className,golden)} style={{overflowX:"hidden"}}>
+                <div style={{overflowY:"scroll",paddingLeft:"200px",paddingRight:"200px",scrollbarWidth:"thin"}}className={styles.scroll}>
                   <h2 className={styles.popupTitle}>Reglas del juego:</h2> 
                   <div style={{textAlign:"justify",marginBottom:"50px"}}>
                   <p>El objetivo del Blackjack es sumar 21 puntos (o lo más cerca posible) sin pasarte. En el modo de un solo jugador, se compite contra un dealer artificial.</p>

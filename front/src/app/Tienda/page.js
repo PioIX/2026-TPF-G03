@@ -40,6 +40,8 @@ export default function TiendaPage() {
     const [Iloading,setILoading]=useState(false)
     const [open,setOpen]=useState(false)
     const [Copen,setCOpen]=useState(false)
+      const [golden,setGolden]=useState(styles.regPage)
+
 
      const [rarity,setRarity]=useState("")
     const [gottenItem,setGottenItem]=useState(null)
@@ -54,7 +56,6 @@ export default function TiendaPage() {
   
     useEffect(()=>{
       usuarioId=localStorage.getItem("userid")
-      console.log(usuarioId)
       if (!Number(usuarioId)){
        router.replace("./")}
       useFetch.getUsuarioPorId(usuarioId)
@@ -108,6 +109,14 @@ export default function TiendaPage() {
       }
     },[gottenItem,rarity])
 
+       useEffect(()=>{
+    if(pipi){
+      if (pipi.name=="Pipi dorado"){
+            setGolden(styles.goldenPage)
+      }
+    }
+  },[pipi])
+
     useEffect(()=>{
       if(inv&&fondos.length!=0&&Object.keys(usuario).length!=0&&misc.length!=0&&loading&&pipis.length!=0){
         setLoading(false)
@@ -143,14 +152,12 @@ export default function TiendaPage() {
       if(animCount){
         if(animCount==3){
           const timer = setTimeout(() => {
-            console.log("pick")
            pickItem()
 
           }, 1000);
           return () => clearTimeout(timer);
         }else{
           const timer = setTimeout(() => {
-            console.log("next")
             setAnimCount((prev)=>prev+1)
           }, 1000);
           return () => clearTimeout(timer);
@@ -161,7 +168,6 @@ export default function TiendaPage() {
       
  useEffect(()=>{
    if(Copen){
-    console.log("started")
     setAnimCount(1)
    }
   },[Copen])
@@ -247,6 +253,7 @@ export default function TiendaPage() {
         }else if(item.name.includes("Pipi")){
           localStorage.removeItem("Pipi")
           setPipi(null)
+          setGolden(styles.regPage)
         }else{
           localStorage.removeItem("Misc")
           setItem(null)
@@ -258,7 +265,6 @@ export default function TiendaPage() {
     //chequear si funciona la compra
     function buy(item){
       if(usuario.points<item.price){
-        console.log("Puntos insuficientes")
         setOpen(true)
       }else{
         //popup para confirmar compra
@@ -291,10 +297,7 @@ export default function TiendaPage() {
     let rand = Math.floor(Math.random()*100)
     let r2=Math.floor(Math.random()*100)
 
-    console.log("random")
-    console.log(rand)
     if(rand<=10){
-      console.log("Legendario")
       if(r2<=60){
         im=28 //Rata
       }else{
@@ -303,7 +306,6 @@ export default function TiendaPage() {
       setRarity("Legendario")
       //item raro, 10 en 100 chance
     }else if (rand<=40){
-      console.log("Raro")
        setRarity("Raro")
         if(r2<=33){
         im=2 //corazón
@@ -315,7 +317,6 @@ export default function TiendaPage() {
         }
       //30 en 100
     }else{
-      console.log("común")
       setRarity("Comùn")
       if(r2<=33){
         im=4 //té
@@ -330,8 +331,7 @@ export default function TiendaPage() {
    useFetch.getItemPorId(im)
     .then((data)=>{
       setGottenItem(data[0])
-      console.log("gotten item")
-      console.log(data[0])
+
     })
    let e
         useFetch.getEstadisticaDeUsuario(usuario.id)
@@ -363,7 +363,7 @@ export default function TiendaPage() {
 
   return (
     <>
-    <div className={clsx(styles.page, pixel.className)} style={{backgroundImage: fondo ? `url(${fondo.imgsrc})` :null,backgroundColor: !fondo ?  "#2a2a2a":null}}>
+    <div className={clsx(styles.page, pixel.className,golden)} style={{backgroundImage: fondo ? `url(${fondo.imgsrc})` :null,backgroundColor: !fondo ?  "#2a2a2a":null}}>
     {loading?(<>
     <h1 className={styles.loading}>Cargando tienda...</h1>
     
@@ -374,9 +374,9 @@ export default function TiendaPage() {
     <div  className={styles.container}>
       {/*names define si aparecen los nombres en la tienda, inf si aparecen botones que dan info de cada uno*/}
       <h2>Fondos</h2>
-     <StoreList equip={equip} unequip={unequip} buy={buy} items={fondos} estaEnInv={estaEnInv} names={true} inf={false} className={styles.storeList} btnStyle={styles.btn}></StoreList>
+     <StoreList equip={equip} unequip={unequip} buy={buy} items={fondos} estaEnInv={estaEnInv} names={true} inf={false} className={styles.storeList} btnStyle={styles.btn} golden={golden}></StoreList>
      <h2>Pipis</h2>
-     <StoreList equip={equip} unequip={unequip} buy={buy} items={pipis} estaEnInv={estaEnInv} names={true} inf={true}  className={styles.storeList} btnStyle={styles.btn}></StoreList>
+     <StoreList equip={equip} unequip={unequip} buy={buy} items={pipis} estaEnInv={estaEnInv} names={true} inf={true}  className={styles.storeList} btnStyle={styles.btn} golden={golden}></StoreList>
 { /*<StoreList equip={equip} unequip={unequip} buy={buy} items={misc} estaEnInv={estaEnInv} names={false} inf={false}></StoreList>*/}
      <div className={styles.itemcont}>
      <h2>Items</h2>
@@ -389,7 +389,7 @@ export default function TiendaPage() {
 
        <Popup open={open} onClose={()=>{setOpen(false)}} closeOnDocumentClick={true} {...popupProps}>
               {usuario&&
-                <div  className={clsx(styles.popupBox, pixel.className)}>
+                <div  className={clsx(styles.popupBox, pixel.className,golden)}>
                   <h2 className={styles.popupTitle}>No tiene suficientes puntos para hacer esta compra</h2>
                   <button className={styles.btn} onClick={()=>{setOpen(false)}}>Cerrar</button>
                 </div>       
@@ -399,14 +399,14 @@ export default function TiendaPage() {
 
              <Popup open={Copen} onClose={()=>{setCOpen(false);setAnimCount(0)}} closeOnDocumentClick={false} {...popupProps}>
               {gottenItem&&rarity?
-                <div  className={clsx(styles.popupBox, pixel.className)}>
+                <div  className={clsx(styles.popupBox, pixel.className,golden)}>
                   <h2 className={styles.popupTitle}>Recibiste un/a {gottenItem.name}</h2>
                   <img src={gottenItem.imgsrc} style={{height:"100px"}}></img>
                   <p className={styles.popupText}>{rarity}</p>
                   <button className={styles.btn} onClick={()=>{setCOpen(false);setGottenItem(null),setRarity("")}}>Cerrar</button>
                 </div>
                 :
-                <div  className={clsx(styles.popupBox, pixel.className)}>
+                <div  className={clsx(styles.popupBox, pixel.className,golden)}>
                   {/*animación de carga lol*/}
                   {animCount&&
                   <img src={`/spr/buzon${animCount}.png`}></img>

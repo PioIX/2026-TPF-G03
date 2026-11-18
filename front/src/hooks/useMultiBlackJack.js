@@ -25,7 +25,6 @@ export const useMultiBlackJack = () => {
 
 useEffect (()=>{
         let temp=Number(sum)
-        console.log(temp)
         let aces=ace11
         while (temp>21 && aces>0){
             temp-=10
@@ -35,15 +34,12 @@ useEffect (()=>{
             setSum(temp)
             setAce11(aces)
         }
-        console.log(`Vos: ${ucards.map((card)=>(card[0]))}`)
-        console.log(`Suma: ${temp}`)
+      
         
         if (temp>21){
-            console.log("Perdiste")
             setHeld(true)
         }else{
             if(temp==21){
-                console.log("Ganaste!")
                 setHeld(true)
             }
         
@@ -52,7 +48,6 @@ useEffect (()=>{
 
     const giveusercard= ()=>{
         let temp=Number(sum)
-        console.log(temp)
         const nueva=sacarCarta()
         let usertemp=nueva[0]
         setUCards((prev)=>[...prev,nueva])

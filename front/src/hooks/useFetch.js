@@ -17,7 +17,6 @@ export function getUsuarioPorId(id){
         return fetch(`${IP_BACK}Usuarios?id=${id}`)
         .then(response => response.json())
         .then(data => {
-            console.log(data); 
             return data.message
     });
 }
@@ -26,7 +25,6 @@ export function getUsuarioPorUsername(username){
         return fetch(`${IP_BACK}Usuarios?username=${username}`)
         .then(response => response.json())
         .then(data => {
-            console.log(data); 
             return data.message
     });
 }
@@ -35,7 +33,6 @@ export function getRanking(){
         return fetch(`${IP_BACK}Ranking`)
         .then(response => response.json())
         .then(data => {
-            console.log(data); 
             return data.message
     });
 }
@@ -60,7 +57,6 @@ export function getUnItemPorUnUsuario(itemid,userid){
         return fetch(`${IP_BACK}ItemsporUsuario?itemid=${itemid}&userid=${userid}`)
         .then(response => response.json())
         .then(data => {
-            console.log(data); 
             return data.message
     });
 }
@@ -87,7 +83,6 @@ export function getItemsPorUsuario(){
         return fetch(`${IP_BACK}ItemsporUsuario`)
         .then(response => response.json())
         .then(data => {
-            console.log(data); 
             return data.message
     });
 }
@@ -96,39 +91,9 @@ export function getEstadisticaDeUsuario(userid){
         return fetch(`${IP_BACK}Estadistica?userid=${userid}`)
         .then(response => response.json())
         .then(data => {
-            console.log(data); 
             return data.message
     });
 }
-
-export function getSalas(){
-        return fetch(`${IP_BACK}Salas`)
-        .then(response => response.json())
-        .then(data => {
-            console.log(data); 
-            return data.message
-    });
-}
-
-export function getSalaDeUsuario(){
-        return fetch(`${IP_BACK}Salas?userid=${userid}`)
-        .then(response => response.json())
-        .then(data => {
-            console.log(data); 
-            return data.message
-    });
-}
-
-export function getSalasPorActividad(activa){
-        return fetch(`${IP_BACK}Salas?activa=${activa}`)
-        .then(response => response.json())
-        .then(data => {
-            console.log(data); 
-            return data.message
-    });
-}
-
-
 
 export function postUsuario(datos){
    try {
@@ -400,11 +365,6 @@ export function putPassword(newpass,id){
 };
 
 export function putPoints(newpoints,id){
-  console.log("Puntos recibida por fetch")
-  console.log(newpoints)
-  console.log("id del usuario")
-  console.log(id)
-
    try {
      return fetch(`${IP_BACK}Usuarios`, {
          method: 'PUT',

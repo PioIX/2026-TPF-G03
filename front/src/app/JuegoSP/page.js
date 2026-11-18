@@ -27,6 +27,7 @@ export default function JuegoSPPage() {
   const [valueError,setValueError]=useState(false)
   const [disabled,setDisabled]=useState(true)
   const [open,setOpen]=useState(false)
+  const [golden,setGolden]=useState(styles.regPage)
 
   const [T,setT]=useState("")
   const [T2,setT2]=useState("")
@@ -98,11 +99,6 @@ useEffect(()=>{
         win(puntosA)
       }
     }else if(wl==-1){
-        console.log("dealer")
-        console.log(dealsum)
-        console.log("user")
-        console.log(usersum)
-        console.log("Wl -1")
         setDisabled(true)
         lose(puntosA)
       }
@@ -120,11 +116,16 @@ useEffect(()=>{
     setOpen(true)
   }
   },[popupText])
-
+   useEffect(()=>{
+    if(pipi){
+      if (pipi.name=="Pipi dorado"){
+            setGolden(styles.goldenPage)
+      }
+    }
+  },[pipi])
 
   function hit(){
     let res = giveusercard()
-    console.log(res)
   }
 
   function stand(){
@@ -134,9 +135,7 @@ useEffect(()=>{
     }
     const timer = setTimeout(() => {
       if(wl==0 && dealsum<=usersum && dealsum<21){
-        console.log("condiciones cumplidas")
         let res=givedealcard()
-        console.log(res)
       } else if(dealsum>usersum && dealsum<=21){
         setWL(-1)
       }
@@ -147,15 +146,11 @@ useEffect(()=>{
 
   
   function rand(min, max) {
-    console.log(min)
-    console.log(max)
     return parseInt(Math.floor(Math.random() * (max - min + 1) + min));
   }
 
   function win(points){
-    console.log(points)
     points=parseInt(points)
-   console.log("win running")
     if(pipi){
       if(pipi.name=="Pipi"){
         //Pipi normal, no hace nada creo
@@ -166,32 +161,23 @@ useEffect(()=>{
           setT("Pipi vomitó! Puntos triplicados")
         }else{
           let r= rand(1,points/2)
-          console.log(r)
           points-=r
           setT(`Pipi se comió ${r} punto/s`)
         }
 
       }else if(pipi.name=="Pipi loco"){
-        console.log("OLD WIN POINTS")
-        console.log(points)
        let r= rand((points*-1),points)
-       console.log("RANDOM PIPI LOCO ")
-       console.log(parseInt(r))
        points=points+parseInt(r)
-       console.log("new win points")
-       console.log(points)
        if(r>=0){
          setT(`Pipi sumó ${r} puntos`)
        }else{
         setT(`Pipi restó ${(r*-1)} puntos`)
        }
-      console.log(points)
       }else if(pipi.name=="Pipi responsable"){
         points=Math.round(points*1.25)
         setT("Pipi multiplicó por 1.25")
 
       }else if(pipi.name=="Pipi clasista"){
-        console.log(puntosA)
         if(puntosA>(usuario.points/2)){
           points=Math.round(points*1.5)
           setT("Pipi multiplicó por 1.5")
@@ -200,15 +186,11 @@ useEffect(()=>{
         }
       }
       if (points<0){
-        console.log("points 0")
         points=0
-        console.log(points)
       }
     }
-    console.log(usuario)
     setPopupText("Ganaste")
-    console.log(points)
-    console.log(parseInt(points))
+
     let newE={
       userid:usuario.id,
       wins:parseInt(estadistica.wins)+1,
@@ -218,19 +200,13 @@ useEffect(()=>{
       points_lost:estadistica.points_lost,
       cant_items:estadistica.cant_items
     }
-    console.log(" old streak")
-    console.log(estadistica.streak)
-    console.log("new streak")
-    console.log(newE.streak)
     useFetch.putEstadistica(newE)
     useFetch.putPoints(usuario.points+parseInt(points),usuario.id)
     usuario.points+=parseInt(points)
   }
 
   function lose(points){
-    console.log("lose running")
     setPopupText("Perdiste")
-    console.log(usuario)
     if(usuario.points<=0){
       setT2("La casa tiene pena, no te saca más puntos")
       points=0
@@ -244,10 +220,6 @@ useEffect(()=>{
         points_lost:estadistica.points_lost+parseInt(points),
         cant_items:estadistica.cant_items
       }
-       console.log(" old streak")
-      console.log(estadistica.streak)
-      console.log("new streak")
-      console.log(newE)
       useFetch.putEstadistica(newE)
       useFetch.putPoints(usuario.points-parseInt(points),usuario.id)
       usuario.points-=parseInt(points)
@@ -261,7 +233,7 @@ useEffect(()=>{
 
   return (
     <>
-    <div className={clsx(styles.page, pixel.className)} style={{backgroundImage: fondo ? `url(${fondo.imgsrc})` :null,backgroundColor: !fondo ?  "#2a2a2a":null}}>
+    <div className={clsx(styles.page, pixel.className,golden)} style={{backgroundImage: fondo ? `url(${fondo.imgsrc})` :null,backgroundColor: !fondo ?  "#2a2a2a":null}}>
     {(loading)?(
       <>
       <header className={styles.header}><button className={clsx(styles.btn, styles.small)} disabled>Volver</button></header>
@@ -309,7 +281,7 @@ useEffect(()=>{
         </div>
         <Popup open={open} onClose={()=>{setOpen(false)}} closeOnDocumentClick={false} closeOnEscape={false} {...popupProps}>
           {(usuario)?(
-            <div className={clsx(styles.popupBox, pixel.className)}>
+            <div className={clsx(styles.popupBox, pixel.className,golden)}>
             <h2 className={styles.popupTitle}>{popupText}</h2>
             {T2&&
             <p className={styles.popupText}>{T2}</p>
@@ -324,10 +296,10 @@ useEffect(()=>{
             </ul>
             {(replay)?(<>
             <p className={styles.popupText}>¿Cuántos puntos quiere apostar?</p>
-              <input className={styles.input} onChange={(e)=>{setPuntosA(e.target.value)}} value={puntosA}></input>
+              <input className={styles.input} onChange={(e)=>{setPuntosA(e.target.value)}} value={puntosA} type="number" min="0" step="1"></input>
               {valueError&&<p className={styles.error}>Valor inválido</p>}
             <button className={styles.btn} onClick={()=>{
-              if((puntosA>0 && puntosA<=usuario.points) || puntosA==1){
+              if(((puntosA>0 && puntosA<=usuario.points) || puntosA==1) &&Number.isInteger(Number(puntosA))){
                 setOpen(false);
                 setValueError(false)
                 setReplay(false)

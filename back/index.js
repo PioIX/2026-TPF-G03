@@ -51,7 +51,8 @@ io.on("connection", (socket) => {
 	io.emit("pingAll", { event: "Ping to all", message: data });
   });
 
-	socket.on("createRoom",({roomId,user,socketId,apuesta})=>{
+	socket.on("createRoom",({roomId,user,socketId,apuesta,golden})=>{
+		console.log(`Room created, id ${roomId}`)
 		roomId=parseInt(roomId)
 	  if (!roomData.has(roomId)) {
 		
@@ -68,7 +69,8 @@ io.on("connection", (socket) => {
 					sum:0,
 					cards:[],
 					held:false,
-					connected:true
+					connected:true,
+					golden:golden
 					//datos de cada usuario que inicia
 				});
 			io.to(socketId).emit("created", {
@@ -82,8 +84,8 @@ io.on("connection", (socket) => {
 	})
 
 
-  socket.on("joinRoom", ({roomId,user,socketId}) => {
-	console.log("JOIN ROOM")
+  socket.on("joinRoom", ({roomId,user,socketId,golden}) => {
+	console.log(`User joined room ${roomId}`)
 	roomId=parseInt(roomId)
 
 		if (roomData.has(roomId)){
@@ -97,7 +99,8 @@ io.on("connection", (socket) => {
 						sum:0,
 						cards:[],
 						held:false,
-						connected:true
+						connected:true,
+						golden:golden
 						//datos de cada usuario que inicia
 					});
 				}else{
@@ -110,11 +113,15 @@ io.on("connection", (socket) => {
 						user: userT
 					});
 				}
+					
+					
+					
 				io.to(roomId).emit("joined", {
 					room:roomId,
 					usersCount: roomInfo.users.size,
 					users: Array.from(roomInfo.users.keys()),
-					apuesta:roomInfo.apuesta
+					apuesta:roomInfo.apuesta,
+					goldens: Array.from(roomInfo.users).filter((u)=>u[1].golden==true).map((u)=>u[0])
 				});
 				io.emit("roomChange")
 			}else{
@@ -155,10 +162,12 @@ io.on("connection", (socket) => {
 	if(roomInfo.users.has(user)){
 		roomInfo.users.delete(user);
 			}
+		
 		io.to(roomId).emit("left", {
 				room:roomId,
 				usersCount: roomInfo.users.size,
-				users: Array.from(roomInfo.users.keys())
+				users: Array.from(roomInfo.users.keys()),
+				goldens: Array.from(roomInfo.users).filter((u)=>u[1].golden).map((u)=>u[0])
 			});
 		io.emit("roomChange")
   });
@@ -179,7 +188,6 @@ io.on("connection", (socket) => {
 
   socket.on("hostDisconnect", (roomId) => {
 	roomId=parseInt(roomId)
-		console.log(roomId)
 	if (roomData.has(roomId)){
 		roomData.delete(roomId)
 		io.emit("roomChange")
@@ -210,25 +218,22 @@ io.on("connection", (socket) => {
 
   socket.on("disconnecting", () => {
 	const user=socket.data.username
-	console.log("User")
-	console.log(user)
+	
 	for (const roomId of socket.rooms) {
 		if (roomData.has(roomId)) {
-			console.log("ROOOMMM")
-			console.log(roomData.get(roomId))
+			
 			if(roomData.get(roomId).started){
-				console.log("room started")
 				let temp=roomData.get(roomId).users.get(user)
 				temp.connected=false
 				roomData.get(roomId).users.set(user,temp)
 				
 			}else{
-				console.log("room not")
 				roomData.get(roomId).users.delete(user)
 				io.to(roomId).emit("left", {
 				room:roomId,
 				usersCount: roomData.get(roomId).users.size,
-				users: Array.from(roomData.get(roomId).users.keys())
+				users: Array.from(roomData.get(roomId).users.keys()),
+				goldens: Array.from(roomData.get(roomId).users).filter((u)=>u[1].golden).map((u)=>u[0])
 				});
 				io.emit("roomChange")
 			}
@@ -236,9 +241,8 @@ io.on("connection", (socket) => {
 				roomData.delete(roomId);
 			}
 			io.emit("roomChange")
-			console.log("emitting")
 			if(roomData.get(roomId)){
-				io.to(roomId).emit("disconnected", {message: "Usuario desconectado",user:user,room:roomData.get(roomId),userNames:Array.from(roomData.get(roomId).users.keys())});
+				io.to(roomId).emit("disconnected", {message: "Usuario desconectado",user:user,room:roomData.get(roomId),userNames:Array.from(roomData.get(roomId).users.keys()),goldens: Array.from(roomData.get(roomId).users).filter((u)=>u[1].golden).map((u)=>u[0])});
 				checkWinner(roomId)
 			}
 
@@ -262,7 +266,6 @@ function checkWinner(roomId){
 				
 				}
 			}
-			console.log(winner)
 			io.to(roomId).emit("ended", {
 			  room: roomId,
 			  userArr:userArr,
@@ -275,11 +278,13 @@ function checkWinner(roomId){
 	/*Juego*/
 	  socket.on("updateHold", ({cards,sum,username,roomId}) => {
 		roomId=parseInt(roomId)
+		prevUser=roomData.get(roomId).users.get(username)
 		roomData.get(roomId).users.set(username,{
 			sum:sum,
 			cards:cards,
 			held:true,
-			connected:true
+			connected:true,
+			golden:prevUser.golden
 	
 			//datos de cada usuario cuando hace hold
 		});
@@ -289,14 +294,12 @@ function checkWinner(roomId){
 	
 	
 		socket.on("start", ({roomId}) => {
-			console.log("start recieved")
 			roomId=parseInt(roomId)
 			if(roomData.has(roomId)){
 				let temp=roomData.get(roomId)
 				temp.started=true
 				roomData.set(roomId,temp)
-				console.log("start set")
-				console.log(roomData.get(roomId))
+			
 			   io.to(roomId).emit("started")
 			   io.emit("roomChange")
 			}else{

@@ -17,6 +17,8 @@ export default function ErrorPage(){
   const [pipi,setPipi]=useState(null)
   const [item,setItem]=useState(null)
   const [fondo,setFondo]=useState(null)
+    const [golden,setGolden]=useState(styles.regPage)
+
 
   useEffect(()=>{
     if(localStorage.getItem("Fondo")){
@@ -30,10 +32,17 @@ export default function ErrorPage(){
       }
   
     },[])
+       useEffect(()=>{
+    if(pipi){
+      if (pipi.name=="Pipi dorado"){
+            setGolden(styles.goldenPage)
+      }
+    }
+  },[pipi])
     
   return (
     <>
-      <div className={clsx(styles.page, pixel.className)} style={{backgroundImage: fondo ? `url(${fondo.imgsrc})` :null,backgroundColor: !fondo ?  "#2a2a2a":null}}>
+      <div className={clsx(styles.page, pixel.className,golden)} style={{backgroundImage: fondo ? `url(${fondo.imgsrc})` :null,backgroundColor: !fondo ?  "#2a2a2a":null}}>
     <Suspense fallback={<p>Cargando...</p>}>
         <ErrorPopup></ErrorPopup>
    </Suspense>
@@ -49,7 +58,23 @@ function ErrorPopup() {
   const [eMsg,setEMsg]=useState(true)
   const router = useRouter()
   const searchParams=useSearchParams()
+ const [pipi,setPipi]=useState(null)
 
+    const [golden,setGolden]=useState(styles.regPage)
+
+
+  useEffect(()=>{
+      if(localStorage.getItem("Pipi")){
+        setPipi(JSON.parse(localStorage.getItem("Pipi")))
+      }
+    },[])
+       useEffect(()=>{
+    if(pipi){
+      if (pipi.name=="Pipi dorado"){
+            setGolden(styles.goldenPage)
+      }
+    }
+  },[pipi])
 
   useEffect(()=>{
     let err=searchParams.get("err") || ''
@@ -71,10 +96,11 @@ function ErrorPopup() {
         setOpen(true)
       }
     },[eMsg])
+    
   return (
     <>
           <Popup open={open} onClose={()=>{setOpen(false)}} closeOnDocumentClick={false} {...popupProps}>
-                     <div className={clsx(styles.popupBox, pixel.className)}>
+                     <div className={clsx(styles.popupBox, pixel.className,golden)}>
                       <>
                       <h1 className={styles.popupTitle}>{eMsg}</h1>
                       <button className={styles.btn} onClick={()=>{setOpen(false);router.replace("/Home")}}>Home</button>

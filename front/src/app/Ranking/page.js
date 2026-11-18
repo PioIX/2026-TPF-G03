@@ -11,6 +11,8 @@ export default function RankingPage() {
   const [datos,setDatos]=useState([])
   const [loading,setLoading]=useState(true)
   const router = useRouter()
+    const [golden,setGolden]=useState(styles.regPage)
+
 
   const [pipi,setPipi]=useState(null)
   const [item,setItem]=useState(null)
@@ -37,9 +39,16 @@ export default function RankingPage() {
         setLoading(false)
       }
     },[datos])
+       useEffect(()=>{
+    if(pipi){
+      if (pipi.name=="Pipi dorado"){
+            setGolden(styles.goldenPage)
+      }
+    }
+  },[pipi])
   return (
     <>
-    <div className={clsx(styles.page, pixel.className)} style={{backgroundImage: fondo ? `url(${fondo.imgsrc})` :null,backgroundColor: !fondo ?  "#2a2a2a":null}}>
+    <div className={clsx(styles.page, pixel.className,golden)} style={{backgroundImage: fondo ? `url(${fondo.imgsrc})` :null,backgroundColor: !fondo ?  "#2a2a2a":null}}>
     {(loading)?(
       <h1 className={styles.loading}>Cargando ranking..</h1>
     ):(
